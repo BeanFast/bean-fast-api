@@ -56,7 +56,7 @@ namespace BusinessObjects
 
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("server=(local);database=BeanFastDB;uid=sa;pwd=12345;TrustServerCertificate=True");
+                optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
         }
