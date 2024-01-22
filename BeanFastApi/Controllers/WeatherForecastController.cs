@@ -26,8 +26,8 @@ namespace BeanFastApi.Controllers
         {
             _logger = logger;
         }
-        [HttpGet("Hello")]
-        public string Hello ()
+        [HttpGet("hello")]
+        public string Hello()
         {
 
             return "Hello";
