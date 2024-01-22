@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
-
+using static Microsoft.Extensions.Logging.LoggerFactory;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
@@ -36,7 +36,10 @@ services.AddControllers().AddJsonOptions(options =>
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 var app = builder.Build();
-
+var logger = app.Services.GetService<ILogger<Program>>();
+logger.LogInformation("this is debug log");
+Console.WriteLine(123);
+Console.WriteLine(app.Environment.EnvironmentName.ToString());
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

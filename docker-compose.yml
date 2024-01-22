@@ -1,0 +1,10 @@
+services: 
+  webapi:
+    # image: webapi
+    build: .
+    ports:
+      - "80:80"
+    # dockerfile: Dockerfile
+
+    # depends_on:
+    #   - db
