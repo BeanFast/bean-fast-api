@@ -12,15 +12,13 @@ using System.Threading.Tasks;
 namespace Utilities.Validators
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class CustomAuthorizedAttribute : AuthorizeAttribute
+    public class RoleBaseAuthorizeAttribute : AuthorizeAttribute
     {
-        public CustomAuthorizedAttribute(params RoleName[] roles)
+        public RoleBaseAuthorizeAttribute(params RoleName[] roles)
         {
             var allowedRolesAsString = roles.Select(x => x.GetDisplayName());
             Roles = string.Join(",", allowedRolesAsString);
-
         }
 
-        //override  
     }
 }

@@ -26,9 +26,15 @@ namespace BeanFastApi.Controllers
         {
             _logger = logger;
         }
+        [HttpGet("hello")]
+        public string Hello()
+        {
+
+            return "Hello___v2____hello";
+        }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [CustomAuthorized(RoleName.ADMIN)]
+        [RoleBaseAuthorize(RoleName.ADMIN)]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -60,5 +66,5 @@ namespace BeanFastApi.Controllers
             var token = new JwtSecurityToken(expires: expires, claims: claims, signingCredentials: credentials);
             return jwtHandler.WriteToken(token);
         }
-    }
+    }   
 }

@@ -1,0 +1,13 @@
+name: dotnet-cd
+on:
+  workflow_run:
+    workflows: ["dotnet-ci"]
+    types:
+      - completed
+jobs:
+  deploy:
+    runs-on: bean-fast-thanh
+    steps:
+      - uses: actions/checkout@v3
+      - name: Helloworld
+        run: echo "hello world"

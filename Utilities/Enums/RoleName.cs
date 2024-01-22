@@ -12,6 +12,5 @@ namespace BusinessObjects.Enums
         MANAGER, 
         CUSTOMER,
         DELIVERER,
-
     }
 }
