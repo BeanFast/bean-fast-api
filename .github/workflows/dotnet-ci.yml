@@ -1,0 +1,39 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: dotnet-ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore dependencies
+      run: dotnet restore "./BeanFastApi/BeanFastApi.csproj"
+    - name: Build
+      run: dotnet build --no-restore "./BeanFastApi/BeanFastApi.csproj"
+    - name: Test
+      run: dotnet test --no-build --verbosity normal "./BeanFastApi/BeanFastApi.csproj"
+    # - name: Publish
+    #   run: dotnet publish -o publish --configuration Debug false "./BeanFastApi/BeanFastApi.csproj"
+    # # - name: Push container to docker hub
+    # - name: Login to Docker Hub
+    #   uses: docker/login-action@v1
+    #   with:
+    #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
+    #     password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    # - name: Build and push Docker image
+    #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+    #   with:
+    #     context: .
+    #     push: true
+    #     tags: ${{ steps.meta.outputs.tags }}
+    #     labels: ${{ steps.meta.outputs.labels }}
