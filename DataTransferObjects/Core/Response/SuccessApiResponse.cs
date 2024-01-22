@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataTransferObjects.Core
+namespace DataTransferObjects.Core.Response
 {
     public class SuccessApiResponse : BaseApiResponse
     {

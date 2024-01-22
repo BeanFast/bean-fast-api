@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeanFastApi", "BeanFastApi.csproj", "{30138FC6-E991-4CA6-B460-335AE5C5B895}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeanFastApi", "BeanFastApi.csproj", "{30138FC6-E991-4CA6-B460-335AE5C5B895}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObjects", "..\BusinessObjects\BusinessObjects.csproj", "{D8D772DC-754F-46B6-814A-39425D2031CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessObjects", "..\BusinessObjects\BusinessObjects.csproj", "{D8D772DC-754F-46B6-814A-39425D2031CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "..\Utility\Utilities.csproj", "{DA7C24F7-A385-4D36-A39E-BA56DCE03633}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "..\Utility\Utilities.csproj", "{DA7C24F7-A385-4D36-A39E-BA56DCE03633}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTransferObjects", "..\DataTransferObjects\DataTransferObjects.csproj", "{78CD4306-ECD3-4BF9-9DE3-C4FBB65A8410}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTransferObjects", "..\DataTransferObjects\DataTransferObjects.csproj", "{78CD4306-ECD3-4BF9-9DE3-C4FBB65A8410}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "..\Repositories\Repositories.csproj", "{88D81387-1B11-4EB2-8322-66FB7145AA89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{78CD4306-ECD3-4BF9-9DE3-C4FBB65A8410}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78CD4306-ECD3-4BF9-9DE3-C4FBB65A8410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78CD4306-ECD3-4BF9-9DE3-C4FBB65A8410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88D81387-1B11-4EB2-8322-66FB7145AA89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88D81387-1B11-4EB2-8322-66FB7145AA89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88D81387-1B11-4EB2-8322-66FB7145AA89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88D81387-1B11-4EB2-8322-66FB7145AA89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
