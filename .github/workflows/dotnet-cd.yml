@@ -7,4 +7,3 @@ on:
 jobs:
   deploy:
     runs-on: bean-fast-thanh
-    
