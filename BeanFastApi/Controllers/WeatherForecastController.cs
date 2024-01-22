@@ -30,7 +30,7 @@ namespace BeanFastApi.Controllers
         public string Hello()
         {
 
-            return "Hello";
+            return "Hello___v2____hello";
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
