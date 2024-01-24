@@ -9,7 +9,9 @@ namespace BusinessObjects
 {
     public partial class BeanFastContext : DbContext
     {
-        public BeanFastContext() { }
+        public BeanFastContext()
+        {
+        }
 
         //public BeanFastContext(DbContextOptions<BeanFastContext> options)
         //    : base(options)
@@ -53,14 +55,15 @@ namespace BusinessObjects
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                // optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
         }
+
         #region
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -116,7 +119,7 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.SchoolId)
                     .HasConstraintName("FK_Profile_School");
             });
-            modelBuilder.Entity<ProfileBodyMassIndex> (entity =>
+            modelBuilder.Entity<ProfileBodyMassIndex>(entity =>
             {
                 entity.ToTable("ProfileBodyMassIndex");
                 entity.HasKey(e => e.Id)
@@ -312,7 +315,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.ProfileId)
                     .HasConstraintName("FK_Order_Profile")
                     .OnDelete(DeleteBehavior.NoAction);
-            }); modelBuilder.Entity<OrderDetail>(entity =>
+            });
+            modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.ToTable("OrderDetail");
                 entity.HasKey(e => e.Id)
@@ -458,6 +462,7 @@ namespace BusinessObjects
                 entity.Property(e => e.Ward)
                     .HasMaxLength(100);
             });
+
             #endregion
 
             OnModelCreatingPartial(modelBuilder);

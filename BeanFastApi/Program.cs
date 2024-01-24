@@ -1,8 +1,12 @@
+using BeanFastApi.Constants;
 using BeanFastApi.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json;
 using static Microsoft.Extensions.Logging.LoggerFactory;
@@ -31,15 +35,14 @@ services.AddAuthentication(options =>
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    //options.
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
+
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
-var logger = app.Services.GetService<ILogger<Program>>();
-logger.LogInformation("this is debug log");
-Console.WriteLine(123);
-Console.WriteLine(app.Environment.EnvironmentName.ToString());
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -49,7 +52,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-
+//app.UseRouting()
 app.UseAuthorization();
 
 app.MapControllers();

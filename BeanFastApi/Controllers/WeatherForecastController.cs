@@ -6,14 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Utilities.Validators;
+using BeanFastApi.Validators;
 
 namespace BeanFastApi.Controllers
 {
-    [ApiController]
+    //[ApiController]
     //[CustomAuthorized(RoleName.ADMIN, RoleName.MANAGER)]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    //[Route("[controller]")]
+    public class WeatherForecastController : BaseController
     {
         private static readonly string[] Summaries = new[]
         {
