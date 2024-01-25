@@ -2,7 +2,7 @@
 {
     public class Kitchen : BaseEntity
     {
-        public Guid? AreaId { get; set; }
+        public Guid AreaId { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public string ImagePath { get; set; }

@@ -2,7 +2,7 @@
 {
     public class School : BaseEntity
     {
-        public Guid? AreaId { get; set; }
+        public Guid AreaId { get; set; }
         public Guid? KitchenId { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }

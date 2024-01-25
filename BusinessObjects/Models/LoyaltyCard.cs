@@ -10,5 +10,6 @@
         public string BackgroundImagePath { get; set; }
         public virtual Profile? Profile { get; set; }
         public virtual CardType? CardType { get; set; }
+        public virtual ICollection<ExchangeGift>? ExchangeGifts { get; set; }
     }
 }

@@ -401,6 +401,10 @@ namespace BusinessObjects
                     .WithMany(e => e.ExchangeGifts)
                     .HasForeignKey(e => e.GiftId)
                     .HasConstraintName("FK_ExchangeGift_Gift");
+                entity.HasOne(e => e.LoyaltyCard)
+                    .WithMany(e => e.ExchangeGifts)
+                    .HasForeignKey(e => e.LoyaltyCardId)
+                    .HasConstraintName("FK_ExchangeGift_LoyaltyCard");
             });
             modelBuilder.Entity<OrderActivity>(entity =>
             {
