@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Pos_System.Domain.Paginate;
+namespace DataTransferObjects.Core.Pagination;
 
 public static class PaginateExtension
 {

@@ -13,10 +13,10 @@ namespace BusinessObjects
         {
         }
 
-        //public BeanFastContext(DbContextOptions<BeanFastContext> options)
-        //    : base(options)
-        //{
-        //}
+        public BeanFastContext(DbContextOptions<BeanFastContext> options)
+            : base(options)
+        {
+        }
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
@@ -57,7 +57,7 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                 optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
         }

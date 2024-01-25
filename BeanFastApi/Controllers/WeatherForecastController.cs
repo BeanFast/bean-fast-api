@@ -1,7 +1,6 @@
 using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,8 +21,9 @@ namespace BeanFastApi.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IConfiguration configuration)
         {
+            //configuration.GetValue
             _logger = logger;
         }
         [HttpGet("hello")]
@@ -57,14 +57,14 @@ namespace BeanFastApi.Controllers
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes("HELLOWORLD_THIS_IS_THE_SECRET_KEY"));
             var credentials = new SigningCredentials(secrectKey, SecurityAlgorithms.HmacSha256Signature);
             List<Claim> claims = new List<Claim>()
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, "thanh"),
-            new Claim(ClaimTypes.Role, RoleName.ADMIN.ToString()),
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, "thanh"),
+                new Claim(ClaimTypes.Role, RoleName.ADMIN.ToString()),
+            };
             //if (guidClaim != null) claims.Add(new Claim(guidClaim.Item1, guidClaim.Item2.ToString()));
             var expires = DateTime.Now.AddDays(1);
             var token = new JwtSecurityToken(expires: expires, claims: claims, signingCredentials: credentials);
             return jwtHandler.WriteToken(token);
         }
-    }   
+    }
 }

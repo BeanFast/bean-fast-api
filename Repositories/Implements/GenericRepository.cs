@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataTransferObjects.Core.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Pos_System.Domain.Paginate;
 using Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -25,7 +25,11 @@ namespace Repositories.Implements
 
         #region Gett Async
 
-        public virtual async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public virtual async Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+            )
         {
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
@@ -133,6 +137,7 @@ namespace Repositories.Implements
         {
             _dbSet.RemoveRange(entities);
         }
+
 
 
 

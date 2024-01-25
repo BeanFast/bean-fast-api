@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
-using Pos_System.Domain.Paginate;
+using DataTransferObjects.Core.Pagination;
 
 namespace Repositories.Interfaces
 {

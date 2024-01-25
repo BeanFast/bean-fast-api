@@ -1,9 +1,12 @@
 ﻿using BeanFastApi.Constants;
 using BusinessObjects;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Pos_System.Repository.Implement;
-using Pos_System.Repository.Interfaces;
+using Repositories.Interfaces;
+using System.Text;
 
 
 namespace BeanFastApi.Extensions
@@ -52,6 +55,28 @@ namespace BeanFastApi.Extensions
                     }
                 });
             });
+        }
+        public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            string secretString = configuration.GetValue<string>("JWT:Secret")!;
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    //ValidIssuer = configuration.GetValue<string>(JwtConstant.Issuer),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes("HELLOWORLD_THIS_IS_THE_SECRET_KEY"))
+                };
+            });
+            return services;
         }
 
     }

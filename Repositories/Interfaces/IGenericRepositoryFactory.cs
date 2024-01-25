@@ -1,6 +1,6 @@
 ﻿using Repositories.Interfaces;
 
-namespace Pos_System.Repository.Interfaces
+namespace Repositories.Interfaces
 {
 	public interface IGenericRepositoryFactory
 	{

@@ -1,4 +1,4 @@
-﻿namespace Pos_System.Domain.Paginate;
+﻿namespace DataTransferObjects.Core.Pagination;
 
 public class Paginate<TResult> : IPaginable<TResult>
 {

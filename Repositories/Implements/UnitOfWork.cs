@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Pos_System.Repository.Interfaces;
+
 using Repositories.Implements;
 using Repositories.Interfaces;
 
