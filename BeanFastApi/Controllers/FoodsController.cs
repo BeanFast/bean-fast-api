@@ -18,6 +18,6 @@ public class FoodsController : BaseController
     public async Task<IActionResult> GetAll()
     {
         ICollection<Food> foods = await _foodService.GetAllAsync();
-        return Ok(foods);
+        return SuccessResult(foods);
     }
 }

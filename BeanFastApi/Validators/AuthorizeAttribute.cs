@@ -5,9 +5,9 @@ using Utilities.Enums;
 namespace BeanFastApi.Validators
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class RoleBaseAuthorizeAttribute : AuthorizeAttribute
+    public class AuthorizeAttribute : Microsoft.AspNetCore.Authorization.AuthorizeAttribute
     {
-        public RoleBaseAuthorizeAttribute(params RoleName[] roles)
+        public AuthorizeAttribute(params RoleName[] roles)
         {
             var allowedRolesAsString = roles.Select(x => x.GetDisplayName());
             Roles = string.Join(",", allowedRolesAsString);

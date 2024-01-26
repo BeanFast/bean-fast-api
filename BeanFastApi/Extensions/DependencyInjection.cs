@@ -86,5 +86,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IFoodService, FoodService>();
             return services;
         }
+
+        
     }
 }

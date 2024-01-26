@@ -28,7 +28,7 @@ namespace BeanFastApi.Controllers
         
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [RoleBaseAuthorize(RoleName.ADMIN)]
+        [Authorize(RoleName.ADMIN)]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast

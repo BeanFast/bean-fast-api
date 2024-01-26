@@ -17,10 +17,12 @@ namespace BeanFastApi.Middlewares
         {
             try
             {
+                
                 await _next(httpContext);
             }
             catch (Exception ex)
             {
+                await Console.Out.WriteLineAsync(ex.ToString());
                 await HandleExceptionAsync(httpContext, ex);
             }
         }

@@ -18,6 +18,6 @@ public class AuthController : BaseController
     public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
     {
         LoginResponse loginResponse = await _userService.Login(loginRequest);
-        return Ok(loginResponse);
+        return SuccessResult(loginResponse);
     }
 }

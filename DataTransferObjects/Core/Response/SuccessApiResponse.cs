@@ -1,7 +1,12 @@
-﻿namespace DataTransferObjects.Core.Response
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+namespace DataTransferObjects.Core.Response
 {
+    
     public class SuccessApiResponse : BaseApiResponse
     {
-        public object Data { get; set; }
+        [DataMember(Order = -2)]
+        public object? Data { get; set; }
     }
 }
