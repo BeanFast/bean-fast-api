@@ -2,23 +2,24 @@ using BeanFastApi.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using BeanFastApi.Extensions;
+using Services.Mappers;
 using Utilities.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
 services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
-Console.Write(PasswordUtil.HashPassword("12345678"));
 
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    
     //options.
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 
-services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+services.AddAutoMapper(typeof(FoodMapper));
 services.AddSwaggerGen();
 services.AddJWTAuthentication();
 services.AddDatabase(builder.Configuration);

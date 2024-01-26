@@ -6,6 +6,7 @@ namespace Repositories.Interfaces
 {
     public interface IGenericRepository<T> : IDisposable where T : class
     {
+        
         #region Read
         Task<T> FirstOrDefaultAsync(
             Expression<Func<T, bool>>? predicate = null,
@@ -15,7 +16,7 @@ namespace Repositories.Interfaces
         Task<TResult> FirstOrDefaultAsync<TResult>(
             Expression<Func<T, TResult>> selector,
             Expression<Func<T, bool>>? predicate = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>?orderBy = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
         Task<ICollection<T>> GetListAsync(
@@ -29,20 +30,20 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<IPaginable<T>> GetPagingListAsync(
+        Task<IPaginable<T>> GetPageAsync(
+            PaginationRequest paginationRequest,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null,
-            int page = 1,
-            int size = 10);
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+            );
 
-        Task<IPaginable<TResult>> GetPagingListAsync<TResult>(
+        Task<IPaginable<TResult>> GetPageAsync<TResult>(
             Expression<Func<T, TResult>> selector,
+            PaginationRequest paginationRequest,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null,
-            int page = 1,
-            int size = 10);
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+            );
 
         #endregion
 

@@ -1220,7 +1220,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Kitchen", "Kitchen")
                         .WithMany("PrimarySchools")
                         .HasForeignKey("KitchenId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_School_Kitchen");
 
                     b.Navigation("Area");
@@ -1258,7 +1258,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Session", "Session")
                         .WithMany("SessionDetails")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired()
                         .HasConstraintName("FK_SessionDetail_Session");
 

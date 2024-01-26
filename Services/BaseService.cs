@@ -1,18 +1,21 @@
-﻿using BusinessObjects;
+﻿using AutoMapper;
+using BusinessObjects;
 using Repositories.Interfaces;
 
 namespace Services
 {
     public class BaseService<T> where T : class
     {
-        protected IUnitOfWork<BeanFastContext>? UnitOfWork;
+        protected IUnitOfWork<BeanFastContext>? _unitOfWork;
+        protected IMapper _mapper;
 
-        public BaseService(IUnitOfWork<BeanFastContext> unitOfWork)
+        public BaseService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper)
         {
-            UnitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
+
         //protected ILogger<T> _logger;
-        //protected IMapper _mapper;
         //protected IHttpContextAccessor _httpContextAccessor;
 
     }

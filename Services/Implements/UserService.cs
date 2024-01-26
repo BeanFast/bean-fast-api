@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System.Linq.Expressions;
+using AutoMapper;
 using Utilities.Utils;
 
 namespace Services.Implements
@@ -15,7 +16,7 @@ namespace Services.Implements
     {
         private readonly IGenericRepository<User> _userRepository;
 
-        public UserService(IUnitOfWork<BeanFastContext> unitOfWork) : base(unitOfWork)
+        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
             _userRepository = unitOfWork.GetRepository<User>();
         }

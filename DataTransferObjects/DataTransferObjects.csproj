@@ -10,4 +10,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Category\Request\" />
+    <Folder Include="Models\Category\Response\" />
+    <Folder Include="Models\Food\Request\" />
+  </ItemGroup>
+
 </Project>

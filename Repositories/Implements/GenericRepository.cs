@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Repositories.Interfaces;
 using System.Linq.Expressions;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace Repositories.Implements
 {
@@ -10,7 +12,6 @@ namespace Repositories.Implements
     {
         protected readonly DbContext _dbContext;
         protected readonly DbSet<T> _dbSet;
-
         public GenericRepository(DbContext context)
         {
             _dbContext = context;
@@ -24,11 +25,26 @@ namespace Repositories.Implements
 
         #region Gett Async
 
+        // public virtual async Task<D?> FirstOrDefaultAsync<D>(
+        //     Expression<Func<T, bool>>? predicate = null, 
+        //     Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+        //     Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+        //     )
+        // {
+        //     IQueryable<T> query = _dbSet;
+        //     if (include != null) query = include(query);
+        //
+        //     if (predicate != null) query = query.Where(predicate);
+        //
+        //     if (orderBy != null) return await orderBy(query).ProjectTo<D>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+        //
+        //     return await query.ProjectTo<D>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+        // }
         public virtual async Task<T?> FirstOrDefaultAsync(
             Expression<Func<T, bool>>? predicate = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
-            )
+        )
         {
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
@@ -40,8 +56,11 @@ namespace Repositories.Implements
             return await query.AsNoTracking().FirstOrDefaultAsync();
         }
 
-        public virtual async Task<TResult> FirstOrDefaultAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(
+            Expression<Func<T, TResult>> selector, 
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
@@ -53,7 +72,10 @@ namespace Repositories.Implements
             return await query.AsNoTracking().Select(selector).FirstOrDefaultAsync();
         }
 
-        public virtual async Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public virtual async Task<ICollection<T>> GetListAsync(
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = _dbSet;
 
@@ -66,7 +88,27 @@ namespace Repositories.Implements
             return await query.AsNoTracking().ToListAsync();
         }
 
-        public virtual async Task<ICollection<TResult>> GetListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        // public virtual async Task<ICollection<D>> GetMappedListAsync(
+        //     Expression<Func<T, bool>> predicate = null,
+        //     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+        //     Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null
+        // )
+        // {
+        //     IQueryable<T> query = _dbSet;
+        //
+        //     if (include != null) query = include(query);
+        //
+        //     if (predicate != null) query = query.Where(predicate);
+        //
+        //     if (orderBy != null) return await orderBy(query).ProjectTo<D>(_mapper.ConfigurationProvider).ToListAsync();
+        //
+        //     return await query.ProjectTo<D>(_mapper.ConfigurationProvider).ToListAsync();
+        // }
+        public virtual async Task<ICollection<TResult>> GetListAsync<TResult>(
+            Expression<Func<T, TResult>> selector, 
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = _dbSet;
 
@@ -79,24 +121,47 @@ namespace Repositories.Implements
             return await query.Select(selector).ToListAsync();
         }
 
-        public Task<IPaginable<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
-            int size = 10)
+        public Task<IPaginable<T>> GetPageAsync(
+            PaginationRequest request,
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+        )
         {
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
             if (predicate != null) query = query.Where(predicate);
-            if (orderBy != null) return orderBy(query).ToPaginableAsync(page, size, 1);
-            return query.AsNoTracking().ToPaginableAsync(page, size, 1);
+            if (orderBy != null) return orderBy(query).ToPaginableAsync(request.Page, request.Size, 1);
+            return query.ToPaginableAsync(request.Page, request.Size, 1);
         }
+        
+        // public Task<IPaginable<D>> GetMappedPageAsync(
+        //     PaginationRequest request,
+        //     Expression<Func<T, bool>> predicate = null, 
+        //     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, 
+        //     Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null
+        //     )
+        // {
+        //     IQueryable<T> query = _dbSet;
+        //     if (include != null) query = include(query);
+        //     if (predicate != null) query = query.Where(predicate);
+        //     if (orderBy != null) return orderBy(query).ProjectTo<D>(_mapper.ConfigurationProvider).ToPaginableAsync(request.Page, request.Size, 1);
+        //     return query.ProjectTo<D>(_mapper.ConfigurationProvider).ToPaginableAsync(request.Page, request.Size, 1);
+        // }
 
-        public Task<IPaginable<TResult>> GetPagingListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1, int size = 10)
+        
+        public Task<IPaginable<TResult>> GetPageAsync<TResult>(
+            Expression<Func<T, TResult>> selector, 
+            PaginationRequest request,
+            Expression<Func<T, bool>>? predicate = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
             if (predicate != null) query = query.Where(predicate);
-            if (orderBy != null) return orderBy(query).Select(selector).ToPaginableAsync(page, size, 1);
-            return query.AsNoTracking().Select(selector).ToPaginableAsync(page, size, 1);
+            if (orderBy != null) return orderBy(query).Select(selector).ToPaginableAsync(request.Page, request.Size, 1);
+            return query.AsNoTracking().Select(selector).ToPaginableAsync(request.Page, request.Size, 1);
         }
 
         #endregion
@@ -136,10 +201,6 @@ namespace Repositories.Implements
         {
             _dbSet.RemoveRange(entities);
         }
-
-
-
-
         #endregion
     }
 }

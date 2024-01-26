@@ -1,6 +1,6 @@
 ﻿namespace DataTransferObjects.Core.Pagination;
 
-public class Paginate<TResult> : IPaginable<TResult>
+public class Page<TResult> : IPaginable<TResult>
 {
 	public int Size { get; set; }
 	public int Page { get; set; }
@@ -8,7 +8,7 @@ public class Paginate<TResult> : IPaginable<TResult>
 	public int TotalPages { get; set; }
 	public IList<TResult> Items { get; set; }
 
-	public Paginate(IEnumerable<TResult> source, int page, int size, int firstPage)
+	public Page(IEnumerable<TResult> source, int page, int size, int firstPage)
 	{
 		var enumerable = source as TResult[] ?? source.ToArray();
 		if (firstPage > page)
@@ -34,7 +34,7 @@ public class Paginate<TResult> : IPaginable<TResult>
 		}
 	}
 
-	public Paginate()
+	public Page()
 	{
 		Items = Array.Empty<TResult>();
 	}
