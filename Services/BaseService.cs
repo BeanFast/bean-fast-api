@@ -7,7 +7,7 @@ namespace Services
     {
         protected IUnitOfWork<BeanFastContext>? UnitOfWork;
 
-        public BaseService(IUnitOfWork<BeanFastContext>? unitOfWork)
+        public BaseService(IUnitOfWork<BeanFastContext> unitOfWork)
         {
             UnitOfWork = unitOfWork;
         }

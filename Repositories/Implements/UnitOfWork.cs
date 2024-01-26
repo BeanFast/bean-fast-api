@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-
-using Repositories.Implements;
 using Repositories.Interfaces;
 
-namespace Pos_System.Repository.Implement;
+namespace Repositories.Implements;
 
 public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext
 {

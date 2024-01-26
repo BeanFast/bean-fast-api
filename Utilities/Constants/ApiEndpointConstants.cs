@@ -1,6 +1,6 @@
-﻿namespace BeanFastApi.Constants
+﻿namespace Utilities.Constants
 {
-    public static class ApiEndpointContants
+    public static class ApiEndpointConstants
     {
         public const string RootEndPoint = "/api";
         public const string ApiVersion = "v1";

@@ -1,10 +1,9 @@
-﻿using BeanFastApi.Constants;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Utilities.Constants;
 
 namespace BeanFastApi.Controllers
 {
-    [Route(ApiEndpointContants.ApiEndpoint + "/[controller]")]
+    [Route(ApiEndpointConstants.ApiEndpoint + "/[controller]")]
     [ApiController]
     public class BaseController : ControllerBase
     {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace BusinessObjects
 {
@@ -57,7 +53,9 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                 optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfast;User ID=sa;Password=12345;TrustServerCertificate=True;");
+
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
         }
@@ -188,8 +186,8 @@ namespace BusinessObjects
                 entity.HasOne(e => e.Area)
                     .WithMany(e => e.Kitchens)
                     .HasForeignKey(e => e.AreaId)
-                    .HasConstraintName("FK_Kitchen_Ward")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .HasConstraintName("FK_Kitchen_Area")
+                    .OnDelete(DeleteBehavior.Cascade);
             });
             modelBuilder.Entity<Menu>(entity =>
             {
@@ -255,7 +253,8 @@ namespace BusinessObjects
                 entity.HasOne(e => e.Session)
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.SessionId)
-                    .HasConstraintName("FK_SessionDetail_Session");
+                    .HasConstraintName("FK_SessionDetail_Session")
+                    .OnDelete(DeleteBehavior.SetNull);
                 entity.HasOne(e => e.Deliverer)
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.DelivererId)
@@ -277,12 +276,12 @@ namespace BusinessObjects
                     .WithMany(e => e.PrimarySchools)
                     .HasForeignKey(e => e.AreaId)
                     .HasConstraintName("FK_School_Area")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(e => e.Kitchen)
                     .WithMany(e => e.PrimarySchools)
                     .HasForeignKey(e => e.KitchenId)
                     .HasConstraintName("FK_School_Kitchen")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
             modelBuilder.Entity<Location>(entity =>
             {
@@ -391,20 +390,18 @@ namespace BusinessObjects
                 entity.HasOne(e => e.Profile)
                     .WithMany(e => e.ExchangeGifts)
                     .HasForeignKey(e => e.ProfileId)
-                    .HasConstraintName("FK_ExchangeGift_Profile")
-                    .OnDelete(DeleteBehavior.NoAction);
+                    .HasConstraintName("FK_ExchangeGift_Profile");
                 entity.HasOne(e => e.SessionDetail)
                     .WithMany(e => e.ExchangeGifts)
                     .HasForeignKey(e => e.SessionDetailId)
-                    .HasConstraintName("FK_ExchangeGift_SessionDetail");
+                    .HasConstraintName("FK_ExchangeGift_SessionDetail")
+                    .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Gift)
                     .WithMany(e => e.ExchangeGifts)
                     .HasForeignKey(e => e.GiftId)
-                    .HasConstraintName("FK_ExchangeGift_Gift");
-                entity.HasOne(e => e.LoyaltyCard)
-                    .WithMany(e => e.ExchangeGifts)
-                    .HasForeignKey(e => e.LoyaltyCardId)
-                    .HasConstraintName("FK_ExchangeGift_LoyaltyCard");
+                    .HasConstraintName("FK_ExchangeGift_Gift")
+                    .OnDelete(DeleteBehavior.NoAction);
+                
             });
             modelBuilder.Entity<OrderActivity>(entity =>
             {
@@ -422,7 +419,8 @@ namespace BusinessObjects
                 entity.HasOne(e => e.ExchangeGift)
                     .WithMany(e => e.Activities)
                     .HasForeignKey(e => e.ExchangeGiftId)
-                    .HasConstraintName("FK_OrderActivity_ExchangeGift");
+                    .HasConstraintName("FK_OrderActivity_ExchangeGift")
+                    .OnDelete(DeleteBehavior.NoAction); ;
             });
             modelBuilder.Entity<LoyaltyCard>(entity =>
             {
@@ -436,11 +434,14 @@ namespace BusinessObjects
                 entity.HasOne(e => e.Profile)
                     .WithMany(e => e.LoyaltyCards)
                     .HasForeignKey(e => e.ProfileId)
-                    .HasConstraintName("FK_LoyaltyCard_Profile");
+                    .HasConstraintName("FK_LoyaltyCard_Profile")
+                    .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.CardType)
                     .WithMany(e => e.LoyaltyCards)
                     .HasForeignKey(e => e.CardTypeId)
-                    .HasConstraintName("FK_LoyaltyCard_CardType");
+                    .HasConstraintName("FK_LoyaltyCard_CardType")
+                    .OnDelete(DeleteBehavior.NoAction);
+                
             });
             modelBuilder.Entity<CardType>(entity =>
             {

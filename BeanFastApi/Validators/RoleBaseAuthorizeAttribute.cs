@@ -1,6 +1,6 @@
-﻿using BusinessObjects.Enums;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Extensions;
+using Utilities.Enums;
 
 namespace BeanFastApi.Validators
 {

@@ -171,9 +171,6 @@ namespace BusinessObjects.Migrations
                     b.Property<Guid>("GiftId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("LoyaltyCardId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
@@ -193,8 +190,6 @@ namespace BusinessObjects.Migrations
                         .HasName("PK_ExchangeGift");
 
                     b.HasIndex("GiftId");
-
-                    b.HasIndex("LoyaltyCardId");
 
                     b.HasIndex("ProfileId");
 
@@ -989,34 +984,25 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Gift", "Gift")
                         .WithMany("ExchangeGifts")
                         .HasForeignKey("GiftId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_ExchangeGift_Gift");
-
-                    b.HasOne("BusinessObjects.Models.LoyaltyCard", "LoyaltyCard")
-                        .WithMany("ExchangeGifts")
-                        .HasForeignKey("LoyaltyCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ExchangeGift_LoyaltyCard");
 
                     b.HasOne("BusinessObjects.Models.Profile", "Profile")
                         .WithMany("ExchangeGifts")
                         .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ExchangeGift_Profile");
 
                     b.HasOne("BusinessObjects.Models.SessionDetail", "SessionDetail")
                         .WithMany("ExchangeGifts")
                         .HasForeignKey("SessionDetailId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_ExchangeGift_SessionDetail");
 
                     b.Navigation("Gift");
-
-                    b.Navigation("LoyaltyCard");
 
                     b.Navigation("Profile");
 
@@ -1040,9 +1026,9 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Area", "Area")
                         .WithMany("Kitchens")
                         .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Kitchen_Ward");
+                        .HasConstraintName("FK_Kitchen_Area");
 
                     b.Navigation("Area");
                 });
@@ -1064,14 +1050,14 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.CardType", "CardType")
                         .WithMany("LoyaltyCards")
                         .HasForeignKey("CardTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_LoyaltyCard_CardType");
 
                     b.HasOne("BusinessObjects.Models.Profile", "Profile")
                         .WithMany("LoyaltyCards")
                         .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_LoyaltyCard_Profile");
 
@@ -1155,6 +1141,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.ExchangeGift", "ExchangeGift")
                         .WithMany("Activities")
                         .HasForeignKey("ExchangeGiftId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_OrderActivity_ExchangeGift");
 
                     b.HasOne("BusinessObjects.Models.Order", "Order")
@@ -1226,14 +1213,14 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Area", "Area")
                         .WithMany("PrimarySchools")
                         .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_School_Area");
 
                     b.HasOne("BusinessObjects.Models.Kitchen", "Kitchen")
                         .WithMany("PrimarySchools")
                         .HasForeignKey("KitchenId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_School_Kitchen");
 
                     b.Navigation("Area");
@@ -1391,11 +1378,6 @@ namespace BusinessObjects.Migrations
             modelBuilder.Entity("BusinessObjects.Models.Location", b =>
                 {
                     b.Navigation("SessionDetails");
-                });
-
-            modelBuilder.Entity("BusinessObjects.Models.LoyaltyCard", b =>
-                {
-                    b.Navigation("ExchangeGifts");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Menu", b =>

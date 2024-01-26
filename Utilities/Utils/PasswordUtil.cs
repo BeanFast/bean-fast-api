@@ -1,20 +1,17 @@
-﻿using BCrypt.Net;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace Utilities.Util
+﻿namespace Utilities.Utils
 {
     public static class PasswordUtil
     {
         public static string HashPassword(string rawPassword)
         {
-            return BCrypt.Net.BCrypt.HashPassword(rawPassword);
+            var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
+            return BCrypt.Net.BCrypt.HashPassword(rawPassword, salt);
         }
         public static bool VerifyPassword(string rawPassword, string hashPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(rawPassword, hashPassword);
+            Console.WriteLine(rawPassword);
+            Console.WriteLine(hashPassword);
+            return BCrypt.Net.BCrypt.Verify(text: rawPassword, hash: hashPassword);
         }
     }
 }

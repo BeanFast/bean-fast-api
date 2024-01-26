@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Repositories.Interfaces;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Repositories.Implements

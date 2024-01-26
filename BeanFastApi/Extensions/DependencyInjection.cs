@@ -1,12 +1,14 @@
-﻿using BeanFastApi.Constants;
-using BusinessObjects;
+﻿using BusinessObjects;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Pos_System.Repository.Implement;
 using Repositories.Interfaces;
 using System.Text;
+using Repositories.Implements;
+using Services.Implements;
+using Services.Interfaces;
+using Utilities.Constants;
 
 
 namespace BeanFastApi.Extensions
@@ -28,9 +30,9 @@ namespace BeanFastApi.Extensions
         {
             return services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc(ApiEndpointContants.ApiVersion, new OpenApiInfo() { Title = "Beanfast API", Version = ApiEndpointContants.ApiVersion });
+                options.SwaggerDoc(ApiEndpointConstants.ApiVersion, new OpenApiInfo { Title = "Beanfast API", Version = ApiEndpointConstants.ApiVersion });
 
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
                     Description = "Please enter a valid token",
@@ -56,16 +58,15 @@ namespace BeanFastApi.Extensions
                 });
             });
         }
-        public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddJWTAuthentication(this IServiceCollection services)
         {
-            string secretString = configuration.GetValue<string>("JWT:Secret")!;
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     //ValidIssuer = configuration.GetValue<string>(JwtConstant.Issuer),
                     ValidateIssuer = false,
@@ -73,11 +74,17 @@ namespace BeanFastApi.Extensions
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey =
                         new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes("HELLOWORLD_THIS_IS_THE_SECRET_KEY"))
+                            Encoding.UTF8.GetBytes(JWTConstants.JwtSecret)),
+                    ClockSkew = TimeSpan.Zero
                 };
             });
             return services;
         }
-
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IFoodService, FoodService>();
+            return services;
+        }
     }
 }

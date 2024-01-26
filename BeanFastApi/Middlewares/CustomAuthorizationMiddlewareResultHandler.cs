@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
-using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Text.Json;
 
 namespace BeanFastApi.Middlewares
 {

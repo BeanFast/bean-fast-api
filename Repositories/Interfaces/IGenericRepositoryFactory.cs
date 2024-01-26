@@ -1,6 +1,4 @@
-﻿using Repositories.Interfaces;
-
-namespace Repositories.Interfaces
+﻿namespace Repositories.Interfaces
 {
 	public interface IGenericRepositoryFactory
 	{
