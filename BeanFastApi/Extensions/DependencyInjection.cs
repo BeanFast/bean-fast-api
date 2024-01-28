@@ -9,6 +9,9 @@ using Repositories.Implements;
 using Services.Implements;
 using Services.Interfaces;
 using Utilities.Constants;
+using Services.Mappers;
+using BeanFastApi.Middlewares;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace BeanFastApi.Extensions
@@ -82,11 +85,19 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
             return services;
         }
-
+        public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
+        {
+            services.AddAutoMapper(
+                typeof(FoodMapper)
+                //typeof(Program)
+                ); // Add multiple mappers by passing the assembly containing the mapper profiles
+            return services;
+        }
         
     }
 }

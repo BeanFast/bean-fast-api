@@ -7,7 +7,7 @@ namespace Repositories.Implements;
 public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext
 {
     public TContext Context { get; }
-    private Dictionary<Type, object> _repositories;
+    private Dictionary<Type, object>? _repositories;
 
     public UnitOfWork(TContext context)
     {
@@ -17,7 +17,7 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
     public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class
     {
         _repositories ??= new Dictionary<Type, object>();
-        if (_repositories.TryGetValue(typeof(TEntity), out object repository))
+        if (_repositories.TryGetValue(typeof(TEntity), out var repository))
         {
             return (IGenericRepository<TEntity>)repository;
         }

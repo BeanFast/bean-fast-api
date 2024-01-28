@@ -53,7 +53,7 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=tcp:beanfast.database.windows.net,1433;Initial Catalog=beanfast;Persist Security Info=False;User ID=beanfast;Password=SE1526@fpt.edu.vn;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer("Server=104.43.111.0;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
                 //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfast;User ID=sa;Password=12345;TrustServerCertificate=True;");
 
                 //optionsBuilder.UseSqlServer(GetConnectionString());

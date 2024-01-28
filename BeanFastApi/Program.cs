@@ -8,7 +8,7 @@ using Utilities.Utils;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
-services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
+
 
 services.AddControllers().AddJsonOptions(options =>
 {
@@ -19,7 +19,7 @@ services.AddControllers().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 
-services.AddAutoMapper(typeof(FoodMapper));
+services.AddAutoMapperProfiles();
 services.AddSwaggerGen();
 services.AddJWTAuthentication();
 services.AddDatabase(builder.Configuration);

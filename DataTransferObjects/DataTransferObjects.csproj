@@ -11,9 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Account\Request\" />
+    <Folder Include="Models\Account\Response\" />
     <Folder Include="Models\Category\Request\" />
     <Folder Include="Models\Category\Response\" />
     <Folder Include="Models\Food\Request\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
 </Project>

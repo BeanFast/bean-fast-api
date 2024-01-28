@@ -1,7 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
-using DataTransferObjects.Account.Request;
-using DataTransferObjects.Account.Response;
+using DataTransferObjects.Models.Auth.Request;
+using DataTransferObjects.Models.Auth.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Repositories.Interfaces;
@@ -9,6 +9,9 @@ using Services.Interfaces;
 using System.Linq.Expressions;
 using AutoMapper;
 using Utilities.Utils;
+using Utilities.Enums;
+using Utilities.Exceptions;
+using Utilities.Constants;
 
 namespace Services.Implements
 {
@@ -23,19 +26,37 @@ namespace Services.Implements
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
         {
-            Expression<Func<User, bool>> whereFilter = (user) =>
-                user.Phone == loginRequest.Phone;
-            Func<IQueryable<User>, IIncludableQueryable<User, object>>  include = (user) => user.Include(u => u.Role!);
-            User user = await _userRepository.FirstOrDefaultAsync(predicate: whereFilter, include: include) ?? throw new Exception();
+            Expression<Func<User, bool>> whereFilter;
+            if (loginRequest.Role == RoleName.ADMIN || loginRequest.Role == RoleName.MANAGER)
+            {
+                if (loginRequest.Email == null) throw new InvalidCredentialsException(MessageContants.Login.EmailRequired);
+                whereFilter = (user) => user.Email == loginRequest.Email;
+            }
+            else if (loginRequest.Role == RoleName.CUSTOMER)
+            {
+                if (loginRequest.Phone == null) throw new InvalidCredentialsException(MessageContants.Login.EmailRequired);
+                whereFilter = (user) => user.Phone == loginRequest.Phone;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid user role");
+            }
+            Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
+            User user = await _userRepository.FirstOrDefaultAsync(predicate: whereFilter, include: include) ?? throw new InvalidCredentialsException();
             if (!PasswordUtil.VerifyPassword(loginRequest.Password!, user.Password))
             {
-                throw new Exception();
+                throw new InvalidCredentialsException();
             }
 
             return new LoginResponse
             {
                 AccessToken = JwtUtil.GenerateToken(user)
             };
+        }
+
+        public Task<RegisterResponse> Register(RegisterRequest registerRequest)
+        {
+            return null;
         }
     }
 }

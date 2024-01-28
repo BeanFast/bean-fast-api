@@ -8,12 +8,12 @@ namespace Repositories.Interfaces
     {
         
         #region Read
-        Task<T> FirstOrDefaultAsync(
+        Task<T?> FirstOrDefaultAsync(
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<TResult> FirstOrDefaultAsync<TResult>(
+        Task<TResult?> FirstOrDefaultAsync<TResult>(
             Expression<Func<T, TResult>> selector,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,

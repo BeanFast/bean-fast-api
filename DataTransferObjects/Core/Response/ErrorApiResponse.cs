@@ -1,7 +1,20 @@
-﻿namespace DataTransferObjects.Core.Response
+﻿using System.Net;
+
+namespace DataTransferObjects.Core.Response
 {
     public class ErrorApiResponse : BaseApiResponse
     {
-        public string Description { get; set; }
+
+        public ErrorApiResponse(HttpStatusCode statusCode) : base(statusCode) 
+        {
+            
+        }
+        public ErrorApiResponse()
+        {
+            
+        }
+
+
+        //public string Description { get; set; }
     }
 }

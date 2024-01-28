@@ -1,4 +1,8 @@
-﻿using System.Net;
+﻿using DataTransferObjects.Core.Response;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using Utilities.Constants;
+using Utilities.Exceptions;
 
 namespace BeanFastApi.Middlewares
 {
@@ -17,7 +21,7 @@ namespace BeanFastApi.Middlewares
         {
             try
             {
-                
+
                 await _next(httpContext);
             }
             catch (Exception ex)
@@ -32,30 +36,29 @@ namespace BeanFastApi.Middlewares
             context.Response.ContentType = "application/json";
             var response = context.Response;
 
-            var errorResponse = new
-            {
-                Success = false,
-                Message = ""
-            };
-
+            var errorResponse = new ErrorApiResponse();
+            errorResponse.SetStatusCode(HttpStatusCode.InternalServerError);
             switch (exception)
             {
-                case ApplicationException ex:
-                    if (ex.Message.Contains("Invalid Token"))
-                    {
-                        response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        //errorResponse.Message = ex.Message;
-                        break;
-                    }
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    //errorResponse.Message = ex.Message;
+                case BeanFastApplicationException ex:
+
+                    errorResponse.SetStatusCode(ex.StatusCode);
+                    errorResponse.Code = ex.Code;
+                    errorResponse.Message = ex.Message;
                     break;
-                default:
-                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    //errorResponse.Message = "Internal server error!";
+                case ValidationException ex:
+                    _logger.LogCritical("Invalid");
+                    errorResponse.SetStatusCode(HttpStatusCode.BadRequest);
+                    errorResponse.Code = CodeContants.DefaultApiCodeContants.ApiSuccess;
+                    errorResponse.Message = ex.Message;
+                    break;
+                default: 
+                    errorResponse.Message = exception.Message;
+                    //errorResponse.Message = MessageContants.DefaultApiMessage.ApiError;
                     break;
             }
-            _logger.LogError(exception.Message);
+            _logger.LogError(exception?.Message);
+            response.StatusCode = (int)errorResponse.StatusCode;
             await context.Response.WriteAsJsonAsync(errorResponse);
             //errorResponse
         }

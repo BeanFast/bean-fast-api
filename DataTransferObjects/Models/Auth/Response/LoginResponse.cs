@@ -1,4 +1,4 @@
-﻿namespace DataTransferObjects.Account.Response
+﻿namespace DataTransferObjects.Models.Auth.Response
 {
     public class LoginResponse
     {
