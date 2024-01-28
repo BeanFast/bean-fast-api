@@ -41,5 +41,20 @@ namespace Utilities.Constants
 
             #endregion
         }
+
+        public static class Category
+        {
+            public const string CategoryNameExisted = "Danh mục đã tồn tại";
+
+            public const string CategoryNotFound = "Danh mục không tồn tại";
+
+            public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
+
+            public const string CategoryCodeRequired = "Mã danh mục là bắt buộc";
+
+            public const string CategoryCodeOrNameExisted = "Mã danh mục hoặc tên danh mục đã tồn tại";
+
+            public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
+        }
     }
 }

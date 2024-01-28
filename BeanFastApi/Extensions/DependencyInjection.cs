@@ -88,12 +88,15 @@ namespace BeanFastApi.Extensions
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
         {
             services.AddAutoMapper(
-                typeof(FoodMapper)
+                typeof(FoodMapper),
+                typeof(CategoryMapper)
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;

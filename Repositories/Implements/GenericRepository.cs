@@ -5,6 +5,7 @@ using Repositories.Interfaces;
 using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Utilities.Enums;
 
 namespace Repositories.Implements
 {
@@ -25,21 +26,6 @@ namespace Repositories.Implements
 
         #region Gett Async
 
-        // public virtual async Task<D?> FirstOrDefaultAsync<D>(
-        //     Expression<Func<T, bool>>? predicate = null, 
-        //     Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
-        //     Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
-        //     )
-        // {
-        //     IQueryable<T> query = _dbSet;
-        //     if (include != null) query = include(query);
-        //
-        //     if (predicate != null) query = query.Where(predicate);
-        //
-        //     if (orderBy != null) return await orderBy(query).ProjectTo<D>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-        //
-        //     return await query.ProjectTo<D>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-        // }
         public virtual async Task<T?> FirstOrDefaultAsync(
             Expression<Func<T, bool>>? predicate = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
@@ -171,7 +157,19 @@ namespace Repositories.Implements
         public async Task InsertAsync(T entity)
         {
             if (entity == null) return;
-            await _dbSet.AddAsync(entity);
+            var transaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                await _dbSet.AddAsync(entity);
+                transaction.Commit();
+                await _dbContext.SaveChangesAsync();
+            }
+            catch 
+            {
+                transaction.Rollback();
+                throw;
+            }
+            
         }
 
         public async Task InsertRangeAsync(IEnumerable<T> entities)
@@ -200,6 +198,36 @@ namespace Repositories.Implements
         public void DeleteRangeAsync(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
+        }
+
+        public Task<T?> FirstOrDefaultAsync(BaseEntityStatus status, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TResult?> FirstOrDefaultAsync<TResult>(BaseEntityStatus status, Expression<Func<T, TResult>> selector, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<T>> GetListAsync(BaseEntityStatus status, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<TResult>> GetListAsync<TResult>(BaseEntityStatus status, Expression<Func<T, TResult>> selector, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IPaginable<T>> GetPageAsync(BaseEntityStatus status, PaginationRequest paginationRequest, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IPaginable<TResult>> GetPageAsync<TResult>(BaseEntityStatus status, Expression<Func<T, TResult>> selector, PaginationRequest paginationRequest, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

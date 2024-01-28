@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataTransferObjects.Models.Category.Request;
+using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using Utilities.Constants;
 
 namespace BeanFastApi.Controllers
 {
@@ -17,6 +19,18 @@ namespace BeanFastApi.Controllers
         {
             var categories = await _categoryService.GetAll();
             return SuccessResult(categories);
+        }
+        [HttpGet(ApiEndpointConstants.Category.GetCategorybyId)]
+        public async Task<IActionResult> GetCategoryById(Guid id)
+        {
+            var category = await _categoryService.GetById(id);
+            return SuccessResult(category);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory(CreateCategoryRequest category)
+        {
+            await _categoryService.CreateCategory(category);
+            return SuccessResult(code: "Category_created", message: MessageContants.Category.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
         }
     }
 }

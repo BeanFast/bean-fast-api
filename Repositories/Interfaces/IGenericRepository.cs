@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using DataTransferObjects.Core.Pagination;
+using Utilities.Enums;
 
 namespace Repositories.Interfaces
 {
@@ -13,7 +14,20 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
+        Task<T?> FirstOrDefaultAsync(
+            BaseEntityStatus status,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+
+
         Task<TResult?> FirstOrDefaultAsync<TResult>(
+            Expression<Func<T, TResult>> selector,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        Task<TResult?> FirstOrDefaultAsync<TResult>(
+            BaseEntityStatus status,
             Expression<Func<T, TResult>> selector,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
@@ -24,26 +38,57 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
+        Task<ICollection<T>> GetListAsync(
+            BaseEntityStatus status,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+
         Task<ICollection<TResult>> GetListAsync<TResult>(
+            Expression<Func<T, TResult>> selector,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        Task<ICollection<TResult>> GetListAsync<TResult>(
+            BaseEntityStatus status,
             Expression<Func<T, TResult>> selector,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
         Task<IPaginable<T>> GetPageAsync(
+            BaseEntityStatus status,
             PaginationRequest paginationRequest,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
-            );
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        Task<IPaginable<T>> GetPageAsync(
+            PaginationRequest paginationRequest,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        Task<IPaginable<T>> GetPageAsync(
+            BaseEntityStatus status,
+            PaginationRequest paginationRequest,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
         Task<IPaginable<TResult>> GetPageAsync<TResult>(
             Expression<Func<T, TResult>> selector,
             PaginationRequest paginationRequest,
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
-            );
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+
+        Task<IPaginable<TResult>> GetPageAsync<TResult>(
+            BaseEntityStatus status,
+            Expression<Func<T, TResult>> selector,
+            PaginationRequest paginationRequest,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+
 
         #endregion
 

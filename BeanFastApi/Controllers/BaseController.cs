@@ -9,7 +9,7 @@ namespace BeanFastApi.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
-        protected IActionResult SuccessResult(object data, string? code = null, string? message = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected IActionResult SuccessResult(object? data = null, string? code = null, string? message = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             var response = new SuccessApiResponse
             {

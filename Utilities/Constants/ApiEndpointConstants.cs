@@ -12,6 +12,10 @@
             public const string Register = "register";
 
         }
+        public class Category
+        {
+            public const string GetCategorybyId = "{id}";
+        }
     }
     
 }
