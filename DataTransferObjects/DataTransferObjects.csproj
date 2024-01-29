@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Account\**" />
+    <EmbeddedResource Remove="Models\Account\**" />
+    <None Remove="Models\Account\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Account\Request\" />
-    <Folder Include="Models\Account\Response\" />
     <Folder Include="Models\Category\Response\" />
     <Folder Include="Models\Food\Request\" />
   </ItemGroup>

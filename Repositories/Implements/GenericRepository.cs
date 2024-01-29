@@ -6,6 +6,9 @@ using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Utilities.Enums;
+using BusinessObjects.Models;
+using System;
+using System.Linq;
 
 namespace Repositories.Implements
 {
@@ -25,21 +28,29 @@ namespace Repositories.Implements
         }
 
         #region Gett Async
+        private IQueryable<T> buildQuery(
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
+            )
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null) query = include(query);
+            if (predicate != null) query = query.Where(predicate);
 
+            if (orderBy != null) query = orderBy(query);
+            return query;
+        }
         public virtual async Task<T?> FirstOrDefaultAsync(
             Expression<Func<T, bool>>? predicate = null, 
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
         )
         {
-            IQueryable<T> query = _dbSet;
-            if (include != null) query = include(query);
-
-            if (predicate != null) query = query.Where(predicate);
-
-            if (orderBy != null) return await orderBy(query).AsNoTracking().FirstOrDefaultAsync();
-
+            IQueryable<T> query = buildQuery(predicate, orderBy, include);
             return await query.AsNoTracking().FirstOrDefaultAsync();
+
+            //return await query.AsNoTracking().FirstOrDefaultAsync();
         }
 
         public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(
@@ -48,12 +59,7 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
-            IQueryable<T> query = _dbSet;
-            if (include != null) query = include(query);
-
-            if (predicate != null) query = query.Where(predicate);
-
-            if (orderBy != null) return await orderBy(query).AsNoTracking().Select(selector).FirstOrDefaultAsync();
+            IQueryable<T> query = buildQuery(predicate, orderBy, include);
 
             return await query.AsNoTracking().Select(selector).FirstOrDefaultAsync();
         }
@@ -63,15 +69,10 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
-            IQueryable<T> query = _dbSet;
-
-            if (include != null) query = include(query);
-
-            if (predicate != null) query = query.Where(predicate);
-
-            if (orderBy != null) return await orderBy(query).AsNoTracking().ToListAsync();
-
+            IQueryable<T> query = buildQuery(predicate, orderBy, include);
             return await query.AsNoTracking().ToListAsync();
+
+            //return await query.AsNoTracking().ToListAsync();
         }
 
         // public virtual async Task<ICollection<D>> GetMappedListAsync(
@@ -96,13 +97,8 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
-            IQueryable<T> query = _dbSet;
-
-            if (include != null) query = include(query);
-
-            if (predicate != null) query = query.Where(predicate);
-
-            if (orderBy != null) return await orderBy(query).AsNoTracking().Select(selector).ToListAsync();
+            IQueryable<T> query = buildQuery(predicate, orderBy, include);
+            //return.AsNoTracking().Select(selector).ToListAsync();
 
             return await query.Select(selector).ToListAsync();
         }
@@ -114,10 +110,7 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
         )
         {
-            IQueryable<T> query = _dbSet;
-            if (include != null) query = include(query);
-            if (predicate != null) query = query.Where(predicate);
-            if (orderBy != null) return orderBy(query).ToPaginableAsync(request.Page, request.Size, 1);
+            IQueryable<T> query = buildQuery(predicate, orderBy, include);
             return query.ToPaginableAsync(request.Page, request.Size, 1);
         }
         

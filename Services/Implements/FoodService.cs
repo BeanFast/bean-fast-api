@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
@@ -35,8 +36,8 @@ namespace Services.Implements
                 ImagePath = f.ImagePath,
                 Category = _mapper.Map<GetFoodResponse.CategoryOfFood>(f.Category)
             });
-            
-            IPaginable<GetFoodResponse> page =  await _foodRepository.GetPageAsync(paginationRequest: request, selector: selector);
+            Func<IQueryable<Food>, IOrderedQueryable<Food>> orderBy = o => o.OrderBy(f => f.Name);
+            IPaginable<GetFoodResponse> page =  await _foodRepository.GetPageAsync(paginationRequest: request, selector: selector, orderBy: orderBy);
             return page;
         }
 

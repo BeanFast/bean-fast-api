@@ -67,12 +67,12 @@ namespace Repositories.Interfaces
             Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
-        Task<IPaginable<T>> GetPageAsync(
-            BaseEntityStatus status,
-            PaginationRequest paginationRequest,
-            Expression<Func<T, bool>>? predicate = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<IPaginable<T>> GetPageAsync(
+        //    BaseEntityStatus status,
+        //    PaginationRequest paginationRequest,
+        //    Expression<Func<T, bool>>? predicate = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
         Task<IPaginable<TResult>> GetPageAsync<TResult>(
             Expression<Func<T, TResult>> selector,
