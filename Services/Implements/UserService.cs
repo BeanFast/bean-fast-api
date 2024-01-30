@@ -26,24 +26,18 @@ namespace Services.Implements
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
         {
-            Expression<Func<User, bool>> whereFilter;
-            if (loginRequest.Role == RoleName.ADMIN || loginRequest.Role == RoleName.MANAGER)
+            Expression<Func<User, bool>>? whereFilter = null;
+            if (loginRequest.Email is not null)
             {
-                if (loginRequest.Email == null) throw new InvalidCredentialsException(MessageContants.Login.EmailRequired);
-                whereFilter = (user) => user.Email == loginRequest.Email;
+                whereFilter = (user) => user.Email == loginRequest.Email && user.Role!.Name != RoleName.CUSTOMER.ToString();
             }
-            else if (loginRequest.Role == RoleName.CUSTOMER)
+            else if (loginRequest.Phone is not null)
             {
-                if (loginRequest.Phone == null) throw new InvalidCredentialsException(MessageContants.Login.EmailRequired);
-                whereFilter = (user) => user.Phone == loginRequest.Phone;
-            }
-            else
-            {
-                throw new ArgumentException("Invalid user role");
+                whereFilter = (user) => user.Phone == loginRequest.Phone && user.Role!.Name == RoleName.CUSTOMER.ToString();
             }
             Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
             User user = await _userRepository.FirstOrDefaultAsync(predicate: whereFilter, include: include) ?? throw new InvalidCredentialsException();
-            if (!PasswordUtil.VerifyPassword(loginRequest.Password!, user.Password))
+            if (!PasswordUtil.VerifyPassword(loginRequest.Password, user.Password))
             {
                 throw new InvalidCredentialsException();
             }

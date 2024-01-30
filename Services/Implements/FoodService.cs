@@ -26,6 +26,7 @@ namespace Services.Implements
 
         public async Task<IPaginable<GetFoodResponse>> GetPageAsync(PaginationRequest request)
         {
+            Console.WriteLine(request);
             Expression<Func<Food, GetFoodResponse>> selector = (f => new GetFoodResponse()
             {
                 Code = f.Code,
