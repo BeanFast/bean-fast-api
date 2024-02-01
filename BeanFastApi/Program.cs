@@ -1,9 +1,6 @@
 using BeanFastApi.Middlewares;
-using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using BeanFastApi.Extensions;
-using Services.Mappers;
-using Utilities.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -25,6 +22,7 @@ services.AddJWTAuthentication();
 services.AddDatabase(builder.Configuration);
 services.AddUnitOfWork();
 services.AddServices();
+services.AddAppSettingsBinding(builder.Configuration);
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -32,8 +30,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "bean-fast-firebase-adminsdk.json");
+app.UseMiddleware<ExceptionHandlingMiddleWare>();
 
- app.UseMiddleware<ExceptionHandlingMiddleWare>();
 //app.UseMiddleware<ResponseSuccessMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();

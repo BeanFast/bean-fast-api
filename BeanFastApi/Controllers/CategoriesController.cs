@@ -1,7 +1,12 @@
-﻿using DataTransferObjects.Models.Category.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Category.Request;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Services.Interfaces;
+using System.Security.Claims;
 using Utilities.Constants;
+using Utilities.Enums;
+using Utilities.Settings;
 
 namespace BeanFastApi.Controllers
 {
@@ -17,9 +22,11 @@ namespace BeanFastApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await _categoryService.GetAll();
+            string? userRole = GetUserRole();
+            var categories = await _categoryService.GetAll(userRole);
             return SuccessResult(categories);
         }
+
         [HttpGet(ApiEndpointConstants.Category.GetCategorybyId)]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {
@@ -30,7 +37,7 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> CreateCategory(CreateCategoryRequest category)
         {
             await _categoryService.CreateCategory(category);
-            return SuccessResult(code: "Category_created", message: MessageContants.Category.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
+            return SuccessResult<object>(code: "Category_created", message: MessageContants.Category.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace DataTransferObjects.Core.Response
 {
     
-    public class SuccessApiResponse : BaseApiResponse
+    public class SuccessApiResponse<T> : BaseApiResponse
     {
         public SuccessApiResponse(HttpStatusCode statusCode) : base(statusCode)
         {
@@ -15,7 +15,6 @@ namespace DataTransferObjects.Core.Response
         {
             
         }
-        [DataMember(Order = -2)]
-        public object? Data { get; set; }
+        public T? Data { get; set; }
     }
 }

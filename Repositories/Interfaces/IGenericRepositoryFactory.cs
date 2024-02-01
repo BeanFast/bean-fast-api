@@ -1,7 +1,10 @@
-﻿namespace Repositories.Interfaces
+﻿using BusinessObjects.Models;
+
+namespace Repositories.Interfaces
 {
 	public interface IGenericRepositoryFactory
 	{
-		IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
-	}
+		IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity;
+
+    }
 }

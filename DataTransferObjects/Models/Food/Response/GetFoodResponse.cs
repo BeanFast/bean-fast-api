@@ -5,7 +5,7 @@ public class GetFoodResponse
     public string Code { get; set; }
     public string Name { get; set; }
     public double Price { get; set; }
-    public string Discription { get; set; }
+    public string Description { get; set; }
     public bool IsCombo { get; set; }
     public string ImagePath { get; set; }
     public virtual CategoryOfFood? Category { get; set; }

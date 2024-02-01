@@ -1,8 +1,10 @@
 ﻿using DataTransferObjects.Models.Auth.Request;
 using DataTransferObjects.Models.Auth.Response;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Services.Interfaces;
 using Utilities.Constants;
+using Utilities.Settings;
 
 namespace BeanFastApi.Controllers;
 

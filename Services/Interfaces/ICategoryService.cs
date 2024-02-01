@@ -10,7 +10,7 @@ namespace Services.Interfaces
 {
     public interface ICategoryService
     {
-        public Task<ICollection<Category>> GetAll();
+        public Task<ICollection<Category>> GetAll(string? role);
 
         public Task CreateCategory(CreateCategoryRequest category);
 

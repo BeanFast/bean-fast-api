@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 
@@ -14,7 +15,7 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
         Context = context;
     }
 
-    public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class
+    public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity
     {
         _repositories ??= new Dictionary<Type, object>();
         if (_repositories.TryGetValue(typeof(TEntity), out var repository))
