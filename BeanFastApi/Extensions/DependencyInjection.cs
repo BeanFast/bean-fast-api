@@ -11,6 +11,7 @@ using Services.Interfaces;
 using Utilities.Constants;
 using Services.Mappers;
 using BeanFastApi.Middlewares;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -89,14 +90,18 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
             services.AddScoped<ICategoryService, CategoryService>();
-
+            services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IKitchenService, KitchenService>();
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
         {
             services.AddAutoMapper(
                 typeof(FoodMapper),
-                typeof(CategoryMapper)
+                typeof(CategoryMapper),
+                typeof(MenuMapper),
+                typeof(KitchenMapper)
+                
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;

@@ -43,13 +43,11 @@ namespace BeanFastApi.Middlewares
                 case BeanFastApplicationException ex:
 
                     errorResponse.SetStatusCode(ex.StatusCode);
-                    errorResponse.Code = ex.Code;
                     errorResponse.Message = ex.Message;
                     break;
                 case ValidationException ex:
                     _logger.LogCritical("Invalid");
                     errorResponse.SetStatusCode(HttpStatusCode.BadRequest);
-                    errorResponse.Code = CodeContants.DefaultApiCodeContants.ApiSuccess;
                     errorResponse.Message = ex.Message;
                     break;
                 default: 

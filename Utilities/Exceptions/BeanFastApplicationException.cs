@@ -9,17 +9,14 @@ namespace Utilities.Exceptions
 {
     public class BeanFastApplicationException : Exception
     {
-        public string? Code { get; set; }
         public HttpStatusCode StatusCode { get; set; }
 
-        public BeanFastApplicationException(string? code = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) : base()
+        public BeanFastApplicationException(HttpStatusCode statusCode = HttpStatusCode.InternalServerError) : base()
         {
-            Code = code;
             StatusCode = statusCode;
         }
-        public BeanFastApplicationException(string message, string? code = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) : base(message)
+        public BeanFastApplicationException(string message, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) : base(message)
         {
-            Code = code;
             StatusCode = statusCode;
         }
 

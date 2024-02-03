@@ -11,7 +11,6 @@ namespace Utilities.Exceptions
     {
         public InvalidRoleException() : base(
                 MessageContants.Login.InvalidRole,
-                CodeContants.Login.InvalidRole,
                 System.Net.HttpStatusCode.BadRequest
             )
         {

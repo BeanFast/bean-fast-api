@@ -1,6 +1,7 @@
 ﻿using DataTransferObjects.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 using Utilities.Constants;
 
 namespace BeanFastApi.Controllers
@@ -9,16 +10,21 @@ namespace BeanFastApi.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
-        protected IActionResult SuccessResult(object? data = null, string? code = null, string? message = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected IActionResult SuccessResult(object? data = null, string? message = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             var response = new SuccessApiResponse
             {
                 Data = data,
-                Code = code ?? CodeContants.DefaultApiCodeContants.ApiSuccess,
                 Message = message ?? MessageContants.DefaultApiMessage.ApiSuccess,
             };
             
             return new ObjectResult(response) { StatusCode = (int) statusCode };
+        }
+
+
+        protected string GetUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         }
     }
 }

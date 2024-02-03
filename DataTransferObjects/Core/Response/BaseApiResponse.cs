@@ -18,7 +18,6 @@ namespace DataTransferObjects.Core.Response
 
         public string? Message { get; set; }
        
-        public string? Code { get; set; }
         [JsonIgnore]
         public int StatusCode { get; private set; }
 
