@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 
 namespace Services.Implements
@@ -22,9 +23,13 @@ namespace Services.Implements
             _categoryRepository = unitOfWork.GetRepository<Category>();
         }
 
-        public Task<ICollection<Category>> GetAll()
+        public Task<ICollection<Category>> GetAll(string? role)
         {
-            return _categoryRepository.GetListAsync();
+            if(role is not null && role == RoleName.ADMIN.ToString())
+            {
+                return _categoryRepository.GetListAsync();
+            }
+            return _categoryRepository.GetListAsync(BaseEntityStatus.ACTIVE);
         }
 
         public async Task<Category> GetById(Guid id)

@@ -15,6 +15,12 @@ namespace Utilities.Constants
             public static readonly string ApiError = "Có lỗi xảy ra";
 
         }
+        public static class Pagination
+        {
+            public const string PageRequired = "Số trang là bắt buộc";
+
+            public const string SizeRequired = "Kích thước trang là bắt buộc";
+        }
         public static class Login
         {
             #region validation messasges

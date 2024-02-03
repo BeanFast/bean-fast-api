@@ -13,6 +13,10 @@ using Services.Mappers;
 using BeanFastApi.Middlewares;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
+using Utilities.Settings;
+using Microsoft.Extensions.Configuration;
+using Google.Cloud.Storage.V1;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace BeanFastApi.Extensions
@@ -26,8 +30,16 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-
-            services.AddDbContext<BeanFastContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            string connectionStringKey = "";
+            if(Environment.GetEnvironmentVariable("database") == "local")
+            {
+                connectionStringKey = "LocalConnection";
+            }
+            else
+            {
+                connectionStringKey = "DefaultConnection";
+            }
+            services.AddDbContext<BeanFastContext>(options => options.UseSqlServer(configuration.GetConnectionString(connectionStringKey)));
             return services;
         }
         public static IServiceCollection AddSwagger(this IServiceCollection services)
@@ -86,6 +98,7 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
@@ -104,6 +117,11 @@ namespace BeanFastApi.Extensions
                 
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
+            return services;
+        }
+        public static IServiceCollection AddAppSettingsBinding(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<AppSettings>(configuration);
             return services;
         }
         
