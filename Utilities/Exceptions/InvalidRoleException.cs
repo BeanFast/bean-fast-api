@@ -10,7 +10,7 @@ namespace Utilities.Exceptions
     public class InvalidRoleException : BeanFastApplicationException
     {
         public InvalidRoleException() : base(
-                MessageContants.Login.InvalidRole,
+                MessageConstants.Login.InvalidRole,
                 System.Net.HttpStatusCode.BadRequest
             )
         {

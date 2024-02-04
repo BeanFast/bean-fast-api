@@ -26,7 +26,7 @@ namespace Utilities.ValidationAttributes
             }
             catch (FormatException)
             {
-                return new ValidationResult(MessageContants.Login.InvalidEmail);
+                return new ValidationResult(MessageConstants.Login.InvalidEmail);
             }
         }
     }

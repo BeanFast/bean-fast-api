@@ -12,6 +12,8 @@ public class FoodMapper : AutoMapper.Profile
         CreateMap<Food, GetFoodResponse>()
             .ReverseMap();
         CreateMap<CreateFoodRequest, Food>();
+        CreateMap<CreateFoodRequest.CreateFoodCombo, Combo>();
+
         CreateMap<Category, GetFoodResponse.CategoryOfFood>()
             .ReverseMap();
         

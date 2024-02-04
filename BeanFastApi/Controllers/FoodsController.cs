@@ -1,6 +1,8 @@
-﻿using Utilities.Settings;
+﻿using System.Net;
+using Utilities.Settings;
 using BusinessObjects.Models;
 using DataTransferObjects.Core.Pagination;
+using DataTransferObjects.Core.Response;
 using DataTransferObjects.Models.Food.Request;
 using DataTransferObjects.Models.Food.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +21,7 @@ public class FoodsController : BaseController
     }
     
     [HttpGet]
-    [ProducesResponseType(typeof(IPaginable<GetFoodResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SuccessApiResponse<IPaginable<GetFoodResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPageAsync([FromQuery] PaginationRequest request)
     {
         object foods;
@@ -38,7 +40,7 @@ public class FoodsController : BaseController
     [ProducesResponseType(typeof(Food), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById([FromRoute]Guid id)
     {
-        GetFoodResponse food = await _foodService.GetByIdAsync(id);
+        GetFoodResponse food = await _foodService.GetFoodResponseByIdAsync(id);
         return SuccessResult(food);
     }
     [HttpPost]
@@ -46,5 +48,12 @@ public class FoodsController : BaseController
     {
         await _foodService.CreateFoodAsync(request);
         return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteFood([FromRoute] Guid id)
+    {
+        await _foodService.DeleteAsync(id);
+        return SuccessResult<object>(statusCode: HttpStatusCode.OK);
     }
 }

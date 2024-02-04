@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Utilities.Constants
 {
-    public static class MessageContants
+    public static class MessageConstants
     {
         public static class DefaultApiMessage
         {
@@ -56,11 +56,14 @@ namespace Utilities.Constants
 
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
 
-            public const string CategoryCodeRequired = "Mã danh mục là bắt buộc";
-
             public const string CategoryCodeOrNameExisted = "Mã danh mục hoặc tên danh mục đã tồn tại";
 
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
+        }
+
+        public class Food
+        {
+            public static string FoodNotFound (Guid guid) => $"Đồ ăn với id: {guid} không tồn tại";
         }
     }
 }

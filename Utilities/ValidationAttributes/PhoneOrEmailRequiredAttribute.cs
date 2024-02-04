@@ -25,7 +25,7 @@ namespace Utilities.ValidationAttributes
                     "Phone",
                     "Email"
                 };
-                var errorMessage = new ValidationResult(MessageContants.Login.PhoneOrEmailRequired, errorFieldList);
+                var errorMessage = new ValidationResult(MessageConstants.Login.PhoneOrEmailRequired, errorFieldList);
                 return errorMessage;
             }
             return ValidationResult.Success;

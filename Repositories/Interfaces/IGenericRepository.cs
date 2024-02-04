@@ -102,7 +102,7 @@ namespace Repositories.Interfaces
 
         #region Update
 
-        void UpdateAsync(T entity);
+        Task UpdateAsync(T entity);
 
         void UpdateRange(IEnumerable<T> entities);
 

@@ -32,12 +32,12 @@ namespace Services.Implements
             return _categoryRepository.GetListAsync(BaseEntityStatus.ACTIVE);
         }
 
-        public async Task<Category> GetById(Guid id)
+        public async Task<Category?> GetById(Guid id)
         {
             var category =  await _categoryRepository.FirstOrDefaultAsync(predicate: c => c.Id == id);
             if(category is null)
             {
-                throw new EntityNotFoundException(MessageContants.Category.CategoryNotFound);
+                throw new EntityNotFoundException(MessageConstants.Category.CategoryNotFound);
             }
             return category!;
         }
@@ -49,7 +49,7 @@ namespace Services.Implements
             var checkExistList = await _categoryRepository.GetListAsync(predicate: c => c.Name == category.Name || c.Code == category.Code);
             if (checkExistList.Count > 0)
             {
-                throw new DataExistedException(MessageContants.Category.CategoryCodeOrNameExisted);
+                throw new DataExistedException(MessageConstants.Category.CategoryCodeOrNameExisted);
             }
             await _categoryRepository.InsertAsync(categoryEntity);
             return;

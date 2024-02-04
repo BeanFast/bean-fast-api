@@ -8,11 +8,11 @@ namespace DataTransferObjects.Models.Auth.Response
     //[PhoneOrEmailRequired]
     public class LoginRequest
     {
-        [RegularExpression(RegexContants.PhoneRegex, ErrorMessage = MessageContants.Login.InvalidPhoneNumber)]
+        [RegularExpression(RegexConstants.PhoneRegex, ErrorMessage = MessageConstants.Login.InvalidPhoneNumber)]
         public string? Phone { get; set; }
         //[RegularExpression(RegexContants.PasswordRegex, ErrorMessage = MessageContants.Login.InvalidPassword)]
         public string Password { get; set; } = null!;
-        [RegularExpression(RegexContants.EmailRegex, ErrorMessage = MessageContants.Login.InvalidEmail)]
+        [RegularExpression(RegexConstants.EmailRegex, ErrorMessage = MessageConstants.Login.InvalidEmail)]
         //[CustomEmailAddress]
         public string? Email { get; set; }
         public RoleName Role { get; set; }

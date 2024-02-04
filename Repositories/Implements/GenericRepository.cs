@@ -50,8 +50,13 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
             )
         {
-            IQueryable<T> query = buildQuery(predicate, orderBy, include);
-            query.Where(e => e.Status == ((int)status));
+
+            IQueryable<T> query = _dbSet;
+            if (include != null) query = include(query);
+            if (predicate != null) query = query.Where(predicate)
+                .Where(e => e.Status.Equals((int) status));;
+
+            if (orderBy != null) query = orderBy(query);
             return query;
         }
 
@@ -191,6 +196,7 @@ namespace Repositories.Implements
         {
             if (entity == null) return;
             await _dbSet.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task InsertRangeAsync(IEnumerable<T> entities)
@@ -199,9 +205,10 @@ namespace Repositories.Implements
         }
 
         
-        public void UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public void UpdateRange(IEnumerable<T> entities)
@@ -211,7 +218,8 @@ namespace Repositories.Implements
 
         public void DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity);
+            entity.Status = (int)BaseEntityStatus.INACTIVE;
+            UpdateAsync(entity);
         }
 
         public void DeleteRangeAsync(IEnumerable<T> entities)

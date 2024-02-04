@@ -14,7 +14,10 @@ namespace Services.Interfaces
     {
         Task<ICollection<Food>>  GetAllAsync();
         Task<IPaginable<GetFoodResponse>> GetPageAsync(PaginationRequest request);
-        Task<GetFoodResponse> GetByIdAsync(Guid id);
+        Task<GetFoodResponse> GetFoodResponseByIdAsync(Guid id);
+        Task<Food> GetByIdAsync(Guid id);
         Task CreateFoodAsync(CreateFoodRequest request);
+
+        Task DeleteAsync(Guid guid);
     }
 }

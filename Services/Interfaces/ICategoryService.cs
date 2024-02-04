@@ -14,6 +14,6 @@ namespace Services.Interfaces
 
         public Task CreateCategory(CreateCategoryRequest category);
 
-        public Task<Category> GetById(Guid id);
+        public Task<Category?> GetById(Guid id);
     }
 }
