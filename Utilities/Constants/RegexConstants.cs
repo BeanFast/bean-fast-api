@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Utilities.Constants
 {
-    public static class RegexContants
+    public static class RegexConstants
     {
         public const string PhoneRegex = @"^([+84|0][3|5|7|8|9])([0-9]{8})$";
         public const string EmailRegex = @"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$";
