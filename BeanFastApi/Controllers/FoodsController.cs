@@ -19,32 +19,37 @@ public class FoodsController : BaseController
     {
         _foodService = foodService;
     }
-    
+
     [HttpGet]
     [ProducesResponseType(typeof(SuccessApiResponse<IPaginable<GetFoodResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPageAsync([FromQuery] PaginationRequest request)
+    public async Task<IActionResult> GetPageAsync(
+        [FromQuery] FoodFilterRequest filterRequest,
+        [FromQuery] PaginationRequest paginationRequest)
     {
         object foods;
-        if (request.Size == 0 && request.Page == 0)
+        var userRole = GetUserRole();
+        if (paginationRequest is { Size: 0, Page: 0 })
         {
-            foods = await _foodService.GetAllAsync();
+            foods = await _foodService.GetAllAsync(userRole, filterRequest);
         }
         else
         {
-            foods = await _foodService.GetPageAsync(request);
+            foods = await _foodService.GetPageAsync(userRole, filterRequest,paginationRequest);
         }
+
         return SuccessResult(foods);
     }
-    
+
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(Food), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetById([FromRoute]Guid id)
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         GetFoodResponse food = await _foodService.GetFoodResponseByIdAsync(id);
         return SuccessResult(food);
     }
+
     [HttpPost]
-    public async Task <IActionResult> CreateFood([FromForm] CreateFoodRequest request)
+    public async Task<IActionResult> CreateFood([FromForm] CreateFoodRequest request)
     {
         await _foodService.CreateFoodAsync(request);
         return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);

@@ -18,6 +18,7 @@ namespace Services.Implements
     public class CategoryService : BaseService<Category>, ICategoryService
     {
         private readonly IGenericRepository<Category> _categoryRepository;
+
         public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
             _categoryRepository = unitOfWork.GetRepository<Category>();
@@ -25,20 +26,22 @@ namespace Services.Implements
 
         public Task<ICollection<Category>> GetAll(string? role)
         {
-            if(role is not null && role == RoleName.ADMIN.ToString())
+            if (role is not null && role == RoleName.ADMIN.ToString())
             {
                 return _categoryRepository.GetListAsync();
             }
+
             return _categoryRepository.GetListAsync(BaseEntityStatus.ACTIVE);
         }
 
         public async Task<Category?> GetById(Guid id)
         {
-            var category =  await _categoryRepository.FirstOrDefaultAsync(predicate: c => c.Id == id);
-            if(category is null)
+            var category = await _categoryRepository.FirstOrDefaultAsync(filters: new() { c => c.Id == id });
+            if (category is null)
             {
                 throw new EntityNotFoundException(MessageConstants.Category.CategoryNotFound);
             }
+
             return category!;
         }
 
@@ -46,14 +49,19 @@ namespace Services.Implements
         {
             var categoryEntity = _mapper.Map<Category>(category);
             categoryEntity.Id = Guid.NewGuid();
-            var checkExistList = await _categoryRepository.GetListAsync(predicate: c => c.Name == category.Name || c.Code == category.Code);
+            var checkExistList =
+                await _categoryRepository.GetListAsync(filters: new()
+                {
+                    c =>
+                        c.Name == category.Name || c.Code == category.Code
+                });
             if (checkExistList.Count > 0)
             {
                 throw new DataExistedException(MessageConstants.Category.CategoryCodeOrNameExisted);
             }
+
             await _categoryRepository.InsertAsync(categoryEntity);
             return;
         }
-
     }
 }

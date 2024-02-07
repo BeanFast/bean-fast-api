@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
-    <Folder Include="Models\Food\Request\" />
     <Folder Include="Models\Kitchen\Request\" />
     <Folder Include="Models\Menu\Request\" />
   </ItemGroup>

@@ -12,8 +12,8 @@ namespace Services.Interfaces
 {
     public interface IFoodService
     {
-        Task<ICollection<Food>>  GetAllAsync();
-        Task<IPaginable<GetFoodResponse>> GetPageAsync(PaginationRequest request);
+        Task<ICollection<Food>>  GetAllAsync(string? userRole, FoodFilterRequest filterRequest);
+        Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest, PaginationRequest request);
         Task<GetFoodResponse> GetFoodResponseByIdAsync(Guid id);
         Task<Food> GetByIdAsync(Guid id);
         Task CreateFoodAsync(CreateFoodRequest request);

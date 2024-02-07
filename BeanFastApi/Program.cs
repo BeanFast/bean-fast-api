@@ -17,11 +17,11 @@ services.AddControllers().AddJsonOptions(options =>
 services.AddEndpointsApiExplorer();
 
 services.AddAutoMapperProfiles();
-services.AddSwaggerGen();
-services.AddJWTAuthentication();
+services.AddJwtAuthentication();
 services.AddDatabase(builder.Configuration);
 services.AddUnitOfWork();
 services.AddServices();
+services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
 var app = builder.Build();
 // Configure the HTTP request pipeline.

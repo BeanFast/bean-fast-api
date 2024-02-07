@@ -7,6 +7,7 @@ using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Food.Request;
 using DataTransferObjects.Models.Food.Response;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -26,7 +27,8 @@ namespace Services.Implements
         private readonly ICategoryService _categoryService;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
-            ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, ICategoryService categoryService) : base(unitOfWork, mapper)
+            ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings,
+            ICategoryService categoryService) : base(unitOfWork, mapper)
         {
             _foodRepository = unitOfWork.GetRepository<Food>();
             _cloudStorageService = cloudStorageService;
@@ -34,20 +36,67 @@ namespace Services.Implements
             _appSettings = appSettings.Value;
         }
 
-        public async Task<ICollection<Food>> GetAllAsync()
+        private List<Expression<Func<Food, bool>>> GetFilterFromFilterRequest(FoodFilterRequest filterRequest)
         {
-            return await _foodRepository.GetListAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                include: f => f.Include(f => f.Category!));
+            List<Expression<Func<Food, bool>>> filters = new ();
+
+            if (filterRequest.CategoryId != null)
+            {
+                filters.Add((f) => f.CategoryId == filterRequest.CategoryId);
+            }
+
+            if (filterRequest.Code != null)
+            {
+                filters.Add(f => f.Code == filterRequest.Code);
+            }
+
+            if (filterRequest.Name is { Length: > 0 })
+            {
+                filters.Add(f => f.Name.ToLower().Contains(filterRequest.Name.ToLower()));
+            }
+
+            if (filterRequest.MinPrice > 0)
+            {
+                filters.Add(f => f.Price >= filterRequest.MinPrice);
+            }
+            if (filterRequest.MaxPrice > 0)
+            {
+                filters.Add(f => f.Price <= filterRequest.MaxPrice);
+            }
+
+            return filters;
+        }
+        public async Task<ICollection<Food>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
+        {
+            Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include = (f) => f.Include(f => f.Category!);
+            var filters = GetFilterFromFilterRequest(filterRequest);
+            if (RoleName.ADMIN.ToString().Equals(userRole))
+            {
+                return await _foodRepository.GetListAsync(include: include, filters: filters);
+            }
+
+            return await _foodRepository.GetListAsync(BaseEntityStatus.ACTIVE, include: include, filters: filters);
         }
 
-        public async Task<IPaginable<GetFoodResponse>> GetPageAsync(PaginationRequest request)
+        public async Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest,
+            PaginationRequest request)
         {
-            Console.WriteLine(request);
             Expression<Func<Food, GetFoodResponse>> selector = (f => _mapper.Map<GetFoodResponse>(f));
             Func<IQueryable<Food>, IOrderedQueryable<Food>> orderBy = o => o.OrderBy(f => f.Name);
-            IPaginable<GetFoodResponse> page = await _foodRepository.GetPageAsync(
-                status: Utilities.Enums.BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
-                orderBy: orderBy);
+            IPaginable<GetFoodResponse>? page = null;
+            if (RoleName.ADMIN.ToString().Equals(userRole))
+            {
+                page = await _foodRepository.GetPageAsync(
+                    paginationRequest: request, selector: selector,
+                    orderBy: orderBy);
+            }
+            else
+            {
+                page = await _foodRepository.GetPageAsync(
+                    status: Utilities.Enums.BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
+                    orderBy: orderBy);
+            }
+            
             return page;
         }
 
@@ -58,21 +107,28 @@ namespace Services.Implements
 
         public async Task<Food> GetByIdAsync(Guid id)
         {
-            Expression<Func<Food, bool>> filter = (food) => food.Id == id;
+            List<Expression<Func<Food, bool>>> filters = new()
+            {
+                (food) => food.Id == id,
+            };
             var food = await _foodRepository.FirstOrDefaultAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                predicate: filter, include: queryable => queryable.Include(f => f.Category!));
+                filters: filters, include: queryable => queryable.Include(f => f.Category!));
             if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
             return food;
         }
+
         public async Task<Food> GetByIdAsync(Guid id, BaseEntityStatus status)
         {
-            Expression<Func<Food, bool>> filter = (food) => food.Id == id;
-            var food = await _foodRepository.FirstOrDefaultAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                predicate: filter, include: f => f.Include(f => f.Category!));
+            List<Expression<Func<Food, bool>>> filters = new()
+            {
+                (food) => food.Id == id,
+            };
+            var food = await _foodRepository.FirstOrDefaultAsync(status: status,
+                filters: filters, include: f => f.Include(f => f.Category!));
             if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
             return food;
         }
-        
+
         public async Task CreateFoodAsync(CreateFoodRequest request)
         {
             Console.WriteLine(request);
@@ -104,7 +160,6 @@ namespace Services.Implements
         {
             var food = await GetByIdAsync(guid);
             _repository.DeleteAsync(food);
-            
         }
     }
 }

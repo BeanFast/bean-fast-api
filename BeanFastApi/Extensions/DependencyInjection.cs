@@ -74,7 +74,7 @@ namespace BeanFastApi.Extensions
                 });
             });
         }
-        public static IServiceCollection AddJWTAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
         {
             services.AddAuthentication(options =>
             {
