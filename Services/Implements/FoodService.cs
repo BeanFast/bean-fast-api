@@ -40,7 +40,7 @@ namespace Services.Implements
         {
             List<Expression<Func<Food, bool>>> filters = new();
 
-            if (filterRequest.CategoryId != null)
+            if (filterRequest.CategoryId != null && filterRequest.CategoryId != Guid.Empty)
             {
                 filters.Add((f) => f.CategoryId == filterRequest.CategoryId);
             }
@@ -93,7 +93,7 @@ namespace Services.Implements
             else
             {
                 page = await _foodRepository.GetPageAsync(
-                    status: Utilities.Enums.BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
+                    status: BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
                     orderBy: orderBy);
             }
 
@@ -112,8 +112,8 @@ namespace Services.Implements
                 (food) => food.Id == id,
             };
             var food = await _foodRepository.FirstOrDefaultAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos));
-            if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
+                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos))
+                ?? throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
             return food;
         }
 
@@ -204,7 +204,7 @@ namespace Services.Implements
         public async Task DeleteAsync(Guid guid)
         {
             var food = await GetByIdAsync(guid);
-            _repository.DeleteAsync(food);
+            await _repository.DeleteAsync(food);
         }
     }
 }

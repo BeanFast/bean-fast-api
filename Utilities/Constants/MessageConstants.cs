@@ -48,6 +48,10 @@ namespace Utilities.Constants
             #endregion
         }
 
+        public static class Area
+        {
+            public static  string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
+        }
         public static class Category
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";
@@ -64,6 +68,11 @@ namespace Utilities.Constants
         public class Food
         {
             public static string FoodNotFound (Guid guid) => $"Đồ ăn với id: {guid} không tồn tại";
+        }
+
+        public class Kitchen
+        {
+            public static string KitchenNotFound(Guid guid) => $"Bếp ăn với id: {guid} không tồn tại";
         }
     }
 }

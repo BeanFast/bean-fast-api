@@ -109,7 +109,7 @@ namespace Repositories.Interfaces
 
         #endregion
 
-        void DeleteAsync(T entity);
+        Task DeleteAsync(T entity);
         void DeleteRangeAsync(IEnumerable<T> entities);
     }
 }

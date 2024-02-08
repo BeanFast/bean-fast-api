@@ -107,6 +107,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IKitchenService, KitchenService>();
             services.AddScoped<ICloudStorageService, FirebaseCloudStorageService>();
             services.AddScoped<StorageClient>(f => StorageClient.Create());
+            services.AddScoped<IAreaService, AreaService>();
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)

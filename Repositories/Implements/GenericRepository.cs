@@ -236,10 +236,10 @@ namespace Repositories.Implements
             _dbSet.UpdateRange(entities);
         }
 
-        public void DeleteAsync(T entity)
+        public async Task DeleteAsync(T entity)
         {
             entity.Status = (int)BaseEntityStatus.INACTIVE;
-            UpdateAsync(entity);
+            await UpdateAsync(entity);
         }
 
         public void DeleteRangeAsync(IEnumerable<T> entities)
