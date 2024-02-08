@@ -34,7 +34,7 @@ public class FoodsController : BaseController
         }
         else
         {
-            foods = await _foodService.GetPageAsync(userRole, filterRequest,paginationRequest);
+            foods = await _foodService.GetPageAsync(userRole, filterRequest, paginationRequest);
         }
 
         return SuccessResult(foods);
@@ -52,7 +52,14 @@ public class FoodsController : BaseController
     public async Task<IActionResult> CreateFood([FromForm] CreateFoodRequest request)
     {
         await _foodService.CreateFoodAsync(request);
-        return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);
+        return SuccessResult<object>(statusCode: HttpStatusCode.Created);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateFood([FromRoute] Guid id, [FromForm] UpdateFoodRequest request)
+    {
+        await _foodService.UpdateFoodAsync(id, request);
+        return SuccessResult<object>(statusCode: HttpStatusCode.OK);
     }
 
     [HttpDelete("{id}")]

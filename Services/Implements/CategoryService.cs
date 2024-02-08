@@ -45,6 +45,17 @@ namespace Services.Implements
             return category!;
         }
 
+        public async Task<Category?> GetById(Guid id, BaseEntityStatus status)
+        {
+            var category = await _categoryRepository.FirstOrDefaultAsync(status ,filters: new() { c => c.Id == id });
+            if (category is null)
+            {
+                throw new EntityNotFoundException(MessageConstants.Category.CategoryNotFound);
+            }
+
+            return category!;
+        }
+
         public async Task CreateCategory(CreateCategoryRequest category)
         {
             var categoryEntity = _mapper.Map<Category>(category);

@@ -18,6 +18,8 @@ namespace Services.Interfaces
         Task<Food> GetByIdAsync(Guid id);
         Task CreateFoodAsync(CreateFoodRequest request);
 
+        Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request);
+
         Task DeleteAsync(Guid guid);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Google.Cloud.Storage.V1;
+﻿using Google;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client.Extensions.Msal;
@@ -17,11 +18,14 @@ namespace Services.Implements
     {
         private readonly StorageClient _storageClient;
         private readonly AppSettings _appSettings;
+        private readonly FirebaseSettings _firebaseSetting;
 
         public FirebaseCloudStorageService(StorageClient storageClient, IOptions<AppSettings> settings)
         {
             _storageClient = storageClient;
             _appSettings = settings.Value;
+            _firebaseSetting = _appSettings.Firebase;
+
         }
         public async Task<string> UploadFileAsync(Guid id, string folderName, string contentType, IFormFile file)
         {
@@ -39,6 +43,23 @@ namespace Services.Implements
             catch
             {
                 throw;
+            }
+        }
+        public async Task DeleteFileAsync(Guid id, string folderName)
+        {
+            try
+            {
+                await _storageClient.DeleteObjectAsync(
+                    _firebaseSetting.StorageBucket,
+                    $"{folderName}/{id}",
+                    null,
+                    CancellationToken.None
+                    );
+                
+            }
+            catch (GoogleApiException ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
             }
         }
     }

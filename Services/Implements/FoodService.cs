@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
@@ -23,7 +24,6 @@ namespace Services.Implements
         private readonly IGenericRepository<Food> _foodRepository;
         private readonly AppSettings _appSettings;
         private readonly ICloudStorageService _cloudStorageService;
-
         private readonly ICategoryService _categoryService;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
@@ -38,7 +38,7 @@ namespace Services.Implements
 
         private List<Expression<Func<Food, bool>>> GetFilterFromFilterRequest(FoodFilterRequest filterRequest)
         {
-            List<Expression<Func<Food, bool>>> filters = new ();
+            List<Expression<Func<Food, bool>>> filters = new();
 
             if (filterRequest.CategoryId != null)
             {
@@ -96,7 +96,7 @@ namespace Services.Implements
                     status: Utilities.Enums.BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
                     orderBy: orderBy);
             }
-            
+
             return page;
         }
 
@@ -112,19 +112,30 @@ namespace Services.Implements
                 (food) => food.Id == id,
             };
             var food = await _foodRepository.FirstOrDefaultAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!));
+                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos));
             if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
             return food;
         }
 
-        public async Task<Food> GetByIdAsync(Guid id, BaseEntityStatus status)
+        public async Task<Food> GetByIdAsync(Guid id, string roleName)
         {
+            Food? food = null;
             List<Expression<Func<Food, bool>>> filters = new()
             {
                 (food) => food.Id == id,
             };
-            var food = await _foodRepository.FirstOrDefaultAsync(status: status,
-                filters: filters, include: f => f.Include(f => f.Category!));
+            if (roleName.Equals(RoleName.ADMIN.ToString()))
+            {
+                food = await _foodRepository.FirstOrDefaultAsync(
+                    filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
+            }
+            else
+            {
+                food = await _foodRepository.FirstOrDefaultAsync(status: BaseEntityStatus.ACTIVE,
+                filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
+            }
+
+
             if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
             return food;
         }
@@ -154,6 +165,40 @@ namespace Services.Implements
             }
 
             await _foodRepository.InsertAsync(foodEntity);
+        }
+
+        public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
+        {
+            var foodEntity = await GetByIdAsync(foodId);
+            var category = await _categoryService.GetById(foodEntity.CategoryId, BaseEntityStatus.ACTIVE);
+            foodEntity.Price = request.Price;
+            foodEntity.Description = request.Description;
+            foodEntity.Name = request.Name;
+            foodEntity.Category = category;
+            if (request.Image != null)
+            {
+                await _cloudStorageService.DeleteFileAsync(foodId, _appSettings.Firebase.FolderNames.Food);
+                string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
+                foodEntity.ImagePath = newFoodImageUrl;
+            }
+            if (request.Combos is not null && request.Combos.Count > 0)
+            {
+                foodEntity.IsCombo = true;
+                var comboEntity =  new List<Combo>();
+                foreach (var combo in request.Combos!)
+                {
+                    await GetByIdAsync(combo.FoodId);
+                    comboEntity.Add(new Combo
+                    {
+                        MasterFoodId = foodId,
+                        FoodId = combo.FoodId,
+                        Quantity = combo.Quantity,
+                        Code = "Combo_xxx"
+                    });
+                    foodEntity.Combos = comboEntity;
+                }
+            }
+            await _foodRepository.UpdateAsync(foodEntity);
         }
 
         public async Task DeleteAsync(Guid guid)
