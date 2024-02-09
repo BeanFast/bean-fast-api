@@ -11,12 +11,9 @@ using Services.Interfaces;
 using Utilities.Constants;
 using Services.Mappers;
 using BeanFastApi.Middlewares;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 using Utilities.Settings;
-using Microsoft.Extensions.Configuration;
 using Google.Cloud.Storage.V1;
-using Microsoft.Extensions.DependencyInjection;
 
 
 namespace BeanFastApi.Extensions
@@ -106,8 +103,10 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IKitchenService, KitchenService>();
             services.AddScoped<ICloudStorageService, FirebaseCloudStorageService>();
-            services.AddScoped<StorageClient>(f => StorageClient.Create());
+            services.AddScoped(f => StorageClient.Create());
             services.AddScoped<IAreaService, AreaService>();
+            services.AddScoped<ISchoolService, SchoolService>();
+
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)

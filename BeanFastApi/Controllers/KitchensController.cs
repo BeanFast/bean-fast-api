@@ -21,7 +21,7 @@ public class KitchensController : BaseController
         [FromQuery] PaginationRequest paginationRequest,
         [FromQuery] KitchenFilterRequest filterRequest)
     {
-        string? userRole = this.GetUserRole();
+        string? userRole = GetUserRole();
         return SuccessResult(await _kitchenService.GetKitchenPageAsync(paginationRequest, filterRequest, userRole));
     }
     [HttpPost]
@@ -30,8 +30,8 @@ public class KitchensController : BaseController
         await _kitchenService.CreateKitchenAsync(request);
         return SuccessResult<object>(statusCode: HttpStatusCode.Created, data: new { Id = Guid.NewGuid() });
     }
-    [HttpPut]
-    public async Task<IActionResult> UpdateKitchenAsync([FromForm] CreateKitchenRequest request)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateKitchenAsync([FromRoute] Guid id,[FromForm] CreateKitchenRequest request)
     {
         return null;
     }
