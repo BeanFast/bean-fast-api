@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
-    <Folder Include="Models\Menu\Request\" />
+    <Folder Include="Models\Menu\Request\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

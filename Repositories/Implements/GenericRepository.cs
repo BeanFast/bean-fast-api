@@ -45,7 +45,7 @@ namespace Repositories.Implements
         }
 
         private IQueryable<T> buildQuery(
-            BaseEntityStatus status,
+            int status,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null
@@ -54,7 +54,7 @@ namespace Repositories.Implements
             IQueryable<T> query = _dbSet;
             if (include != null) query = include(query);
             filters?.ForEach(filter => query = query.Where(filter));
-            query.Where(e => e.Status.Equals((int)status));
+            query.Where(e => e.Status.Equals(status));
             if (orderBy != null) query = orderBy(query);
             return query;
         }
