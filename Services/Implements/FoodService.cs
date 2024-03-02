@@ -17,6 +17,7 @@ using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using static Azure.Core.HttpHeader;
 
 namespace Services.Implements
 {
@@ -164,12 +165,12 @@ namespace Services.Implements
             foodEntity.Status = BaseEntityStatus.Active;
             foodEntity.ImagePath = imagePath;
 
+                var comboEntityList = new List<Combo>();
             if (request.Combos is not null && request.Combos.Count > 0)
             {
                 foodEntity.IsCombo = true;
-                var comboEntityList = new List<Combo>();
 
-                foreach (var combo in foodEntity.Combos!)
+                foreach (var combo in request.Combos!)
                 {
                     var comboEntity = new Combo 
                     { 
@@ -189,12 +190,13 @@ namespace Services.Implements
                     //comboEntity.Code = "123232";
 
                 }
-                foodEntity.Combos = comboEntityList;
+                //foodEntity.Combos = comboEntityList;
             }
-            //foodEntity.Combos.Clear();
+            //var comboEntityList = foodEntity.Combos;
+            foodEntity.Combos!.Clear();
             await Console.Out.WriteLineAsync(foodEntity.ToString());
             await _foodRepository.InsertAsync(foodEntity);
-            //await _comboRepository.InsertRangeAsync(comboEntityList);
+            await _comboRepository.InsertRangeAsync(comboEntityList);
         }
 
         public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
