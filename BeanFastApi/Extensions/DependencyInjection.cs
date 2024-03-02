@@ -28,7 +28,7 @@ namespace BeanFastApi.Extensions
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             string connectionStringKey = "";
-            if(Environment.GetEnvironmentVariable("database") == "local")
+            if (Environment.GetEnvironmentVariable("database") == "local")
             {
                 connectionStringKey = "LocalConnection";
             }
@@ -36,7 +36,12 @@ namespace BeanFastApi.Extensions
             {
                 connectionStringKey = "DefaultConnection";
             }
-            services.AddDbContext<BeanFastContext>(options => options.UseSqlServer(configuration.GetConnectionString(connectionStringKey)));
+            services.AddDbContext<BeanFastContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString(connectionStringKey));
+                options.EnableDetailedErrors();
+                options.EnableSensitiveDataLogging();
+            });
             return services;
         }
         public static IServiceCollection AddSwagger(this IServiceCollection services)
@@ -95,7 +100,7 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            
+
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
@@ -116,7 +121,7 @@ namespace BeanFastApi.Extensions
                 typeof(CategoryMapper),
                 typeof(MenuMapper),
                 typeof(KitchenMapper)
-                
+
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;
@@ -126,6 +131,6 @@ namespace BeanFastApi.Extensions
             services.Configure<AppSettings>(configuration);
             return services;
         }
-        
+
     }
 }

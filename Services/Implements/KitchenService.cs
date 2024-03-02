@@ -14,6 +14,7 @@ using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
+using Utilities.Statuses;
 
 namespace Services.Implements;
 
@@ -61,7 +62,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         else
         {
             page = await _repository.GetPageAsync(
-                status: BaseEntityStatus.ACTIVE, paginationRequest: paginationRequest, 
+                status: BaseEntityStatus.Active, paginationRequest: paginationRequest, 
                 filters: filters, selector: selector);
         }
         return page;
@@ -75,12 +76,12 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         }) ?? throw new EntityNotFoundException(MessageConstants.Kitchen.KitchenNotFound(id));
     }
 
-    public async Task<Kitchen> GetByIdAsync(BaseEntityStatus stautus, Guid id)
+    public async Task<Kitchen> GetByIdAsync(int status, Guid id)
     {
         return await _repository.FirstOrDefaultAsync(filters: new()
         {
             kitchen => kitchen.Id == id,
-            kitchen => kitchen.Status == (int) stautus
+            kitchen => kitchen.Status == status
         }) ?? throw new EntityNotFoundException(MessageConstants.Kitchen.KitchenNotFound(id));
     }
 
@@ -90,7 +91,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         var kitchenId = Guid.NewGuid();
         string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image.ContentType, request.Image);
         kitchenEntity.ImagePath = imageUrl;
-        kitchenEntity.Status = (int)BaseEntityStatus.ACTIVE;
+        kitchenEntity.Status = BaseEntityStatus.Active;
         await _areaService.GetAreaByIdAsync(request.AreaId);
         //kitchenEntity.Area = areaEntity;
         await _repository.InsertAsync(kitchenEntity);
@@ -98,7 +99,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     }
     public async Task DeleteKitchenAsync(Guid id)
     {
-        var kitchenEntity = await GetByIdAsync(BaseEntityStatus.ACTIVE, id);
+        var kitchenEntity = await GetByIdAsync(BaseEntityStatus.Active, id);
         await _repository.DeleteAsync(kitchenEntity);
     }
 }

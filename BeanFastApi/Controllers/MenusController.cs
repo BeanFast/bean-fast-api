@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Implements;
 using Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using DataTransferObjects.Models.Menu.Response;
+using DataTransferObjects.Models.Menu.Request;
 namespace BeanFastApi.Controllers;
 
 public class MenusController : BaseController
@@ -16,10 +18,23 @@ public class MenusController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetFoodPage([FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetMenusAsync(
+        [FromQuery] PaginationRequest paginationRequest,
+        [FromQuery] MenuFilterRequest filterRequest
+        )
     {
-        string userId = GetUserId();
-        Console.WriteLine("User id: ", userId);
-        return SuccessResult(await _menuService.GetMenuPage(paginationRequest));
+        object foods;
+        var userRole = GetUserRole();
+        if (paginationRequest is { Size: 0, Page: 0 })
+        {
+            foods = await _menuService.GetAllAsync(userRole, filterRequest);
+        }
+        else
+        {
+            foods = await _menuService.GetPageAsync(paginationRequest, userRole, filterRequest);
+        }
+
+        return SuccessResult(foods);
+        //return Problem()
     }
 }

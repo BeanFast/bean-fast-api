@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Utilities.Enums
+namespace Utilities.Statuses
 {
-    public enum BaseEntityStatus
+    public class MenuStatus : BaseEntityStatus
     {
-        INACTIVE,
-
-        ACTIVE
     }
 }

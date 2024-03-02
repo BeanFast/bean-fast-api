@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using Utilities.Enums;
+using Utilities.Statuses;
 
 namespace Services.Implements;
 
@@ -11,7 +12,7 @@ public class ComboService : BaseService<Combo>, IComboService
 {
     public async Task CreateCombo(Combo combo)
     {
-        combo.Status = (int)BaseEntityStatus.ACTIVE;
+        combo.Status = BaseEntityStatus.Active;
         combo.Code = combo.Id.ToString();
         
     }

@@ -1,6 +1,6 @@
 ﻿namespace DataTransferObjects.Models.Menu.Response;
 
-public class GetMenuListResponse
+public class GetMenuResponse
 {
     public Guid Id { get; set; }
     public Guid KitchenId { get; set; }

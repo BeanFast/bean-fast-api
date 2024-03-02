@@ -14,7 +14,7 @@ public interface IKitchenService
 
     public Task CreateKitchenAsync(CreateKitchenRequest request);
 
-    public Task<Kitchen> GetByIdAsync(BaseEntityStatus stautus, Guid id);
+    public Task<Kitchen> GetByIdAsync(int status, Guid id);
 
     public Task<Kitchen> GetByIdAsync(Guid id);
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Utilities.Statuses
 {
-    public static class BaseEntityStatus
+    public  class BaseEntityStatus
     {
         public static readonly int Deleted = 0;
 

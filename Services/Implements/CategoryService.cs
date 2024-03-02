@@ -4,14 +4,10 @@ using BusinessObjects.Models;
 using DataTransferObjects.Models.Category.Request;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
+using Utilities.Statuses;
 
 namespace Services.Implements
 {
@@ -31,7 +27,7 @@ namespace Services.Implements
                 return _categoryRepository.GetListAsync();
             }
 
-            return _categoryRepository.GetListAsync(BaseEntityStatus.ACTIVE);
+            return _categoryRepository.GetListAsync(BaseEntityStatus.Active);
         }
 
         public async Task<Category?> GetById(Guid id)
@@ -45,7 +41,7 @@ namespace Services.Implements
             return category!;
         }
 
-        public async Task<Category?> GetById(Guid id, BaseEntityStatus status)
+        public async Task<Category?> GetById(Guid id, int status)
         {
             var category = await _categoryRepository.FirstOrDefaultAsync(status ,filters: new() { c => c.Id == id });
             if (category is null)

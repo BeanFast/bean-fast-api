@@ -11,6 +11,6 @@ namespace Services.Interfaces
     public interface IAreaService
     {
         Task<Area> GetAreaByIdAsync(Guid id);
-        Task<Area> GetAreaByIdAsync(BaseEntityStatus status, Guid id);
+        Task<Area> GetAreaByIdAsync(int status, Guid id);
     }
 }

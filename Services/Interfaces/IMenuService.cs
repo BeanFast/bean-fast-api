@@ -7,7 +7,9 @@ namespace Services.Interfaces;
 
 public interface IMenuService
 {
-    Task<IPaginable<GetMenuListResponse>> GetMenuPage(PaginationRequest request);
+    Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest);
+    Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest);
 
-    Task CreateMenuAsync(CreateMenuRequest createMenuRequest);
+
+    Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId);
 }

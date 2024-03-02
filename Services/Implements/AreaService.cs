@@ -29,12 +29,12 @@ namespace Services.Implements
             return area;
         }
 
-        public async Task<Area> GetAreaByIdAsync(BaseEntityStatus status, Guid id)
+        public async Task<Area> GetAreaByIdAsync(int status, Guid id)
         {
             var area = await _repository.FirstOrDefaultAsync(filters: new()
             {
                 area => area.Id == id,
-                area => area.Status == (int) status
+                area => area.Status == status
             }) ?? throw new EntityNotFoundException(MessageConstants.Area.AreaNotFound(id));
             return area;
         }
