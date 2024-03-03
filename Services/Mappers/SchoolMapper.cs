@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 
 namespace Services.Mappers
@@ -9,6 +10,7 @@ namespace Services.Mappers
         public SchoolMapper()
         {
             CreateMap<School, GetSchoolResponse>();
+            CreateMap<CreateSchoolRequest, School>();
         }
     }
 }

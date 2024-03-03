@@ -4,6 +4,7 @@ using DataTransferObjects.Models.School.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using System.Net;
 
 namespace BeanFastApi.Controllers
 {
@@ -22,6 +23,19 @@ namespace BeanFastApi.Controllers
             [FromQuery] PaginationRequest paginationRequest)
         {
             return await _schoolService.GetSchoolPage(paginationRequest, filterRequest);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateSchool([FromForm] CreateSchoolRequest request)
+        {
+            await _schoolService.CreateSchoolAsync(request);
+            return  SuccessResult<object>(statusCode: HttpStatusCode.Created);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSchool([FromRoute]Guid id)
+        {
+            await _schoolService.DeleteSchoolAsync(id);
+            return SuccessResult<object>();
         }
     }
 }

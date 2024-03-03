@@ -35,7 +35,7 @@ namespace Services.Implements
             var category = await _categoryRepository.FirstOrDefaultAsync(filters: new() { c => c.Id == id });
             if (category is null)
             {
-                throw new EntityNotFoundException(MessageConstants.Category.CategoryNotFound);
+                throw new EntityNotFoundException(MessageConstants.CategoryMessageConstrant.CategoryNotFound);
             }
 
             return category!;
@@ -46,7 +46,7 @@ namespace Services.Implements
             var category = await _categoryRepository.FirstOrDefaultAsync(status ,filters: new() { c => c.Id == id });
             if (category is null)
             {
-                throw new EntityNotFoundException(MessageConstants.Category.CategoryNotFound);
+                throw new EntityNotFoundException(MessageConstants.CategoryMessageConstrant.CategoryNotFound);
             }
 
             return category!;
@@ -64,7 +64,7 @@ namespace Services.Implements
                 });
             if (checkExistList.Count > 0)
             {
-                throw new DataExistedException(MessageConstants.Category.CategoryCodeOrNameExisted);
+                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryCodeOrNameExisted);
             }
 
             await _categoryRepository.InsertAsync(categoryEntity);

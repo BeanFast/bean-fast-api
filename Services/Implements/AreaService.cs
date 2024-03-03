@@ -25,7 +25,7 @@ namespace Services.Implements
             var area = await _repository.FirstOrDefaultAsync(filters: new()
             {
                 area => area.Id == id
-            }) ?? throw new EntityNotFoundException(MessageConstants.Area.AreaNotFound(id));
+            }) ?? throw new EntityNotFoundException(MessageConstants.AreaMessageConstrant.AreaNotFound(id));
             return area;
         }
 
@@ -35,7 +35,7 @@ namespace Services.Implements
             {
                 area => area.Id == id,
                 area => area.Status == status
-            }) ?? throw new EntityNotFoundException(MessageConstants.Area.AreaNotFound(id));
+            }) ?? throw new EntityNotFoundException(MessageConstants.AreaMessageConstrant.AreaNotFound(id));
             return area;
         }
     }

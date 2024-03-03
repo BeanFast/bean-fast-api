@@ -42,5 +42,9 @@ namespace Utilities.Constants
         {
             public static string ComboPrefix = "Cb";
         }
+        public class SchoolCodeConstrant
+        {
+            public static string SchoolPrefix = "S";
+        }
     }
 }

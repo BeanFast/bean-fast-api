@@ -25,7 +25,7 @@ namespace Utilities.ValidationAttributes
                     {
                         "Page"
                     };
-                    var errorMessage = new ValidationResult(MessageConstants.Pagination.PageRequired, errorFieldList);
+                    var errorMessage = new ValidationResult(MessageConstants.PaginationMessageConstrant.PageRequired, errorFieldList);
                     return errorMessage;
                 }
                 else if (pageValue != 0 && sizeValue == 0)
@@ -34,7 +34,7 @@ namespace Utilities.ValidationAttributes
                     {
                         "Size"
                     };
-                    var errorMessage = new ValidationResult(MessageConstants.Pagination.SizeRequired, errorFieldList);
+                    var errorMessage = new ValidationResult(MessageConstants.PaginationMessageConstrant.SizeRequired, errorFieldList);
                     return errorMessage;
                 }
 

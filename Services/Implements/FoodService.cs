@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Net.NetworkInformation;
 using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
@@ -19,7 +18,6 @@ using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
-using static Azure.Core.HttpHeader;
 
 namespace Services.Implements
 {
@@ -120,7 +118,7 @@ namespace Services.Implements
             };
             var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!))
-                ?? throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
+                ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
 
@@ -143,7 +141,7 @@ namespace Services.Implements
             }
 
 
-            if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
+            if (food is null) throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
 

@@ -73,7 +73,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         return await _repository.FirstOrDefaultAsync(filters: new()
         {
             kitchen => kitchen.Id == id
-        }) ?? throw new EntityNotFoundException(MessageConstants.Kitchen.KitchenNotFound(id));
+        }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
     }
 
     public async Task<Kitchen> GetByIdAsync(int status, Guid id)
@@ -82,7 +82,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         {
             kitchen => kitchen.Id == id,
             kitchen => kitchen.Status == status
-        }) ?? throw new EntityNotFoundException(MessageConstants.Kitchen.KitchenNotFound(id));
+        }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
     }
 
     public async Task CreateKitchenAsync(CreateKitchenRequest request)
