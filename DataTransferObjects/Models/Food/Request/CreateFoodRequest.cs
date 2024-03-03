@@ -10,7 +10,6 @@ namespace DataTransferObjects.Models.Food.Request
 {
     public class CreateFoodRequest
     {
-        public string Code { get; set; } = default!;
         public string Name { get; set; } = default!;
         public double Price { get; set; }
         public string Description { get; set; } = default!;

@@ -111,6 +111,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped(f => StorageClient.Create());
             services.AddScoped<IAreaService, AreaService>();
             services.AddScoped<ISchoolService, SchoolService>();
+            services.AddScoped<IComboService, ComboService>();
 
             return services;
         }

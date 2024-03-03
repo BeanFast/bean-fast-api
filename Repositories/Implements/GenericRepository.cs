@@ -206,11 +206,26 @@ namespace Repositories.Implements
             await UpdateAsync(entity);
         }
 
-        public void DeleteRangeAsync(IEnumerable<T> entities)
+
+
+        public async Task DeleteRangeAsync(IEnumerable<T> entities)
         {
-            _dbSet.RemoveRange(entities);
+            foreach (var entity in entities)
+            {
+                await DeleteAsync(entity);
+            }
         }
 
-        
+        public async Task HardDeleteAsync(T entity)
+        {
+            _dbSet.Remove(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task HardDeleteRangeAsync(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -110,6 +110,10 @@ namespace Repositories.Interfaces
         #endregion
 
         Task DeleteAsync(T entity);
-        void DeleteRangeAsync(IEnumerable<T> entities);
+        Task DeleteRangeAsync(IEnumerable<T> entities);
+
+        Task HardDeleteAsync(T entity);
+
+        Task HardDeleteRangeAsync(IEnumerable<T> entities);
     }
 }

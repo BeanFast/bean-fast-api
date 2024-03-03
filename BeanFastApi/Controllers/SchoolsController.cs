@@ -17,7 +17,9 @@ namespace BeanFastApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPage([FromQuery] SchoolFilterRequest filterRequest, [FromQuery] PaginationRequest paginationRequest)
+        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPage(
+            [FromQuery] SchoolFilterRequest filterRequest, 
+            [FromQuery] PaginationRequest paginationRequest)
         {
             return await _schoolService.GetSchoolPage(paginationRequest, filterRequest);
         }
