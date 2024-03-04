@@ -8,6 +8,8 @@ using DataTransferObjects.Models.Food.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Services.Interfaces;
+using BeanFastApi.Validators;
+using Utilities.Enums;
 
 namespace BeanFastApi.Controllers;
 
@@ -49,6 +51,7 @@ public class FoodsController : BaseController
     }
 
     [HttpPost]
+    [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> CreateFood([FromForm] CreateFoodRequest request)
     {
         await _foodService.CreateFoodAsync(request);
@@ -56,6 +59,7 @@ public class FoodsController : BaseController
     }
 
     [HttpPut("{id}")]
+    [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> UpdateFood([FromRoute] Guid id, [FromForm] UpdateFoodRequest request)
     {
         await _foodService.UpdateFoodAsync(id, request);
@@ -63,6 +67,7 @@ public class FoodsController : BaseController
     }
 
     [HttpDelete("{id}")]
+    [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> DeleteFood([FromRoute] Guid id)
     {
         await _foodService.DeleteAsync(id);
