@@ -14,5 +14,6 @@ namespace Services.Interfaces
         Task CreateSchoolAsync(CreateSchoolRequest request);
         Task<IPaginable<GetSchoolResponse>> GetSchoolPage(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
         Task DeleteSchoolAsync(Guid id);
+        Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request);
     }
 }

@@ -5,6 +5,7 @@ using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -26,6 +27,7 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
         private readonly AppSettings _appSettings;
         private readonly IAreaService _areaService;
+        //private readonly I
         public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper)
         {
             _cloudStorageService = cloudStorageService;
@@ -98,12 +100,12 @@ namespace Services.Implements
             schoolEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.SchoolCodeConstrant.SchoolPrefix, schoolEntity.Name, schoolId);
             await _areaService.GetAreaByIdAsync(AreaStatus.Active, request.AreaId);
             var dupplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
-            if(dupplicatedSchool != null)
+            if (dupplicatedSchool != null)
             {
                 throw new DataExistedException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
             }
             var imagePath = await _cloudStorageService.UploadFileAsync(
-                schoolId, _appSettings.Firebase.FolderNames.School, 
+                schoolId, _appSettings.Firebase.FolderNames.School,
                 request.Image.ContentType, request.Image);
             schoolEntity.ImagePath = imagePath;
             schoolEntity.Id = schoolId;
@@ -116,6 +118,34 @@ namespace Services.Implements
         {
             var schoolEntity = await GetByIdAsync(SchoolStatus.Active, id);
             await _repository.DeleteAsync(schoolEntity);
+        }
+
+        public async Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request)
+        {
+            var schoolEntity = await GetByIdAsync(id);
+            if (!request.Address.Equals(schoolEntity.Address) && !request.AreaId.Equals(request.AreaId))
+            {
+                await _areaService.GetAreaByIdAsync(AreaStatus.Active, id);
+                var dupplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
+                if (dupplicatedSchool != null)
+                {
+                    throw new DataExistedException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
+                }
+                schoolEntity.AreaId = request.AreaId;
+                schoolEntity.Address = request.Address;
+            }
+            schoolEntity.Name = request.Name;
+            if (request.Image != null)
+            {
+                await _cloudStorageService.DeleteFileAsync(schoolEntity.Id, _appSettings.Firebase.FolderNames.School);
+                var imagePath = await _cloudStorageService.UploadFileAsync(
+                schoolEntity.Id, _appSettings.Firebase.FolderNames.School,
+                request.Image.ContentType, request.Image);
+                schoolEntity.ImagePath = imagePath;
+            }
+
+
+            await _repository.UpdateAsync(schoolEntity);
         }
     }
 }
