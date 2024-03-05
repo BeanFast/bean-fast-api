@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Food.Request
 {
@@ -15,13 +16,14 @@ namespace DataTransferObjects.Models.Food.Request
         [Range(1, Double.MaxValue)]
         public double Price { get; set; }
         public string Description { get; set; } = default!;
+        [RequiredGuid]
         public Guid CategoryId { get; set; }
         public IList<CreateFoodCombo>? Combos { get; set; }
         public IFormFile Image { get; set; } = default!;
 
         public class CreateFoodCombo
         {
-
+            [RequiredGuid]
             public Guid FoodId { get; set; }
             [Range(1, Int32.MaxValue)]
             public int Quantity { get; set; }

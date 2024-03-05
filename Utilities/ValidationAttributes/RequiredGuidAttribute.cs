@@ -8,7 +8,7 @@ using Utilities.Constants;
 
 namespace Utilities.ValidationAttributes
 {
-    public class RequireGuidAttribute : ValidationAttribute
+    public class RequiredGuidAttribute : ValidationAttribute
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
