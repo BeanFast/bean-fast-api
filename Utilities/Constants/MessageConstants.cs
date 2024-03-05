@@ -48,6 +48,13 @@ namespace Utilities.Constants
             #endregion
         }
 
+        public static class Guid
+        {
+            public const string GuidRequired = "Guid là bắt buộc";
+
+            public const string GuidNotValid = "Guid không hợp lệ";
+        }
+
         public static class Category
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";
