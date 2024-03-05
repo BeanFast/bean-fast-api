@@ -49,10 +49,17 @@ namespace Utilities.Constants
             #endregion
         }
 
+        public static class GuidMessageConstrant
+        {
+            public const string GuidRequired = "Guid là bắt buộc";
+
+            public const string GuidNotValid = "Guid không hợp lệ";
+        }
         public static class AreaMessageConstrant
         {
-            public static  string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
+            public static string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
         }
+
         public static class CategoryMessageConstrant
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";
