@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Food.Request
 {
     public class UpdateFoodRequest
     {
+        [RequiredGuid]
         public Guid CategoryId { get; set; } = default!;
 
         public string Name { get; set; }
@@ -23,6 +25,7 @@ namespace DataTransferObjects.Models.Food.Request
 
         public class UpdateFoodCombo
         {
+            [RequiredGuid]
             public Guid FoodId { get; set; }
             public int Quantity { get; set; }
         }
