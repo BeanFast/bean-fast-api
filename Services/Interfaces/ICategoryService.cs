@@ -17,7 +17,7 @@ namespace Services.Interfaces
 
         public Task<Category?> GetById(Guid id);
 
-        public Task<Category?> GetById(Guid id, BaseEntityStatus status);
+        public Task<Category?> GetById(Guid id, int status);
 
     }
 }

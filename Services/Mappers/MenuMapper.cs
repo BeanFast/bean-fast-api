@@ -8,7 +8,7 @@ public class MenuMapper : Profile
 {
     public MenuMapper()
     {
-        CreateMap<Menu, GetMenuListResponse>();
-        CreateMap<Kitchen, GetMenuListResponse.GetMenuKitchenResponse>();
+        CreateMap<Menu, GetMenuResponse>();
+        CreateMap<Kitchen, GetMenuResponse.GetMenuKitchenResponse>();
     }
 }

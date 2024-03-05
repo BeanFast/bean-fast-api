@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Net.NetworkInformation;
 using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
@@ -10,37 +9,41 @@ using DataTransferObjects.Models.Food.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
+using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
     public class FoodService : BaseService<Food>, IFoodService
     {
-        private readonly IGenericRepository<Food> _foodRepository;
         private readonly AppSettings _appSettings;
         private readonly ICloudStorageService _cloudStorageService;
         private readonly ICategoryService _categoryService;
+        private readonly IComboService _comboService;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
             ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings,
-            ICategoryService categoryService) : base(unitOfWork, mapper)
+            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper)
         {
-            _foodRepository = unitOfWork.GetRepository<Food>();
+
             _cloudStorageService = cloudStorageService;
             _categoryService = categoryService;
             _appSettings = appSettings.Value;
+            _comboService = comboService;
         }
 
         private List<Expression<Func<Food, bool>>> GetFilterFromFilterRequest(FoodFilterRequest filterRequest)
         {
             List<Expression<Func<Food, bool>>> filters = new();
 
-            if (filterRequest.CategoryId != null)
+            if (filterRequest.CategoryId != null && filterRequest.CategoryId != Guid.Empty)
             {
                 filters.Add((f) => f.CategoryId == filterRequest.CategoryId);
             }
@@ -66,16 +69,18 @@ namespace Services.Implements
 
             return filters;
         }
-        public async Task<ICollection<Food>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
+        public async Task<ICollection<GetFoodResponse>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
         {
+            Expression<Func<Food, GetFoodResponse>> selector = (f => _mapper.Map<GetFoodResponse>(f));
+
             Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include = (f) => f.Include(f => f.Category!);
             var filters = GetFilterFromFilterRequest(filterRequest);
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                return await _foodRepository.GetListAsync(include: include, filters: filters);
+                return await _repository.GetListAsync(include: include, filters: filters, selector: selector);
             }
 
-            return await _foodRepository.GetListAsync(BaseEntityStatus.ACTIVE, include: include, filters: filters);
+            return await _repository.GetListAsync(BaseEntityStatus.Active, include: include, filters: filters, selector: selector);
         }
 
         public async Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest,
@@ -86,14 +91,14 @@ namespace Services.Implements
             IPaginable<GetFoodResponse>? page = null;
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                page = await _foodRepository.GetPageAsync(
+                page = await _repository.GetPageAsync(
                     paginationRequest: request, selector: selector,
                     orderBy: orderBy);
             }
             else
             {
-                page = await _foodRepository.GetPageAsync(
-                    status: Utilities.Enums.BaseEntityStatus.ACTIVE, paginationRequest: request, selector: selector,
+                page = await _repository.GetPageAsync(
+                    status: BaseEntityStatus.Active, paginationRequest: request, selector: selector,
                     orderBy: orderBy);
             }
 
@@ -111,9 +116,9 @@ namespace Services.Implements
             {
                 (food) => food.Id == id,
             };
-            var food = await _foodRepository.FirstOrDefaultAsync(status: Utilities.Enums.BaseEntityStatus.ACTIVE,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos));
-            if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
+            var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!))
+                ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
 
@@ -126,51 +131,60 @@ namespace Services.Implements
             };
             if (roleName.Equals(RoleName.ADMIN.ToString()))
             {
-                food = await _foodRepository.FirstOrDefaultAsync(
+                food = await _repository.FirstOrDefaultAsync(
                     filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
             }
             else
             {
-                food = await _foodRepository.FirstOrDefaultAsync(status: BaseEntityStatus.ACTIVE,
+                food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
             }
 
 
-            if (food is null) throw new EntityNotFoundException(MessageConstants.Food.FoodNotFound(id));
+            if (food is null) throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
 
         public async Task CreateFoodAsync(CreateFoodRequest request)
         {
             Console.WriteLine(request);
-            var foodId = Guid.NewGuid();
-            string imagePath = await _cloudStorageService.UploadFileAsync(foodId,
+            var masterFoodId = Guid.NewGuid();
+            string imagePath = await _cloudStorageService.UploadFileAsync(masterFoodId,
                 _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
             var foodEntity = _mapper.Map<Food>(request);
-            var category = await _categoryService.GetById(request.CategoryId);
-            foodEntity.Id = foodId;
-            foodEntity.Status = (int)BaseEntityStatus.ACTIVE;
+            await _categoryService.GetById(request.CategoryId);
+            foodEntity.Id = masterFoodId;
+            foodEntity.Status = BaseEntityStatus.Active;
             foodEntity.ImagePath = imagePath;
+            foodEntity.Code =  EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, request.Name, masterFoodId);
+            var comboEntityList = new List<Combo>();
+
             if (request.Combos is not null && request.Combos.Count > 0)
             {
                 foodEntity.IsCombo = true;
-                foreach (var foodEntityCombo in foodEntity.Combos!)
+
+                foreach (var combo in request.Combos!)
                 {
-                    await GetByIdAsync(foodEntityCombo.FoodId);
-                    foodEntityCombo.MasterFoodId = foodId;
-                    foodEntityCombo.Id = Guid.NewGuid();
-                    foodEntityCombo.Status = (int)BaseEntityStatus.ACTIVE;
-                    foodEntityCombo.Code = "123232";
+                    var comboEntity = new Combo 
+                    { 
+                        MasterFoodId = masterFoodId,
+                        FoodId = combo.FoodId,
+                        Quantity = combo.Quantity,
+                        
+                    };
+                    comboEntityList.Add(comboEntity);
+
                 }
             }
-
-            await _foodRepository.InsertAsync(foodEntity);
+            foodEntity.Combos?.Clear();
+            await _repository.InsertAsync(foodEntity);
+            await _comboService.CreateComboListAsync(comboEntityList);
         }
 
         public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
         {
             var foodEntity = await GetByIdAsync(foodId);
-            var category = await _categoryService.GetById(foodEntity.CategoryId, BaseEntityStatus.ACTIVE);
+            var category = await _categoryService.GetById(foodEntity.CategoryId, BaseEntityStatus.Active);
             foodEntity.Price = request.Price;
             foodEntity.Description = request.Description;
             foodEntity.Name = request.Name;
@@ -181,30 +195,35 @@ namespace Services.Implements
                 string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
                 foodEntity.ImagePath = newFoodImageUrl;
             }
+            var comboEntities = new List<Combo>();
             if (request.Combos is not null && request.Combos.Count > 0)
             {
                 foodEntity.IsCombo = true;
-                var comboEntity =  new List<Combo>();
                 foreach (var combo in request.Combos!)
                 {
                     await GetByIdAsync(combo.FoodId);
-                    comboEntity.Add(new Combo
+                    var comboEntity = new Combo
                     {
                         MasterFoodId = foodId,
                         FoodId = combo.FoodId,
-                        Quantity = combo.Quantity,
-                        Code = "Combo_xxx"
-                    });
-                    foodEntity.Combos = comboEntity;
+                        Quantity = combo.Quantity
+                    };
+                    comboEntities.Add(comboEntity);
                 }
+                foodEntity.Combos?.Clear();
+                if (!foodEntity.MasterCombos.IsNullOrEmpty()) 
+                    await _comboService.HardDeleteComboListAsync(foodEntity.MasterCombos!);
+                await _comboService.CreateComboListAsync(comboEntities);
             }
-            await _foodRepository.UpdateAsync(foodEntity);
+            await _repository.UpdateAsync(foodEntity);
+            
         }
 
         public async Task DeleteAsync(Guid guid)
         {
             var food = await GetByIdAsync(guid);
-            _repository.DeleteAsync(food);
+            await _repository.DeleteAsync(food);
         }
+
     }
 }

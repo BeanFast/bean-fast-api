@@ -12,7 +12,7 @@ namespace Services.Interfaces
 {
     public interface IFoodService
     {
-        Task<ICollection<Food>>  GetAllAsync(string? userRole, FoodFilterRequest filterRequest);
+        Task<ICollection<GetFoodResponse>>  GetAllAsync(string? userRole, FoodFilterRequest filterRequest);
         Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest, PaginationRequest request);
         Task<GetFoodResponse> GetFoodResponseByIdAsync(Guid id);
         Task<Food> GetByIdAsync(Guid id);

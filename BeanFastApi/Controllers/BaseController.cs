@@ -18,7 +18,7 @@ namespace BeanFastApi.Controllers
             var response = new SuccessApiResponse<T>
             {
                 Data = data,
-                Message = message ?? MessageConstants.DefaultApiMessage.ApiSuccess,
+                Message = message ?? MessageConstants.DefaultMessageConstrant.ApiSuccess,
             };
 
             return new ObjectResult(response) { StatusCode = (int)statusCode };

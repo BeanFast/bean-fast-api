@@ -37,7 +37,7 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> CreateCategory(CreateCategoryRequest category)
         {
             await _categoryService.CreateCategory(category);
-            return SuccessResult<object>(message: MessageConstants.Category.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
+            return SuccessResult<object>(message: MessageConstants.CategoryMessageConstrant.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
         }
     }
 }

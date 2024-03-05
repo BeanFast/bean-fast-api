@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessObjects.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,20 +9,20 @@ namespace Utilities.Constants
 {
     public static class MessageConstants
     {
-        public static class DefaultApiMessage
+        public static class DefaultMessageConstrant
         {
             public static readonly string ApiSuccess = "Thành công";
 
             public static readonly string ApiError = "Có lỗi xảy ra";
 
         }
-        public static class Pagination
+        public static class PaginationMessageConstrant
         {
             public const string PageRequired = "Số trang là bắt buộc";
 
             public const string SizeRequired = "Kích thước trang là bắt buộc";
         }
-        public static class Login
+        public static class LoginMessageConstrant
         {
             #region validation messasges
 
@@ -48,14 +49,18 @@ namespace Utilities.Constants
             #endregion
         }
 
-        public static class Guid
+        public static class GuidMessageConstrant
         {
             public const string GuidRequired = "Guid là bắt buộc";
 
             public const string GuidNotValid = "Guid không hợp lệ";
         }
+        public static class AreaMessageConstrant
+        {
+            public static string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
+        }
 
-        public static class Category
+        public static class CategoryMessageConstrant
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";
 
@@ -68,9 +73,21 @@ namespace Utilities.Constants
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
         }
 
-        public class Food
+        public class FoodMessageConstrant
         {
             public static string FoodNotFound (Guid guid) => $"Đồ ăn với id: {guid} không tồn tại";
+        }
+
+        public class KitchenMessageConstrant
+        {
+            public static string KitchenNotFound(Guid guid) => $"Bếp ăn với id: {guid} không tồn tại";
+        }
+
+        public class SchoolMessageConstrant
+        {
+            public static string SchoolAlreadyExists() => $"Đã tồn tại trường học ở địa chỉ này";
+
+            public static string SchoolNotFound(Guid guid) => $"Trường học với id: {guid} không tồn tại";
         }
     }
 }
