@@ -1,6 +1,8 @@
-using BeanFastApi.Middlewares;
+﻿using BeanFastApi.Middlewares;
 using System.Text.Json;
 using BeanFastApi.Extensions;
+using Utilities.Constants;
+using Utilities.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -10,18 +12,17 @@ var services = builder.Services;
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    
-    //options.
+
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
-
+//Console.WriteLine(EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, "bánh mì bơ sữa", Guid.Parse("8513b8b8-106d-4fc5-b8b2-66d6f9b5861a")));
 services.AddAutoMapperProfiles();
-services.AddSwaggerGen();
-services.AddJWTAuthentication();
+services.AddJwtAuthentication();
 services.AddDatabase(builder.Configuration);
 services.AddUnitOfWork();
 services.AddServices();
+services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
 var app = builder.Build();
 // Configure the HTTP request pipeline.

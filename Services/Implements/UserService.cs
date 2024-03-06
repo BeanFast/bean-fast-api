@@ -26,17 +26,23 @@ namespace Services.Implements
 
         public async Task<LoginResponse> Login(LoginRequest loginRequest)
         {
-            Expression<Func<User, bool>>? whereFilter = null;
+            List<Expression<Func<User, bool>>> whereFilters = null;
             if (loginRequest.Email is not null)
             {
-                whereFilter = (user) => user.Email == loginRequest.Email && user.Role!.Name != RoleName.CUSTOMER.ToString();
+                whereFilters = new()
+                    { user => user.Email == loginRequest.Email && user.Role!.Name != RoleName.CUSTOMER.ToString() };
             }
             else if (loginRequest.Phone is not null)
             {
-                whereFilter = (user) => user.Phone == loginRequest.Phone && user.Role!.Name == RoleName.CUSTOMER.ToString();
+                whereFilters = new()
+                {
+                    (user) => user.Phone == loginRequest.Phone && user.Role!.Name == RoleName.CUSTOMER.ToString()
+                };
             }
+
             Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
-            User user = await _userRepository.FirstOrDefaultAsync(predicate: whereFilter, include: include) ?? throw new InvalidCredentialsException();
+            User user = await _userRepository.FirstOrDefaultAsync(filters: whereFilters, include: include) ??
+                        throw new InvalidCredentialsException();
             if (!PasswordUtil.VerifyPassword(loginRequest.Password, user.Password))
             {
                 throw new InvalidCredentialsException();

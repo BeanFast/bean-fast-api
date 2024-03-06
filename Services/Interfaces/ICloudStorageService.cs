@@ -10,5 +10,7 @@ namespace Services.Interfaces
     public interface ICloudStorageService
     {
         public Task<string> UploadFileAsync(Guid id, string folderName, string contentType, IFormFile file);
+
+        public Task DeleteFileAsync(Guid id, string folderName);
     }
 }

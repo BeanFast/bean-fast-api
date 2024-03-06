@@ -11,12 +11,9 @@ using Services.Interfaces;
 using Utilities.Constants;
 using Services.Mappers;
 using BeanFastApi.Middlewares;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 using Utilities.Settings;
-using Microsoft.Extensions.Configuration;
 using Google.Cloud.Storage.V1;
-using Microsoft.Extensions.DependencyInjection;
 
 
 namespace BeanFastApi.Extensions
@@ -31,7 +28,7 @@ namespace BeanFastApi.Extensions
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             string connectionStringKey = "";
-            if(Environment.GetEnvironmentVariable("database") == "local")
+            if (Environment.GetEnvironmentVariable("database") == "local")
             {
                 connectionStringKey = "LocalConnection";
             }
@@ -39,7 +36,12 @@ namespace BeanFastApi.Extensions
             {
                 connectionStringKey = "DefaultConnection";
             }
-            services.AddDbContext<BeanFastContext>(options => options.UseSqlServer(configuration.GetConnectionString(connectionStringKey)));
+            services.AddDbContext<BeanFastContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString(connectionStringKey));
+                options.EnableDetailedErrors();
+                options.EnableSensitiveDataLogging();
+            });
             return services;
         }
         public static IServiceCollection AddSwagger(this IServiceCollection services)
@@ -74,7 +76,7 @@ namespace BeanFastApi.Extensions
                 });
             });
         }
-        public static IServiceCollection AddJWTAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
         {
             services.AddAuthentication(options =>
             {
@@ -98,7 +100,7 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            
+
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
@@ -106,7 +108,11 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IKitchenService, KitchenService>();
             services.AddScoped<ICloudStorageService, FirebaseCloudStorageService>();
-            services.AddScoped<StorageClient>(f => StorageClient.Create());
+            services.AddScoped(f => StorageClient.Create());
+            services.AddScoped<IAreaService, AreaService>();
+            services.AddScoped<ISchoolService, SchoolService>();
+            services.AddScoped<IComboService, ComboService>();
+
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
@@ -115,8 +121,9 @@ namespace BeanFastApi.Extensions
                 typeof(FoodMapper),
                 typeof(CategoryMapper),
                 typeof(MenuMapper),
-                typeof(KitchenMapper)
-                
+                typeof(KitchenMapper),
+                typeof(AreaMapper)
+
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;
@@ -126,6 +133,6 @@ namespace BeanFastApi.Extensions
             services.Configure<AppSettings>(configuration);
             return services;
         }
-        
+
     }
 }

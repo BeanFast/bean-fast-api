@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Enums;
 
 namespace Services.Interfaces
 {
@@ -15,5 +16,8 @@ namespace Services.Interfaces
         public Task CreateCategory(CreateCategoryRequest category);
 
         public Task<Category?> GetById(Guid id);
+
+        public Task<Category?> GetById(Guid id, int status);
+
     }
 }

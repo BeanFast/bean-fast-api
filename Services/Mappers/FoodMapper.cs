@@ -9,8 +9,8 @@ public class FoodMapper : AutoMapper.Profile
 {
     public FoodMapper()
     {
-        CreateMap<Food, GetFoodResponse>()
-            .ReverseMap();
+        CreateMap<Food, GetFoodResponse>();
+        CreateMap<Combo, GetFoodResponse.ComboOfFood>();
         CreateMap<CreateFoodRequest, Food>();
         CreateMap<CreateFoodRequest.CreateFoodCombo, Combo>();
 

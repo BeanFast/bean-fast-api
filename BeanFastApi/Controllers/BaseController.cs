@@ -18,7 +18,7 @@ namespace BeanFastApi.Controllers
             var response = new SuccessApiResponse<T>
             {
                 Data = data,
-                Message = message ?? MessageConstants.DefaultApiMessage.ApiSuccess,
+                Message = message ?? MessageConstants.DefaultMessageConstrant.ApiSuccess,
             };
 
             return new ObjectResult(response) { StatusCode = (int)statusCode };
@@ -26,7 +26,6 @@ namespace BeanFastApi.Controllers
 
         protected string? GetUserRole()
         {
-            bool isAuth = (bool)User.Identity?.IsAuthenticated!;
             return User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
         }
 

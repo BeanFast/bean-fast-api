@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="Models\Account\**" />
+    <Compile Remove="Models\Menu\Request\NewFolder\**" />
     <EmbeddedResource Remove="Models\Account\**" />
+    <EmbeddedResource Remove="Models\Menu\Request\NewFolder\**" />
     <None Remove="Models\Account\**" />
+    <None Remove="Models\Menu\Request\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,9 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
-    <Folder Include="Models\Food\Request\" />
-    <Folder Include="Models\Kitchen\Request\" />
-    <Folder Include="Models\Menu\Request\" />
+    <Folder Include="Models\Location\Response\" />
   </ItemGroup>
 
   <ItemGroup>
