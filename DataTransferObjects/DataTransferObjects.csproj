@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\CardType\Request\" />
     <Folder Include="Models\Category\Response\" />
     <Folder Include="Models\Location\Response\" />
   </ItemGroup>

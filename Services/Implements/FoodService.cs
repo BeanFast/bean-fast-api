@@ -23,19 +23,17 @@ namespace Services.Implements
 {
     public class FoodService : BaseService<Food>, IFoodService
     {
-        private readonly AppSettings _appSettings;
         private readonly ICloudStorageService _cloudStorageService;
         private readonly ICategoryService _categoryService;
         private readonly IComboService _comboService;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
             ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings,
-            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper)
+            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper, appSettings)
         {
 
             _cloudStorageService = cloudStorageService;
             _categoryService = categoryService;
-            _appSettings = appSettings.Value;
             _comboService = comboService;
         }
 

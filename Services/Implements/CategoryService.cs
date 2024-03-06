@@ -2,11 +2,13 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Category.Request;
+using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
+using Utilities.Settings;
 using Utilities.Statuses;
 
 namespace Services.Implements
@@ -15,7 +17,7 @@ namespace Services.Implements
     {
         private readonly IGenericRepository<Category> _categoryRepository;
 
-        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
             _categoryRepository = unitOfWork.GetRepository<Category>();
         }

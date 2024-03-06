@@ -112,7 +112,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IAreaService, AreaService>();
             services.AddScoped<ISchoolService, SchoolService>();
             services.AddScoped<IComboService, ComboService>();
-
+            services.AddScoped<ICardTypeService, CardTypeService>();
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
@@ -122,8 +122,8 @@ namespace BeanFastApi.Extensions
                 typeof(CategoryMapper),
                 typeof(MenuMapper),
                 typeof(KitchenMapper),
-                typeof(AreaMapper)
-
+                typeof(AreaMapper),
+                typeof(CardTypeMapper)
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;

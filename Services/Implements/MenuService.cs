@@ -8,10 +8,12 @@ using DataTransferObjects.Models.Menu.Request;
 using DataTransferObjects.Models.Menu.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System.Linq.Expressions;
 using Utilities.Enums;
+using Utilities.Settings;
 using Utilities.Statuses;
 
 namespace Services.Implements;
@@ -19,7 +21,7 @@ namespace Services.Implements;
 public class MenuService : BaseService<Menu>, IMenuService
 {
     private readonly IKitchenService _kitchenService;
-    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService) : base(unitOfWork, mapper)
+    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting) : base(unitOfWork, mapper, appSetting)
     {
         _kitchenService = kitchenService;
     }

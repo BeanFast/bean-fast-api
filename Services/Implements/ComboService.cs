@@ -19,7 +19,7 @@ public class ComboService : BaseService<Combo>, IComboService
   
 
 
-    public ComboService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+    public ComboService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
     {
         
     }

@@ -23,7 +23,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     private readonly ICloudStorageService _cloudStorageService;
     private readonly AppSettings _appSettings;
     private readonly IAreaService _areaService;
-    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper)
+    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
     {
         _cloudStorageService = cloudStorageService;
         _appSettings = appSettings.Value;
@@ -56,13 +56,13 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         if (RoleName.ADMIN.ToString().Equals(userRole))
         {
             page = await _repository.GetPageAsync(
-                paginationRequest: paginationRequest, 
+                paginationRequest: paginationRequest,
                 filters: filters, selector: selector);
         }
         else
         {
             page = await _repository.GetPageAsync(
-                status: BaseEntityStatus.Active, paginationRequest: paginationRequest, 
+                status: BaseEntityStatus.Active, paginationRequest: paginationRequest,
                 filters: filters, selector: selector);
         }
         return page;

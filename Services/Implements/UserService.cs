@@ -12,6 +12,8 @@ using Utilities.Utils;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Constants;
+using Microsoft.Extensions.Options;
+using Utilities.Settings;
 
 namespace Services.Implements
 {
@@ -19,7 +21,7 @@ namespace Services.Implements
     {
         private readonly IGenericRepository<User> _userRepository;
 
-        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
             _userRepository = unitOfWork.GetRepository<User>();
         }
