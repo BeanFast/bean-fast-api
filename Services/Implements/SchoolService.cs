@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
@@ -49,21 +50,33 @@ namespace Services.Implements
             {
                 filters.Add(s => s.Address.ToLower().Contains(filterRequest.Address.ToLower()));
             }
+            
             return filters;
         }
-        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPage(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
             Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
             var page = await _repository.GetPageAsync(
                     selector: selector,
                     filters: filters,
-                    paginationRequest: paginationRequest
+                    paginationRequest: paginationRequest,
+                    include: s => s.Include(s => s.Area).Include(s => s.Locations!)
                 );
             //var page = _repository.GetPageAsync(
 
             //    );
             return page;
+        }
+        public async Task<ICollection<GetSchoolResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        {
+            var filters = GetSchoolFilterFromFilterRequest(filterRequest);
+            Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
+            return await _repository.GetListAsync(
+                selector: selector,
+                filters: filters,
+                include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
+            );
         }
 
         public async Task<School?> GetSchoolByAreaIdAndAddress(Guid areaId, string address)
@@ -75,6 +88,7 @@ namespace Services.Implements
             });
             return school;
         }
+
 
         public async Task<School> GetByIdAsync(Guid id)
         {
@@ -99,8 +113,8 @@ namespace Services.Implements
             var schoolId = Guid.NewGuid();
             schoolEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.SchoolCodeConstrant.SchoolPrefix, schoolEntity.Name, schoolId);
             await _areaService.GetAreaByIdAsync(AreaStatus.Active, request.AreaId);
-            var dupplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
-            if (dupplicatedSchool != null)
+            var duplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
+            if (duplicatedSchool != null)
             {
                 throw new DataExistedException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
             }
@@ -147,5 +161,7 @@ namespace Services.Implements
 
             await _repository.UpdateAsync(schoolEntity);
         }
+
+
     }
 }

@@ -16,7 +16,7 @@ services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
-Console.WriteLine(EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, "bánh mì bơ sữa", Guid.Parse("8513b8b8-106d-4fc5-b8b2-66d6f9b5861a")));
+//Console.WriteLine(EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, "bánh mì bơ sữa", Guid.Parse("8513b8b8-106d-4fc5-b8b2-66d6f9b5861a")));
 services.AddAutoMapperProfiles();
 services.AddJwtAuthentication();
 services.AddDatabase(builder.Configuration);

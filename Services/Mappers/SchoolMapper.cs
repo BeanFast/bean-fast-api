@@ -10,6 +10,8 @@ namespace Services.Mappers
         public SchoolMapper()
         {
             CreateMap<School, GetSchoolResponse>();
+            CreateMap<Area, GetSchoolResponse.AreaOfGetSchoolResponse>();
+            CreateMap<Location, GetSchoolResponse.LocationOfGetSchoolResponse>();
             CreateMap<CreateSchoolRequest, School>();
         }
     }

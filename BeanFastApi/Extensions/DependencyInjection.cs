@@ -121,7 +121,8 @@ namespace BeanFastApi.Extensions
                 typeof(FoodMapper),
                 typeof(CategoryMapper),
                 typeof(MenuMapper),
-                typeof(KitchenMapper)
+                typeof(KitchenMapper),
+                typeof(AreaMapper)
 
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles

@@ -26,7 +26,6 @@ namespace BeanFastApi.Controllers
 
         protected string? GetUserRole()
         {
-            bool isAuth = (bool)User.Identity?.IsAuthenticated!;
             return User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
         }
 

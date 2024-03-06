@@ -10,11 +10,9 @@ namespace DataTransferObjects.Models.Auth.Response
     {
         [RegularExpression(RegexConstants.PhoneRegex, ErrorMessage = MessageConstants.LoginMessageConstrant.InvalidPhoneNumber)]
         public string? Phone { get; set; }
-        //[RegularExpression(RegexContants.PasswordRegex, ErrorMessage = MessageContants.Login.InvalidPassword)]
         public string Password { get; set; } = null!;
         [RegularExpression(RegexConstants.EmailRegex, ErrorMessage = MessageConstants.LoginMessageConstrant.InvalidEmail)]
         //[CustomEmailAddress]
         public string? Email { get; set; }
-        public RoleName Role { get; set; }
     }
 }
