@@ -150,7 +150,7 @@ namespace Services.Implements
             Console.WriteLine(request);
             var masterFoodId = Guid.NewGuid();
             string imagePath = await _cloudStorageService.UploadFileAsync(masterFoodId,
-                _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
+                _appSettings.Firebase.FolderNames.Food,  request.Image);
             var foodEntity = _mapper.Map<Food>(request);
             await _categoryService.GetById(request.CategoryId);
             foodEntity.Id = masterFoodId;
@@ -192,7 +192,7 @@ namespace Services.Implements
             if (request.Image != null)
             {
                 await _cloudStorageService.DeleteFileAsync(foodId, _appSettings.Firebase.FolderNames.Food);
-                string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
+                string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image);
                 foodEntity.ImagePath = newFoodImageUrl;
             }
             var comboEntities = new List<Combo>();

@@ -18,6 +18,8 @@ namespace Services.Interfaces
         public Task<Category?> GetById(Guid id);
 
         public Task<Category?> GetById(Guid id, int status);
+        Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category);
 
+        Task DeleteCategoryAsync(Guid id);
     }
 }

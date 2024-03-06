@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace DataTransferObjects.Models.Category.Request
 {
-    public class CreateCategoryRequest 
+    public class UpdateCategoryRequest
     {
-        public string Code { get; set; }
         public string Name { get; set; }
-        public IFormFile Image { get; set;}
+        public IFormFile Image { get; set; }
     }
 }

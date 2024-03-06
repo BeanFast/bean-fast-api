@@ -68,8 +68,6 @@ namespace Utilities.Constants
 
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
 
-            public const string CategoryCodeOrNameExisted = "Mã danh mục hoặc tên danh mục đã tồn tại";
-
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
         }
 

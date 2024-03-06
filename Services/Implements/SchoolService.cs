@@ -120,7 +120,7 @@ namespace Services.Implements
             }
             var imagePath = await _cloudStorageService.UploadFileAsync(
                 schoolId, _appSettings.Firebase.FolderNames.School,
-                request.Image.ContentType, request.Image);
+                request.Image);
             schoolEntity.ImagePath = imagePath;
             schoolEntity.Id = schoolId;
 
@@ -154,7 +154,7 @@ namespace Services.Implements
                 await _cloudStorageService.DeleteFileAsync(schoolEntity.Id, _appSettings.Firebase.FolderNames.School);
                 var imagePath = await _cloudStorageService.UploadFileAsync(
                 schoolEntity.Id, _appSettings.Firebase.FolderNames.School,
-                request.Image.ContentType, request.Image);
+                request.Image);
                 schoolEntity.ImagePath = imagePath;
             }
 
