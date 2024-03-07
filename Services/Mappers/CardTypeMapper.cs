@@ -13,6 +13,7 @@ namespace Services.Mappers
         public CardTypeMapper()
         {
             CreateMap<CardType, GetCardTypeResponse>();
+            CreateMap<CreateCardTypeRequest, CardType>();
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Services.Interfaces
 {
     public interface ICardTypeService
     {
+        Task CreateCardTypeAsync(CreateCardTypeRequest request);
         Task<ICollection<GetCardTypeResponse>> GetAllAsync();
+        Task UpdateCardTypeAsync(UpdateCardTypeRequest request);
     }
 }
