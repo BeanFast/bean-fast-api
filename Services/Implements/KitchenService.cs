@@ -89,7 +89,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     {
         var kitchenEntity = _mapper.Map<Kitchen>(request);
         var kitchenId = Guid.NewGuid();
-        string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image.ContentType, request.Image);
+        string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image);
         kitchenEntity.ImagePath = imageUrl;
         kitchenEntity.Status = BaseEntityStatus.Active;
         await _areaService.GetAreaByIdAsync(request.AreaId);

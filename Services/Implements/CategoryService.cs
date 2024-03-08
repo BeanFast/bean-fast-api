@@ -15,26 +15,27 @@ namespace Services.Implements
 {
     public class CategoryService : BaseService<Category>, ICategoryService
     {
-        private readonly IGenericRepository<Category> _categoryRepository;
 
-        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _categoryRepository = unitOfWork.GetRepository<Category>();
+            _repository = unitOfWork.GetRepository<Category>();
+            _cloudStorageService = cloudStorageService;
+            _appSettings = appSettings.Value;
         }
 
         public Task<ICollection<Category>> GetAll(string? role)
         {
             if (role is not null && role == RoleName.ADMIN.ToString())
             {
-                return _categoryRepository.GetListAsync();
+                return _repository.GetListAsync();
             }
 
-            return _categoryRepository.GetListAsync(BaseEntityStatus.Active);
+            return _repository.GetListAsync(BaseEntityStatus.Active);
         }
 
         public async Task<Category?> GetById(Guid id)
         {
-            var category = await _categoryRepository.FirstOrDefaultAsync(filters: new() { c => c.Id == id });
+            var category = await _repository.FirstOrDefaultAsync(filters: new() { c => c.Id == id });
             if (category is null)
             {
                 throw new EntityNotFoundException(MessageConstants.CategoryMessageConstrant.CategoryNotFound);
@@ -45,7 +46,7 @@ namespace Services.Implements
 
         public async Task<Category?> GetById(Guid id, int status)
         {
-            var category = await _categoryRepository.FirstOrDefaultAsync(status ,filters: new() { c => c.Id == id });
+            var category = await _repository.FirstOrDefaultAsync(status, filters: new() { c => c.Id == id });
             if (category is null)
             {
                 throw new EntityNotFoundException(MessageConstants.CategoryMessageConstrant.CategoryNotFound);
@@ -59,18 +60,47 @@ namespace Services.Implements
             var categoryEntity = _mapper.Map<Category>(category);
             categoryEntity.Id = Guid.NewGuid();
             var checkExistList =
-                await _categoryRepository.GetListAsync(filters: new()
+                await _repository.GetListAsync(filters: new()
                 {
                     c =>
-                        c.Name == category.Name || c.Code == category.Code
+                        c.Name == category.Name
                 });
             if (checkExistList.Count > 0)
             {
-                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryCodeOrNameExisted);
+                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
             }
+            var imagePath = await _cloudStorageService.UploadFileAsync(categoryEntity.Id, _appSettings.Firebase.FolderNames.Category, category.Image);
+            categoryEntity.ImagePath = imagePath;
 
-            await _categoryRepository.InsertAsync(categoryEntity);
+            await _repository.InsertAsync(categoryEntity);
             return;
+        }
+
+        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category)
+        {
+            var categoryEntity = _mapper.Map<Category>(category);
+            categoryEntity.Id = id;
+            var checkExistList =
+                await _repository.GetListAsync(filters: new()
+                {
+                    c =>
+                        c.Name == category.Name
+                });
+            if (checkExistList.Count > 0)
+            {
+                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
+            }
+            await _cloudStorageService.DeleteFileAsync(id, _appSettings.Firebase.FolderNames.Category);
+            var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Category, category.Image);
+            categoryEntity.ImagePath = imagePath;
+            await _repository.UpdateAsync(categoryEntity);
+            //await _repository.UpdateAsync()
+        }
+
+        public async Task DeleteCategoryAsync(Guid id)
+        {
+            var category = await GetById(id);
+            await _repository.DeleteAsync(category!);
         }
     }
 }
