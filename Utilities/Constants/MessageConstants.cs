@@ -22,6 +22,12 @@ namespace Utilities.Constants
 
             public const string SizeRequired = "Kích thước trang là bắt buộc";
         }
+        public static class AuthorizationMessageConstrant
+        {
+            public static string NotAllowed = "Bạn không được phép sử dụng tính năng này";
+            public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
+        }
+
         public static class LoginMessageConstrant
         {
             #region validation messasges
@@ -58,6 +64,8 @@ namespace Utilities.Constants
         public static class AreaMessageConstrant
         {
             public static string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
+
+            public const string AreaCityRequired = "Thành phố là bắt buộc";
         }
 
         public static class CategoryMessageConstrant

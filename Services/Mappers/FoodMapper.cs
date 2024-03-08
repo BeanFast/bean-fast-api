@@ -11,11 +11,12 @@ public class FoodMapper : AutoMapper.Profile
     {
         CreateMap<Food, GetFoodResponse>();
         CreateMap<Combo, GetFoodResponse.ComboOfFood>();
+        CreateMap<Category, GetFoodResponse.CategoryOfFood>()
+            .ReverseMap();
         CreateMap<CreateFoodRequest, Food>();
         CreateMap<CreateFoodRequest.CreateFoodCombo, Combo>();
 
-        CreateMap<Category, GetFoodResponse.CategoryOfFood>()
-            .ReverseMap();
+        
         
     }
 }

@@ -114,6 +114,7 @@ namespace Services.Implements
             {
                 (food) => food.Id == id,
             };
+            
             var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!))
                 ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
