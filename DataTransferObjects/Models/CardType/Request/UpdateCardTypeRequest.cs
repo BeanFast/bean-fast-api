@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Enums;
 using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.CardType.Request
@@ -13,7 +14,7 @@ namespace DataTransferObjects.Models.CardType.Request
         public string Name { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
-        [RequiredFileExtensions(Utilities.Enums.AllowedFileTypes.IMAGE)]
+        [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
         public IFormFile? Image { get; set; }
     }
 }

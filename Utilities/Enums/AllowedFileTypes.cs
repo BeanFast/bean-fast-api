@@ -10,6 +10,7 @@ namespace Utilities.Enums
 {
     public enum AllowedFileTypes
     {
-        IMAGE
+        IMAGE,
+        SOUND
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Utilities.Enums;
 using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Food.Request
@@ -19,6 +20,7 @@ namespace DataTransferObjects.Models.Food.Request
         [RequiredGuid]
         public Guid CategoryId { get; set; }
         public IList<CreateFoodCombo>? Combos { get; set; }
+        [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
         public IFormFile Image { get; set; } = default!;
 
         public class CreateFoodCombo
