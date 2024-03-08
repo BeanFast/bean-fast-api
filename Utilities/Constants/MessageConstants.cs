@@ -91,5 +91,9 @@ namespace Utilities.Constants
         {
             public static string CardTypeNotFound(Guid guid) => $"Loại thẻ với id: {guid} không tồn tại";
         }
+        public class FileMessageConstrant
+        {
+            public static string FileExtensionsOnlyAccept(IEnumerable<string> extensions) => $"Chỉ chấp nhận file có đuôi: {string.Join(", ", extensions)}";
+        }
     }
 }

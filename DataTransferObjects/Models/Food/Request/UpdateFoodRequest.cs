@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Enums;
 using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Food.Request
@@ -18,6 +19,7 @@ namespace DataTransferObjects.Models.Food.Request
         public string Description { get; set; }
 
         public double Price { get; set; }
+        [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
 
         public IFormFile? Image { get; set; }
         

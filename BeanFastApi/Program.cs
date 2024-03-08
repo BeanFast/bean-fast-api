@@ -3,11 +3,21 @@ using System.Text.Json;
 using BeanFastApi.Extensions;
 using Utilities.Constants;
 using Utilities.Utils;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
-
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.Limits.MaxRequestBodySize = null;
+//});
+//services.Configure<FormOptions>(x =>
+//{
+//    x.ValueLengthLimit = int.MaxValue;
+//    x.MultipartBodyLengthLimit = int.MaxValue;
+//    // In case of multipart
+//});
 
 services.AddControllers().AddJsonOptions(options =>
 {
@@ -24,8 +34,10 @@ services.AddUnitOfWork();
 services.AddServices();
 services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
