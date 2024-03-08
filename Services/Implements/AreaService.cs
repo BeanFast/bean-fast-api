@@ -5,6 +5,7 @@ using DataTransferObjects.Models.Area.Request;
 using DataTransferObjects.Models.Area.Response;
 using Diacritics.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -15,13 +16,14 @@ using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
+using Utilities.Settings;
 using Utilities.Statuses;
 
 namespace Services.Implements
 {
     public class AreaService : BaseService<Area>, IAreaService
     {
-        public AreaService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public AreaService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
 

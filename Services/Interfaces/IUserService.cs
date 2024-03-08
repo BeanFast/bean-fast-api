@@ -5,7 +5,7 @@ namespace Services.Interfaces
 {
     public interface IUserService
     {
-        Task<LoginResponse> Login(LoginRequest loginRequest);
-        Task<RegisterResponse> Register(RegisterRequest registerRequest);
+        Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
+        Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest);
     }
 }

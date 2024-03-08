@@ -12,6 +12,8 @@ using Utilities.Utils;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Constants;
+using Microsoft.Extensions.Options;
+using Utilities.Settings;
 
 namespace Services.Implements
 {
@@ -19,12 +21,12 @@ namespace Services.Implements
     {
         private readonly IGenericRepository<User> _userRepository;
 
-        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
             _userRepository = unitOfWork.GetRepository<User>();
         }
 
-        public async Task<LoginResponse> Login(LoginRequest loginRequest)
+        public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
             List<Expression<Func<User, bool>>> whereFilters = null;
             if (loginRequest.Email is not null)
@@ -54,7 +56,7 @@ namespace Services.Implements
             };
         }
 
-        public Task<RegisterResponse> Register(RegisterRequest registerRequest)
+        public Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             return null;
         }

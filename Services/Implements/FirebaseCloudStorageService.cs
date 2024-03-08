@@ -27,14 +27,14 @@ namespace Services.Implements
             _firebaseSetting = _appSettings.Firebase;
 
         }
-        public async Task<string> UploadFileAsync(Guid id, string folderName, string contentType, IFormFile file)
+        public async Task<string> UploadFileAsync(Guid id, string folderName, IFormFile file)
         {
             try
             {
                 using var stream = new MemoryStream();
                 await file.CopyToAsync(stream);
                 FirebaseSettings firebaseSetting = _appSettings.Firebase;
-                await _storageClient.UploadObjectAsync(firebaseSetting.StorageBucket, $"{folderName}/{id}", contentType, stream);
+                await _storageClient.UploadObjectAsync(firebaseSetting.StorageBucket, $"{folderName}/{id}", file.ContentType, stream);
                 var baseURL = firebaseSetting.BaseUrl;
                 var filePath = $"{folderName}%2F{id}";
                 var url = $"{baseURL}/{firebaseSetting.StorageBucket}/o/{filePath}?alt=media";

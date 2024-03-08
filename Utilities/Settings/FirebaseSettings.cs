@@ -27,7 +27,7 @@ namespace Utilities.Settings
         public string Category { get; set; } = string.Empty;
         public string School { get; set; } = string.Empty;
         public string Kitchen { get; set; } = string.Empty;
-
+        public string CardType { get; set; } = string.Empty;
     }
 
 }

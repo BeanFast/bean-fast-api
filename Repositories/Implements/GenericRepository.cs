@@ -179,20 +179,17 @@ namespace Repositories.Implements
         public async Task InsertAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task InsertRangeAsync(IEnumerable<T> entities)
         {
             await _dbSet.AddRangeAsync(entities);
-            await _dbContext.SaveChangesAsync();
         }
 
 
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public void UpdateRange(IEnumerable<T> entities)

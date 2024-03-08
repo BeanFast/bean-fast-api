@@ -23,7 +23,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     private readonly ICloudStorageService _cloudStorageService;
     private readonly AppSettings _appSettings;
     private readonly IAreaService _areaService;
-    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper)
+    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
     {
         _cloudStorageService = cloudStorageService;
         _appSettings = appSettings.Value;
@@ -56,13 +56,13 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         if (RoleName.ADMIN.ToString().Equals(userRole))
         {
             page = await _repository.GetPageAsync(
-                paginationRequest: paginationRequest, 
+                paginationRequest: paginationRequest,
                 filters: filters, selector: selector);
         }
         else
         {
             page = await _repository.GetPageAsync(
-                status: BaseEntityStatus.Active, paginationRequest: paginationRequest, 
+                status: BaseEntityStatus.Active, paginationRequest: paginationRequest,
                 filters: filters, selector: selector);
         }
         return page;
@@ -89,17 +89,19 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     {
         var kitchenEntity = _mapper.Map<Kitchen>(request);
         var kitchenId = Guid.NewGuid();
-        string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image.ContentType, request.Image);
+        string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image);
         kitchenEntity.ImagePath = imageUrl;
         kitchenEntity.Status = BaseEntityStatus.Active;
         await _areaService.GetAreaByIdAsync(request.AreaId);
         //kitchenEntity.Area = areaEntity;
         await _repository.InsertAsync(kitchenEntity);
+        await _unitOfWork.CommitAsync();
 
     }
     public async Task DeleteKitchenAsync(Guid id)
     {
         var kitchenEntity = await GetByIdAsync(BaseEntityStatus.Active, id);
         await _repository.DeleteAsync(kitchenEntity);
+        await _unitOfWork.CommitAsync();
     }
 }

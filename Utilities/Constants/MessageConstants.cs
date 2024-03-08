@@ -68,8 +68,6 @@ namespace Utilities.Constants
 
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
 
-            public const string CategoryCodeOrNameExisted = "Mã danh mục hoặc tên danh mục đã tồn tại";
-
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
         }
 
@@ -88,6 +86,10 @@ namespace Utilities.Constants
             public static string SchoolAlreadyExists() => $"Đã tồn tại trường học ở địa chỉ này";
 
             public static string SchoolNotFound(Guid guid) => $"Trường học với id: {guid} không tồn tại";
+        }
+        public class CardTypeMessageConstrant
+        {
+            public static string CardTypeNotFound(Guid guid) => $"Loại thẻ với id: {guid} không tồn tại";
         }
     }
 }

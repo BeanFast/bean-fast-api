@@ -23,19 +23,17 @@ namespace Services.Implements
 {
     public class FoodService : BaseService<Food>, IFoodService
     {
-        private readonly AppSettings _appSettings;
         private readonly ICloudStorageService _cloudStorageService;
         private readonly ICategoryService _categoryService;
         private readonly IComboService _comboService;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
             ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings,
-            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper)
+            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper, appSettings)
         {
 
             _cloudStorageService = cloudStorageService;
             _categoryService = categoryService;
-            _appSettings = appSettings.Value;
             _comboService = comboService;
         }
 
@@ -150,7 +148,7 @@ namespace Services.Implements
             Console.WriteLine(request);
             var masterFoodId = Guid.NewGuid();
             string imagePath = await _cloudStorageService.UploadFileAsync(masterFoodId,
-                _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
+                _appSettings.Firebase.FolderNames.Food,  request.Image);
             var foodEntity = _mapper.Map<Food>(request);
             await _categoryService.GetById(request.CategoryId);
             foodEntity.Id = masterFoodId;
@@ -179,6 +177,7 @@ namespace Services.Implements
             foodEntity.Combos?.Clear();
             await _repository.InsertAsync(foodEntity);
             await _comboService.CreateComboListAsync(comboEntityList);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
@@ -192,7 +191,7 @@ namespace Services.Implements
             if (request.Image != null)
             {
                 await _cloudStorageService.DeleteFileAsync(foodId, _appSettings.Firebase.FolderNames.Food);
-                string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image.ContentType, request.Image);
+                string newFoodImageUrl = await _cloudStorageService.UploadFileAsync(foodId, _appSettings.Firebase.FolderNames.Food, request.Image);
                 foodEntity.ImagePath = newFoodImageUrl;
             }
             var comboEntities = new List<Combo>();
@@ -216,13 +215,14 @@ namespace Services.Implements
                 await _comboService.CreateComboListAsync(comboEntities);
             }
             await _repository.UpdateAsync(foodEntity);
-            
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task DeleteAsync(Guid guid)
         {
             var food = await GetByIdAsync(guid);
             await _repository.DeleteAsync(food);
+            await _unitOfWork.CommitAsync();
         }
 
     }
