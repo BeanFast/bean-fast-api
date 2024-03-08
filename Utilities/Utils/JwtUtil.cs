@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Utilities.Constants;
 using Utilities.Enums;
@@ -26,9 +27,19 @@ namespace Utilities.Utils
                 new Claim(ClaimTypes.Role, user.Role!.Name),
             };
             //if (guidClaim != null) claims.Add(new Claim(guidClaim.Item1, guidClaim.Item2.ToString()));
-            var expires = DateTime.Now.AddDays(JWTConstants.JwtExpiresInMinutes);
+            var expires = DateTime.Now.AddSeconds(JWTConstants.JwtExpiresInMinutes);
             var token = new JwtSecurityToken(expires: expires, claims: claims, signingCredentials: credentials);
             return jwtHandler.WriteToken(token);
+        }
+        public static string GenerateRefreshToken()
+        {
+            var random = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(random);
+
+                return Convert.ToBase64String(random);
+            }
         }
     }
 }

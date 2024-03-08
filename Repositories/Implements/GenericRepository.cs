@@ -66,7 +66,6 @@ namespace Repositories.Implements
         {
             IQueryable<T> query = buildQuery(filters, orderBy, include);
             return await query.FirstOrDefaultAsync();
-            //return await query.FirstOrDefaultAsync();
         }
 
         public async Task<T?> FirstOrDefaultAsync(int status,
