@@ -20,21 +20,21 @@ namespace BeanFastApi.Controllers
             return SuccessResult(cardTypes);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateCardTypeASync([FromForm] CreateCardTypeRequest request)
+        public async Task<IActionResult> CreateCardTypeAsync([FromForm] CreateCardTypeRequest request)
         {
             await _cardTypeService.CreateCardTypeAsync(request);
             return SuccessResult<object>();
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> CreateCardTypeASync([FromRoute] Guid id, [FromForm] UpdateCardTypeRequest request)
+        public async Task<IActionResult> UpdateCardTypeAsync([FromRoute] Guid id, [FromForm] UpdateCardTypeRequest request)
         {
-            await _cardTypeService.UpdateCardTypeAsync(request);
+            await _cardTypeService.UpdateCardTypeAsync(id, request);
             return SuccessResult<object>();
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCardTypeASync([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteCardTypeAsync([FromRoute] Guid id)
         {
-            //await _cardTypeService.CreateCardTypeAsync(request);
+            await _cardTypeService.DeleteCardTypeAsync(id);
             return SuccessResult<object>();
         }
     }

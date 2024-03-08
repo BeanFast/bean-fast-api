@@ -30,6 +30,7 @@ public class ComboService : BaseService<Combo>, IComboService
         combo.Id = Guid.NewGuid();
         combo.Code = EntityCodeUtil.GenerateUnnamedEntityCode(ComboCodeConstrant.ComboPrefix, combo.Id);
         await _repository.InsertAsync(combo);
+        await _unitOfWork.CommitAsync();
     }
     public async Task CreateComboListAsync(List<Combo> combos)
     {
@@ -37,11 +38,13 @@ public class ComboService : BaseService<Combo>, IComboService
         {
             await CreateComboAsync(combo);
         }
+        //await _unitOfWork.CommitAsync();
     }
 
     public async Task DeleteComboAsync(Combo combo)
     {
         await _repository.DeleteAsync(combo);
+        await _unitOfWork.CommitAsync();
     }
 
     public async Task DeleteComboListAsync(ICollection<Combo> combos)
@@ -50,10 +53,12 @@ public class ComboService : BaseService<Combo>, IComboService
         {
             await DeleteComboAsync(combo);
         }
+        //await _unitOfWork.CommitAsync();
     }
     public async Task HardDeleteComboAsync(Combo combo)
     {
         await _repository.HardDeleteAsync(combo);
+        await _unitOfWork.CommitAsync();
     }
 
     public async Task HardDeleteComboListAsync(ICollection<Combo> combos)
@@ -62,5 +67,6 @@ public class ComboService : BaseService<Combo>, IComboService
         {
             await HardDeleteComboAsync(combo);
         }
+        //await _unitOfWork.CommitAsync();
     }
 }

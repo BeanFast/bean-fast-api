@@ -9,10 +9,10 @@ namespace Services
 {
     public class BaseService<T> where T : BaseEntity
     {
-        protected IUnitOfWork<BeanFastContext>? _unitOfWork;
+        protected IUnitOfWork<BeanFastContext> _unitOfWork;
         protected IMapper _mapper;
         protected IGenericRepository<T> _repository;
-        protected readonly AppSettings _appSettings;
+        protected AppSettings _appSettings;
         public BaseService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             _unitOfWork = unitOfWork;

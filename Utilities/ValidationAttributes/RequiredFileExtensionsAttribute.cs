@@ -17,7 +17,7 @@ namespace Utilities.ValidationAttributes
         }
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            return base.IsValid(value, validationContext);
+            return ValidationResult.Success;
         }
     }
 }

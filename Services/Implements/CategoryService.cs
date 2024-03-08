@@ -16,11 +16,11 @@ namespace Services.Implements
     public class CategoryService : BaseService<Category>, ICategoryService
     {
 
-        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        private readonly ICloudStorageService _cloudStorageService;
+        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
         {
             _repository = unitOfWork.GetRepository<Category>();
             _cloudStorageService = cloudStorageService;
-            _appSettings = appSettings.Value;
         }
 
         public Task<ICollection<Category>> GetAll(string? role)
@@ -29,7 +29,6 @@ namespace Services.Implements
             {
                 return _repository.GetListAsync();
             }
-
             return _repository.GetListAsync(BaseEntityStatus.Active);
         }
 

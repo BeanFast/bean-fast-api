@@ -11,6 +11,7 @@ namespace Services.Interfaces
     {
         Task CreateCardTypeAsync(CreateCardTypeRequest request);
         Task<ICollection<GetCardTypeResponse>> GetAllAsync();
-        Task UpdateCardTypeAsync(UpdateCardTypeRequest request);
+        Task UpdateCardTypeAsync(Guid id, UpdateCardTypeRequest request);
+        Task DeleteCardTypeAsync(Guid id);
     }
 }

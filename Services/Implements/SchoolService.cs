@@ -26,7 +26,6 @@ namespace Services.Implements
     public class SchoolService : BaseService<School>, ISchoolService
     {
         private readonly ICloudStorageService _cloudStorageService;
-        private readonly AppSettings _appSettings;
         private readonly IAreaService _areaService;
         //private readonly I
         public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
@@ -125,13 +124,14 @@ namespace Services.Implements
             schoolEntity.Id = schoolId;
 
             await _repository.InsertAsync(schoolEntity);
-
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task DeleteSchoolAsync(Guid id)
         {
             var schoolEntity = await GetByIdAsync(SchoolStatus.Active, id);
             await _repository.DeleteAsync(schoolEntity);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request)
@@ -160,6 +160,7 @@ namespace Services.Implements
 
 
             await _repository.UpdateAsync(schoolEntity);
+            await _unitOfWork.CommitAsync();
         }
 
 

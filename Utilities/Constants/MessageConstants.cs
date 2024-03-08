@@ -87,5 +87,9 @@ namespace Utilities.Constants
 
             public static string SchoolNotFound(Guid guid) => $"Trường học với id: {guid} không tồn tại";
         }
+        public class CardTypeMessageConstrant
+        {
+            public static string CardTypeNotFound(Guid guid) => $"Loại thẻ với id: {guid} không tồn tại";
+        }
     }
 }

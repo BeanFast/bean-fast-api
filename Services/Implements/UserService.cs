@@ -26,7 +26,7 @@ namespace Services.Implements
             _userRepository = unitOfWork.GetRepository<User>();
         }
 
-        public async Task<LoginResponse> Login(LoginRequest loginRequest)
+        public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
             List<Expression<Func<User, bool>>> whereFilters = null;
             if (loginRequest.Email is not null)
@@ -56,7 +56,7 @@ namespace Services.Implements
             };
         }
 
-        public Task<RegisterResponse> Register(RegisterRequest registerRequest)
+        public Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             return null;
         }

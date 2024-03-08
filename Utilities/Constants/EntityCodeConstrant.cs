@@ -46,5 +46,9 @@ namespace Utilities.Constants
         {
             public static string SchoolPrefix = "S";
         }
+        public class CardTypeCodeConstrant
+        {
+            public static string CardTypePrefix = "Ct";
+        }
     }
 }

@@ -95,11 +95,13 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         await _areaService.GetAreaByIdAsync(request.AreaId);
         //kitchenEntity.Area = areaEntity;
         await _repository.InsertAsync(kitchenEntity);
+        await _unitOfWork.CommitAsync();
 
     }
     public async Task DeleteKitchenAsync(Guid id)
     {
         var kitchenEntity = await GetByIdAsync(BaseEntityStatus.Active, id);
         await _repository.DeleteAsync(kitchenEntity);
+        await _unitOfWork.CommitAsync();
     }
 }

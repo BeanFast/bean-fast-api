@@ -177,6 +177,7 @@ namespace Services.Implements
             foodEntity.Combos?.Clear();
             await _repository.InsertAsync(foodEntity);
             await _comboService.CreateComboListAsync(comboEntityList);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
@@ -214,13 +215,14 @@ namespace Services.Implements
                 await _comboService.CreateComboListAsync(comboEntities);
             }
             await _repository.UpdateAsync(foodEntity);
-            
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task DeleteAsync(Guid guid)
         {
             var food = await GetByIdAsync(guid);
             await _repository.DeleteAsync(food);
+            await _unitOfWork.CommitAsync();
         }
 
     }
