@@ -22,6 +22,8 @@ namespace Utilities.ValidationAttributes
             var file = value as IFormFile;
             if (file is null) return ValidationResult.Success;
             bool result = false;
+            bool matchedFileExtension = false;
+
             HashSet<string> allowedExtension = new();
             using (var reader = new BinaryReader(file!.OpenReadStream()))
             {
@@ -34,7 +36,7 @@ namespace Utilities.ValidationAttributes
                         case AllowedFileTypes.IMAGE:
                             {
                                 fileSignatures = FileExtensionByteConstant.ImageFileSignatures;
-                                
+
                                 break;
                             }
                         case AllowedFileTypes.SOUND:
@@ -46,10 +48,16 @@ namespace Utilities.ValidationAttributes
                     var signatures = fileSignatures.Values.SelectMany(x => x).ToList();  // flatten all signatures to single list
                     var headerBytes = reader.ReadBytes(fileSignatures.Max(m => m.Value.Max(n => n.Length)));
                     result = result || signatures.Any(signature => headerBytes.Take(signature.Length).SequenceEqual(signature));
-                    fileSignatures.Keys.ToList().ForEach(x => allowedExtension.Add(x));
-                }                
+                    fileSignatures.Keys.ToList().ForEach(x =>
+                    {
+                        allowedExtension.Add(x);
+                        matchedFileExtension = matchedFileExtension || x == Path.GetExtension(file!.FileName);
+
+                    });
+
+                }
             }
-            return result ? ValidationResult.Success : new ValidationResult(MessageConstants.FileMessageConstrant.FileExtensionsOnlyAccept(allowedExtension));
+            return result && matchedFileExtension ? ValidationResult.Success : new ValidationResult(MessageConstants.FileMessageConstrant.FileExtensionsOnlyAccept(allowedExtension));
         }
     }
 }
