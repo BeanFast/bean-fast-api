@@ -6,8 +6,15 @@ on:
       - completed
 jobs:
   deploy:
-    runs-on: bean-fast-thanh
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Helloworld
-        run: echo "hello world"
+      - name: executing remote ssh commands using ssh key
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd bean-fast-api
+            git pull
+            nohup dotnet run
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USERNAME }}
+          pass: ${{ secrets.PASSWORD }}
