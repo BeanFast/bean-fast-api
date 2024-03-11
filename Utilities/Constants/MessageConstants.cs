@@ -103,5 +103,9 @@ namespace Utilities.Constants
         {
             public static string FileExtensionsOnlyAccept(IEnumerable<string> extensions) => $"Chỉ chấp nhận file có đuôi: {string.Join(", ", extensions)}";
         }
+        public class GiftMessageConstrant
+        {
+            public static string GiftNotFound(Guid guid) => $"Quà tặng với id: {guid} không tồn tại";
+        }
     }
 }

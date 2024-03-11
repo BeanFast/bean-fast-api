@@ -13,6 +13,11 @@ namespace Utilities.Constants
     {
         public static readonly string Separator = "_";
 
+        public static class GiftCodeConstrant 
+        { 
+            public static string GiftPrefix = "G";
+        }
+
         public class FoodCodeConstrant
         {
             public static string FoodPrefix = "F";

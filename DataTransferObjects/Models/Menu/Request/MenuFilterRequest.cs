@@ -11,7 +11,7 @@ namespace DataTransferObjects.Models.Menu.Request
         public Guid KitchenId { get; set; }
         public Guid? CreaterId { get; set; }
         public Guid? UpdaterId { get; set; }
-        public string Code { get; set; }
+        public string? Code { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
         public int? Status { get; set; }

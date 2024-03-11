@@ -12,7 +12,7 @@ namespace DataTransferObjects.Models.School.Request
         public string? Code { get; set; }
         public string? Name { get; set; }
         public string? Address { get; set; }
-        [RequiredGuid]
+        //[RequiredGuid]
         public Guid AreaId { get; set; }
         
     }
