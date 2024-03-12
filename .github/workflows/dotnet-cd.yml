@@ -14,6 +14,7 @@ jobs:
           command: |
             cd bean-fast-api
             git pull
+            cd BeanFastApi
             nohup dotnet run
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
