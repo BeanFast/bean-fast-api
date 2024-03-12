@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Core.Pagination;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 using System;
@@ -14,6 +15,8 @@ namespace Services.Interfaces
         Task CreateSchoolAsync(CreateSchoolRequest request);
         Task<IPaginable<GetSchoolResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
         Task<ICollection<GetSchoolResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
+        Task<School> GetSchoolByIdAsync(int status, Guid id);
+        Task<School> GetSchoolByIdAsync(Guid id);
         Task DeleteSchoolAsync(Guid id);
         Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request);
     }
