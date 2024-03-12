@@ -29,6 +29,7 @@ namespace Utilities.Settings
         public string Kitchen { get; set; } = string.Empty;
         public string CardType { get; set; } = string.Empty;
         public string Gift { get; set; } = string.Empty;
+        public string Profile { get; set; } = string.Empty;
     }
 
 }

@@ -38,7 +38,7 @@ namespace Services.Implements
             {
                 whereFilters = new()
                 {
-                    (user) => user.Phone == loginRequest.Phone && user.Role!.Name == RoleName.CUSTOMER.ToString()
+                    (user) => user.Phone == loginRequest.Phone //&& user.Role!.Name == RoleName.CUSTOMER.ToString()
                 };
             }
 
