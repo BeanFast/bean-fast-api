@@ -107,5 +107,9 @@ namespace Utilities.Constants
         {
             public static string GiftNotFound(Guid guid) => $"Quà tặng với id: {guid} không tồn tại";
         }
+        public static class ProfileMessageConstrant
+        {
+            public const string ProfileNotFound = "Không tìm thấy thông tin cá nhân";
+        }
     }
 }

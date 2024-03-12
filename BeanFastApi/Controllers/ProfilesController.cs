@@ -24,17 +24,17 @@ namespace BeanFastApi.Controllers
             await _profileService.CreateProfileAsync(request, uid);
             return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);
         }
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateProfileAsync([FromRoute] Guid id, [FromForm] UpdateProfileRequest request)
-        //{
-        //    await _profileService.UpdateProfileAsync(id, request);
-        //    return SuccessResult<object>();
-        //}
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteProfileAsync([FromRoute]Guid id)
-        //{
-        //    await _profileService.DeleteProfileAsync(id);
-        //    return SuccessResult<object>();
-        //}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProfileAsync([FromRoute] Guid id, [FromForm] UpdateProfileRequest request)
+        {
+            await _profileService.UpdateProfileAsync(id, request);
+            return SuccessResult<object>();
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProfileAsync([FromRoute] Guid id)
+        {
+            await _profileService.DeleteProfileAsync(id);
+            return SuccessResult<object>();
+        }
     }
 }

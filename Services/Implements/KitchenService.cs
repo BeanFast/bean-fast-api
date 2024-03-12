@@ -21,12 +21,10 @@ namespace Services.Implements;
 public class KitchenService : BaseService<Kitchen>, IKitchenService
 {
     private readonly ICloudStorageService _cloudStorageService;
-    private readonly AppSettings _appSettings;
     private readonly IAreaService _areaService;
     public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
     {
         _cloudStorageService = cloudStorageService;
-        _appSettings = appSettings.Value;
         _areaService = areaService;
     }
     private List<Expression<Func<Kitchen, bool>>> GetKitchenFilterFromFilterRequest(KitchenFilterRequest filterRequest)

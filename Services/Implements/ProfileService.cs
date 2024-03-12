@@ -10,7 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Exceptions;
 using Utilities.Settings;
+using Utilities.Statuses;
 using Utilities.Utils;
 
 namespace Services.Implements
@@ -31,13 +33,13 @@ namespace Services.Implements
         {
             var profileEntity = _mapper.Map<Profile>(request);
             var currentBMI = _mapper.Map<ProfileBodyMassIndex>(request.Bmi);
-            
+
             currentBMI.Id = Guid.NewGuid();
             var profileId = Guid.NewGuid();
             profileEntity.UserId = userId;
             profileEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.ProfileCodeConstrant.ProfilePrefix, profileEntity.FullName, profileId); ;
             currentBMI.ProfileId = profileId;
-            
+
             var school = await _schoolService.GetSchoolByIdAsync(request.SchoolId);
             var imagePath = await _cloudStorageService.UploadFileAsync(profileId, _appSettings.Firebase.FolderNames.Profile, request.Image);
             profileEntity.AvatarPath = imagePath;
@@ -47,6 +49,36 @@ namespace Services.Implements
 
             await _repository.InsertAsync(profileEntity);
             await _unitOfWork.GetRepository<ProfileBodyMassIndex>().InsertAsync(currentBMI);
+            await _unitOfWork.CommitAsync();
+        }
+        public async Task<Profile> GetProfileByIdAsync(int status, Guid id)
+        {
+            var profile = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                s => s.Id == id,
+                s => s.Status == status
+            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+        public async Task<Profile> GetProfileByIdAsync(Guid id)
+        {
+            var profile = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                s => s.Id == id
+            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+        public async Task DeleteProfileAsync(Guid id)
+        {
+            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
+            await _repository.DeleteAsync(profile);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request)
+        {
+            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
+            await _repository.UpdateAsync(profile);
             await _unitOfWork.CommitAsync();
         }
     }
