@@ -8,6 +8,17 @@ using Microsoft.AspNetCore.Http.Features;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
+services.AddHttpContextAccessor();
+var allowAllPolicyName = "AllowAll";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(allowAllPolicyName, builder =>
+    {
+        builder.WithOrigins("*")
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 //builder.WebHost.ConfigureKestrel(serverOptions =>
 //{
 //    serverOptions.Limits.MaxRequestBodySize = null;
@@ -51,7 +62,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 //app.UseRouting()
 app.UseAuthorization();
-
+app.UseCors(allowAllPolicyName);
 app.MapControllers();
 
 app.Run();
