@@ -30,9 +30,10 @@ namespace BeanFastApi.Controllers
         }
 
 
-        protected string GetUserId()
+        protected Guid GetUserId()
         {
-            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            string? userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.Parse(userIdStr!);
         }
     }
 }

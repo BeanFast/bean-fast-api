@@ -34,7 +34,16 @@ services.AddUnitOfWork();
 services.AddServices();
 services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
-
+services.AddCors(options =>
+{
+    options.AddPolicy(CorsConstrant.AllowAllPolicyName,
+               builder =>
+               {
+                   builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+               });
+});
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 

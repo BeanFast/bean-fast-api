@@ -55,5 +55,9 @@ namespace Utilities.Constants
         {
             public static string CardTypePrefix = "Ct";
         }
+        public class ProfileCodeConstrant
+        {
+            public static string ProfilePrefix = "Pf";
+        }
     }
 }

@@ -89,7 +89,7 @@ namespace Services.Implements
         }
 
 
-        public async Task<School> GetByIdAsync(Guid id)
+        public async Task<School> GetSchoolByIdAsync(Guid id)
         {
             var school = await _repository.FirstOrDefaultAsync(filters: new()
             {
@@ -97,7 +97,7 @@ namespace Services.Implements
             }) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
             return school;
         }
-        public async Task<School> GetByIdAsync(int status, Guid id)
+        public async Task<School> GetSchoolByIdAsync(int status, Guid id)
         {
             var school = await _repository.FirstOrDefaultAsync(status, filters: new()
             {
@@ -129,14 +129,14 @@ namespace Services.Implements
 
         public async Task DeleteSchoolAsync(Guid id)
         {
-            var schoolEntity = await GetByIdAsync(SchoolStatus.Active, id);
+            var schoolEntity = await GetSchoolByIdAsync(SchoolStatus.Active, id);
             await _repository.DeleteAsync(schoolEntity);
             await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request)
         {
-            var schoolEntity = await GetByIdAsync(id);
+            var schoolEntity = await GetSchoolByIdAsync(id);
             if (!request.Address.Equals(schoolEntity.Address) && !request.AreaId.Equals(request.AreaId))
             {
                 await _areaService.GetAreaByIdAsync(AreaStatus.Active, id);
@@ -162,7 +162,6 @@ namespace Services.Implements
             await _repository.UpdateAsync(schoolEntity);
             await _unitOfWork.CommitAsync();
         }
-
 
     }
 }
