@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
     <Folder Include="Models\Location\Response\" />
+    <Folder Include="Models\User\" />
   </ItemGroup>
 
   <ItemGroup>

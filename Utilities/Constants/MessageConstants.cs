@@ -84,7 +84,7 @@ namespace Utilities.Constants
 
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
 
-            #region validation messages
+           
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
             public const string CategoryCodeRequired = "Mã danh mục là bắt buộc";
             public const string CategoryCodeLength = "Tên danh mục phải từ {2} đến {1} ký tự";
