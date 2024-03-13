@@ -115,6 +115,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ICardTypeService, CardTypeService>();
             services.AddScoped<IGiftService, GiftService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
