@@ -4,21 +4,12 @@ using BeanFastApi.Extensions;
 using Utilities.Constants;
 using Utilities.Utils;
 using Microsoft.AspNetCore.Http.Features;
+using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
 services.AddHttpContextAccessor();
-var allowAllPolicyName = "AllowAll";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(allowAllPolicyName, builder =>
-    {
-        builder.WithOrigins("*")
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
 //builder.WebHost.ConfigureKestrel(serverOptions =>
 //{
 //    serverOptions.Limits.MaxRequestBodySize = null;
@@ -65,13 +56,17 @@ if (app.Environment.IsDevelopment())
 }
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "bean-fast-firebase-adminsdk.json");
 app.UseMiddleware<ExceptionHandlingMiddleWare>();
-
+var qrCodeByteArray = QrCodeUtil.GenerateQRCode("Hello_world");
+//using (var ms = new MemoryStream(qrCodeByteArray))
+//{
+//    return Image.FromStream(ms);
+//}
 //app.UseMiddleware<ResponseSuccessMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 //app.UseRouting()
 app.UseAuthorization();
-app.UseCors(allowAllPolicyName);
+app.UseCors(CorsConstrant.AllowAllPolicyName);
 app.MapControllers();
 
 app.Run();

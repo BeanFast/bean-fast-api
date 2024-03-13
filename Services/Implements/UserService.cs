@@ -14,6 +14,7 @@ using Utilities.Exceptions;
 using Utilities.Constants;
 using Microsoft.Extensions.Options;
 using Utilities.Settings;
+using Utilities.Statuses;
 
 namespace Services.Implements
 {
@@ -58,6 +59,11 @@ namespace Services.Implements
 
         public Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
+            var customer = _mapper.Map<User>(registerRequest);
+            customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
+            customer.Id = Guid.NewGuid();
+            customer.Status = BaseEntityStatus.Active;
+            //customer.RoleId = 
             return null;
         }
     }

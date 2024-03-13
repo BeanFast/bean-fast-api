@@ -17,13 +17,13 @@ public class AuthController : BaseController
         _userService = userService;
     }
 
-    [HttpPost(ApiEndpointConstants.Auth.Login)]
+    [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
     {
         LoginResponse loginResponse = await _userService.LoginAsync(loginRequest);
         return SuccessResult(loginResponse);
     }
-    [HttpPost(ApiEndpointConstants.Auth.Register)]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
         RegisterResponse registerResponse = await _userService.RegisterAsync(registerRequest);
