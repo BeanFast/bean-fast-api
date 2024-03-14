@@ -9,7 +9,7 @@ using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.ValidationAttributes;
 
-namespace DataTransferObjects.Models.Profiles
+namespace DataTransferObjects.Models.Profiles.Request
 {
     public class CreateProfileRequest
     {

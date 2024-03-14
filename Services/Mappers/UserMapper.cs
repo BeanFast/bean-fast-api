@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.User.Response;
 using DataTransferObjects.Models.Auth.Request;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Services.Mappers
     {
         public UserMapper()
         {
+            CreateMap<User, GetDelivererResponse>();
             CreateMap<RegisterRequest, User>();
         }
     }

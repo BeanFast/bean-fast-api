@@ -1,5 +1,5 @@
 ﻿using BeanFastApi.Validators;
-using DataTransferObjects.Models.Profiles;
+using DataTransferObjects.Models.Profiles.Request;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Utilities.Enums;

@@ -11,10 +11,10 @@ namespace DataTransferObjects.Models.Auth.Request
 {
     public class RegisterRequest
     {
-        public string? FullName { get; set; }
+        public string FullName { get; set; }
         //public string Phone { get; set; }
         public string Password { get; set; }
-        public string? Email { get; set; }
+        public string Phone { get; set; }
         [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
         public IFormFile Image { get; set; }
         //public string AvatarPath { get; set; }
