@@ -14,6 +14,7 @@ namespace Utilities.Constants
             public static readonly string ApiSuccess = "Thành công";
 
             public static readonly string ApiError = "Có lỗi xảy ra";
+            public static readonly string NoPermission = "Bạn không có quyền hạn để thực hiện tính năng này";
 
         }
         public static class PaginationMessageConstrant
@@ -84,7 +85,7 @@ namespace Utilities.Constants
 
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
 
-            #region validation messages
+
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
             public const string CategoryCodeRequired = "Mã danh mục là bắt buộc";
             public const string CategoryCodeLength = "Tên danh mục phải từ {2} đến {1} ký tự";
@@ -131,6 +132,18 @@ namespace Utilities.Constants
             public const string SchoolNameLength = "Tên trường học phải từ {2} đến {1} ký tự";
             public const string SchoolAddressRequired = "Địa chỉ trường học là bắt buộc";
             public const string SchoolAddressLength = "Địa chỉ trường học tối đa 500 ký tự";
+
+        }
+
+        public class SessionMessageConstrant
+        {
+            public static string SessionNotFound(Guid guid) => $"Phiên với id: {guid} không tồn tại";
+
+        }
+
+        public class SessionDetailMessageConstrant
+        {
+            public static string SessionDetailNotFound(Guid guid) => $"Phiên chi tiết với id: {guid} không tồn tại";
 
         }
 
@@ -183,12 +196,10 @@ namespace Utilities.Constants
         {
             public static string OrderNotFound(Guid guid) => $"Đơn hàng với id: {guid} không tồn tại";
 
-            public const string OrderStatusRequired = "Trạng thái đơn hàng là bắt buộc";
-            public const string OrderStatusInvalid = "Trạng thái đơn hàng không hợp lệ";
             public const string OrderTotalPriceRequired = "Tổng giá đơn hàng là bắt buộc";
-            public const string OrderTotalPriceRange = "Tổng giá đơn hàng phải lớn hơn 0";
+            public const string OrderTotalPriceRange = "Tổng giá đơn hàng phải ít nhất 1000 VNĐ";
             public const string OrderCreateDateInvalid = "Ngày tạo đơn hàng không hợp lệ";
-            public const string OrderUpdateDateInvalid = "Ngày cập nhật đơn hàng không hợp lệ";
+            public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
         }
 
         public class ProfileMessageConstrant

@@ -22,7 +22,7 @@ namespace Utilities.Utils
             List<Claim> claims = new List<Claim>
             {
                 new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                
+
                 new Claim(ClaimTypes.Name, user.FullName!),
                 new Claim(ClaimTypes.Role, user.Role!.Name),
             };

@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
-using DataTransferObjects.Models.Profiles;
+using DataTransferObjects.Models.Profiles.Request;
+using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Services.Mappers
         {
             CreateMap<CreateProfileRequest, Profile>();
             CreateMap<CreateProfileRequest.BMIOfProfile, ProfileBodyMassIndex>();
+            CreateMap<Profile, GetProfileResponse>();
         }
     }
 }
