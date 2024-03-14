@@ -36,6 +36,7 @@ services.AddUnitOfWork();
 services.AddServices();
 services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
+services.AddRateLimiting();
 services.AddCors(options =>
 {
     options.AddPolicy(CorsConstrant.AllowAllPolicyName,
@@ -57,16 +58,12 @@ if (app.Environment.IsDevelopment())
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "bean-fast-firebase-adminsdk.json");
 app.UseMiddleware<ExceptionHandlingMiddleWare>();
 var qrCodeByteArray = QrCodeUtil.GenerateQRCode("Hello_world");
-//using (var ms = new MemoryStream(qrCodeByteArray))
-//{
-//    return Image.FromStream(ms);
-//}
-//app.UseMiddleware<ResponseSuccessMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 //app.UseRouting()
 app.UseAuthorization();
 app.UseCors(CorsConstrant.AllowAllPolicyName);
 app.MapControllers();
-
+app.UseRateLimiter();
 app.Run();

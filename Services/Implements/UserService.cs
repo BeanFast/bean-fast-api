@@ -76,5 +76,10 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
             return new RegisterResponse();
         }
+
+        public Task SendOtpAsync(string phone)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
