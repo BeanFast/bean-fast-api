@@ -29,11 +29,12 @@ namespace Services.Implements
     {
         private readonly IProfileService _profileService;
         private readonly ISessionDetailService _sessionDetailService;
-        private readonly IFoodService _foodService;
         private readonly IOrderDetailService _orderDetailService;
-        public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IProfileService profileService, ISessionDetailService sessionDetailService, IOrderDetailService orderDetailService) : base(unitOfWork, mapper, appSettings)
         {
-
+            _profileService = profileService;
+            _sessionDetailService = sessionDetailService;
+            _orderDetailService = orderDetailService;
         }
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
@@ -94,7 +95,7 @@ namespace Services.Implements
             await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
-            orderEntity.Status = BaseEntityStatus.Active;
+            orderEntity.Status = OrderStatus.Pending;
             orderEntity.Code = EntityCodeUtil.GenerateUnnamedEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderId);
             var orderDetailEntityList = new List<OrderDetail>();
 
@@ -121,9 +122,17 @@ namespace Services.Implements
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
         {
             var orderEntity = await GetByIdAsync(orderId);
-            orderEntity.Status = (int)OrderStatus.COMPLETED;
+            orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = DateTime.Now;
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
+            await _repository.UpdateAsync(orderEntity);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task UpdateOrderCookingStatusAsync(Guid orderId)
+        {
+            var orderEntity = await GetByIdAsync(orderId);
+            orderEntity.Status = OrderStatus.Cooking;
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
@@ -131,7 +140,7 @@ namespace Services.Implements
         public async Task UpdateOrderDeliveryStatusAsync(Guid foodId)
         {
             var orderEntity = await GetByIdAsync(foodId);
-            orderEntity.Status = (int)OrderStatus.DELIVERING;
+            orderEntity.Status = OrderStatus.Delivering;
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
@@ -139,7 +148,7 @@ namespace Services.Implements
         public async Task UpdateOrderCancelStatusAsync(Guid orderId)
         {
             var orderEntity = await GetByIdAsync(orderId);
-            orderEntity.Status = (int)OrderStatus.CANCELLED;
+            orderEntity.Status = (int)OrderStatus.Cancelled;
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }

@@ -16,6 +16,8 @@ namespace Utilities.Constants
             public static readonly string ApiError = "Có lỗi xảy ra";
             public static readonly string NoPermission = "Bạn không có quyền hạn để thực hiện tính năng này";
 
+            public static string TooManyRequest(int seconds) => $"Bạn đã gửi đi quá nhiều yêu cầu, xin hãy chờ trong {seconds} giây";
+
         }
         public static class PaginationMessageConstrant
         {
@@ -84,7 +86,6 @@ namespace Utilities.Constants
             public const string CategoryNotFound = "Danh mục không tồn tại";
 
             public const string CategoryCreateSucess = "Đã tạo danh mục thành công!";
-
 
             public const string CategoryNameRequired = "Tên danh mục là bắt buộc";
             public const string CategoryCodeRequired = "Mã danh mục là bắt buộc";
@@ -184,7 +185,6 @@ namespace Utilities.Constants
         public class MenuMessageContrant
         {
             public static string MenuNotFound(Guid guid) => $"Menu với id: {guid} không tồn tại";
-
             public const string MenuCodeRequired = "Mã menu là bắt buộc";
             public const string MenuCodeLength = "Mã menu phải từ {2} đến {1} ký tự";
             public const string MenuKitchenIdRequired = "Bếp ăn là bắt buộc";
@@ -217,5 +217,6 @@ namespace Utilities.Constants
             public const string ProfileWeightRange = "Cân nặng phải lớn hơn 0";
             public const string ProfileAgeRange = "Tuổi phải lớn hơn 0";
         }
+
     }
 }

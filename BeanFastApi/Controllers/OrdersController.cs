@@ -10,6 +10,7 @@ using Services.Interfaces;
 using System.Net;
 using Utilities.Constants;
 using Utilities.Enums;
+using Utilities.Exceptions;
 
 namespace BeanFastApi.Controllers
 {
@@ -49,24 +50,32 @@ namespace BeanFastApi.Controllers
             var order = await _orderService.GetByIdAsync(id);
             var userRole = GetUserRole();
 
-            if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == (int)OrderStatus.COOKING)
+            if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Pending)
+            {
+                await _orderService.UpdateOrderCookingStatusAsync(id);
+            }
+            else if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderDeliveryStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.CUSTOMER.ToString()) && order.Status == (int)OrderStatus.PENDING
-                || userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == (int)OrderStatus.COOKING)
+            else if (userRole!.Equals(RoleName.CUSTOMER.ToString()) && order.Status == OrderStatus.Pending
+                || userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderCancelStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.DELIVERER.ToString()) && order.Status == (int)OrderStatus.DELIVERING)
+            else if (userRole!.Equals(RoleName.DELIVERER.ToString()) && order.Status == OrderStatus.Delivering)
             {
                 await _orderService.UpdateOrderCompleteStatusAsync(id);
+            }
+            else
+            {
+                throw new InvalidRoleException();
             }
 
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
         }
 
-        [HttpPut("{id}/feedback")]
+        [HttpPut("{id}/feedbacks")]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> FeedbackOrder([FromRoute] Guid id, [FromBody] FeedbackOrderRequest request)
         {

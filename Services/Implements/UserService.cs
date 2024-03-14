@@ -14,36 +14,40 @@ using Utilities.Exceptions;
 using Utilities.Constants;
 using Microsoft.Extensions.Options;
 using Utilities.Settings;
+using Utilities.Statuses;
 
 namespace Services.Implements
 {
     public class UserService : BaseService<User>, IUserService
     {
-        private readonly IGenericRepository<User> _userRepository;
+        private readonly ICloudStorageService _cloudStorageService;
 
-        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IRoleService _roleService;
+
+        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, IRoleService roleService) : base(unitOfWork, mapper, appSettings)
         {
-            _userRepository = unitOfWork.GetRepository<User>();
+            _cloudStorageService = cloudStorageService;
+            _roleService = roleService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
-            List<Expression<Func<User, bool>>> whereFilters = null;
+            List<Expression<Func<User, bool>>>? whereFilters = null;
             if (loginRequest.Email is not null)
             {
                 whereFilters = new()
-                    { user => user.Email == loginRequest.Email && user.Role!.Name != RoleName.CUSTOMER.ToString() };
+                    { user => user.Email == loginRequest.Email && user.Role!.EnglishName != RoleName.CUSTOMER.ToString() };
             }
             else if (loginRequest.Phone is not null)
             {
                 whereFilters = new()
                 {
-                    (user) => user.Phone == loginRequest.Phone //&& user.Role!.Name == RoleName.CUSTOMER.ToString()
+                    (user) => user.Phone == loginRequest.Phone && user.Role!.EnglishName == RoleName.CUSTOMER.ToString()
                 };
             }
 
             Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
-            User user = await _userRepository.FirstOrDefaultAsync(filters: whereFilters, include: include) ??
+            User user = await _repository.FirstOrDefaultAsync(filters: whereFilters, include: include) ??
                         throw new InvalidCredentialsException();
             if (!PasswordUtil.VerifyPassword(loginRequest.Password, user.Password))
             {
@@ -56,9 +60,26 @@ namespace Services.Implements
             };
         }
 
-        public Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
-            return null;
+            var customer = _mapper.Map<User>(registerRequest);
+            customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
+            customer.Id = Guid.NewGuid();
+            customer.Status = BaseEntityStatus.Active;
+            var avatarPath = await _cloudStorageService.UploadFileAsync(customer.Id, _appSettings.Firebase.FolderNames.User, registerRequest.Image);
+            //customer.RoleId = 
+            customer.AvatarPath = avatarPath;
+            customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
+            customer.Status = BaseEntityStatus.Active;
+            customer.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.UserCodeConstrant.UserPrefix, customer.FullName!, customer.Id);
+            await _repository.InsertAsync(customer);
+            await _unitOfWork.CommitAsync();
+            return new RegisterResponse();
+        }
+
+        public Task SendOtpAsync(string phone)
+        {
+            throw new NotImplementedException();
         }
     }
 }

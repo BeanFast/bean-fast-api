@@ -18,6 +18,7 @@ namespace Services.Interfaces
         Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
         Task<Order> GetByIdAsync(Guid id);
         Task CreateOrderAsync(CreateOrderRequest request);
+        Task UpdateOrderCookingStatusAsync(Guid foodId);
         Task UpdateOrderCompleteStatusAsync(Guid foodId);
         Task UpdateOrderDeliveryStatusAsync(Guid foodId);
         Task UpdateOrderCancelStatusAsync(Guid foodId);

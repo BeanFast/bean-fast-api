@@ -1,5 +1,6 @@
 ﻿using DataTransferObjects.Models.Area.Request;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Services.Interfaces;
 
 namespace BeanFastApi.Controllers

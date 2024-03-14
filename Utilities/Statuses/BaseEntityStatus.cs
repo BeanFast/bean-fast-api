@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Utilities.Statuses
 {
-    public  class BaseEntityStatus
+    public class BaseEntityStatus
     {
         public static readonly int Deleted = 0;
 
         public static readonly int Active = 1;
-
     }
+
+
 }

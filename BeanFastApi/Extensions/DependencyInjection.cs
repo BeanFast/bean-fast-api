@@ -14,6 +14,9 @@ using BeanFastApi.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 using Utilities.Settings;
 using Google.Cloud.Storage.V1;
+using System.Threading.RateLimiting;
+using Utilities.Exceptions;
+using Utilities.Utils;
 
 
 namespace BeanFastApi.Extensions
@@ -100,7 +103,6 @@ namespace BeanFastApi.Extensions
         }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFoodService, FoodService>();
@@ -115,9 +117,38 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ICardTypeService, CardTypeService>();
             services.AddScoped<IGiftService, GiftService>();
             services.AddScoped<IProfileService, ProfileService>();
+
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ISessionDetailService, SessionDetailService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
+
+            services.AddScoped<IRoleService, RoleService>();
+            return services;
+        }
+        public static IServiceCollection AddRateLimiting(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.AddPolicy("otpRateLimit", httpContext => RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.Connection.RemoteIpAddress!.ToString(),
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 1,
+                        Window = TimeSpan.FromMinutes(1)
+                    }
+                ));
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    Console.WriteLine(context.Lease.GetAllMetadata().FirstOrDefault(m => m.Key.Equals("RETRY_AFTER")).Value);
+                    string retryAfterString = context.Lease.GetAllMetadata().FirstOrDefault(m => m.Key.Equals("RETRY_AFTER")).Value!.ToString()!;
+                    var seconds = TimeUtil.ConvertTimeToSeconds(retryAfterString);
+                    throw new TooManyRequestException(seconds);
+                    //context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    //context.HttpContext.Response.ContentType = "application/json";
+                    //var responseData = new { message = "Too many requests. Please try again later." };
+                    //await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(responseData));
+                };
+            });
             return services;
         }
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
