@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+using BusinessObjects.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -216,7 +216,9 @@ namespace Utilities.Constants
             public const string ProfileHeightRange = "Chiều cao phải lớn hơn 0";
             public const string ProfileWeightRange = "Cân nặng phải lớn hơn 0";
             public const string ProfileAgeRange = "Tuổi phải lớn hơn 0";
+            public const string ProfileDoesNotBelongToUser = "Thông tin đứa trẻ không thuộc về người dùng này"
             public const string ProfileNotFound = "Không tìm thấy thông tin cá nhân";
+
 
         }
     }

@@ -59,7 +59,7 @@ namespace Services.Implements
                 (order) => order.Id == id
             };
             var order = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(o => o.Profile!))
+                filters: filters, include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!))
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return order;
         }
@@ -85,6 +85,26 @@ namespace Services.Implements
                     paginationRequest: request, selector: selector, orderBy: orderBy);
             }
             return page;
+        }
+
+        public async Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId)
+        {
+            var profile = await _profileService.GetByIdAsync(profileId);
+
+            if (profile.UserId != userId)
+            {
+                throw new ProfileNotMatchException();
+            }
+
+            List<Expression<Func<Order, bool>>> filters = new()
+            {
+                (order) => order.ProfileId == profileId
+            };
+
+            var orders = await _repository.GetListAsync(filters: filters,
+                include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
+
+            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
         public async Task CreateOrderAsync(CreateOrderRequest request)

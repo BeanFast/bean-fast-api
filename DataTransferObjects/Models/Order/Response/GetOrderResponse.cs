@@ -9,14 +9,14 @@ namespace DataTransferObjects.Models.Order.Response
 {
     public class GetOrderResponse
     {
-        public Guid ProfileId { get; set; }
-        public string Code { get; set; }
+        public string? Code { get; set; }
         public double TotalPrice { get; set; }
         public DateTime PaymentDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public int RewardPoints { get; set; }
+        public int Status { get; set; }
         public string? Feedback { get; set; }
 
-        public GetProfileResponse Profile { get; set; }
+        public GetProfileResponse? Profile { get; set; }
     }
 }
