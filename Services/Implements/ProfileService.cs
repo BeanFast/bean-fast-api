@@ -55,6 +55,48 @@ namespace Services.Implements
             await _unitOfWork.GetRepository<ProfileBodyMassIndex>().InsertAsync(currentBMI);
             await _unitOfWork.CommitAsync();
         }
+        public async Task<Profile> GetProfileByIdAsync(int status, Guid id)
+        {
+            var profile = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                s => s.Id == id,
+                s => s.Status == status
+            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+        public async Task<Profile> GetProfileByIdAsync(Guid id)
+        {
+            var profile = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                s => s.Id == id
+            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+        public async Task DeleteProfileAsync(Guid id)
+        {
+            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
+            await _repository.DeleteAsync(profile);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request)
+        {
+            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
+            await _repository.UpdateAsync(profile);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        {
+            var profiles = await _repository.GetListAsync(BaseEntityStatus.Active,
+                filters: new()
+                {
+                    p => p.UserId == customerId,
+                }, selector:
+                    p => _mapper.Map<GetProfilesByCurrentCustomerResponse>(p)
+                );
+            return profiles;
+        }
 
         public async Task<Profile> GetByIdAsync(Guid id)
         {
@@ -64,7 +106,7 @@ namespace Services.Implements
             };
             var profile = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters)
-                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound(id));
+                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
             return profile;
         }
 

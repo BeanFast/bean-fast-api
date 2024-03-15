@@ -189,6 +189,7 @@ namespace Repositories.Implements
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
+            await Task.CompletedTask;
         }
 
         public void UpdateRange(IEnumerable<T> entities)

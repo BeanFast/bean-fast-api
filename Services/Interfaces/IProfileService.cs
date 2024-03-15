@@ -12,6 +12,9 @@ namespace Services.Interfaces
     public interface IProfileService
     {
         Task CreateProfileAsync(CreateProfileRequest request, Guid userId);
+        Task DeleteProfileAsync(Guid id);
+        Task UpdateProfileAsync(Guid id, UpdateProfileRequest request);
+        Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
         Task<Profile> GetByIdAsync(Guid id);
         Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id);
     }

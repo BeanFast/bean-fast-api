@@ -53,7 +53,10 @@ namespace Services.Implements
             {
                 throw new InvalidCredentialsException();
             }
-
+            if(user.Status == BaseEntityStatus.Deleted)
+            {
+                throw new BannedAccountException(); 
+            }
             return new LoginResponse
             {
                 AccessToken = JwtUtil.GenerateToken(user)

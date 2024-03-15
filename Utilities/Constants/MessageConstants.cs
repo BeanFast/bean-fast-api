@@ -29,6 +29,7 @@ namespace Utilities.Constants
         {
             public static string NotAllowed = "Bạn không được phép sử dụng tính năng này";
             public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
+            public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
         }
 
         public static class LoginMessageConstrant
@@ -181,7 +182,6 @@ namespace Utilities.Constants
             public const string GiftInStockRequired = "Số lượng quà tặng là bắt buộc";
             public const string GiftInStockRange = "Số lượng quà tặng phải lớn hơn 0";
         }
-
         public class MenuMessageContrant
         {
             public static string MenuNotFound(Guid guid) => $"Menu với id: {guid} không tồn tại";
@@ -204,7 +204,7 @@ namespace Utilities.Constants
 
         public class ProfileMessageConstrant
         {
-            public static string ProfileNotFound(Guid guid) => $"Hồ sơ với id: {guid} không tồn tại";
+            //public static string ProfileNotFound(Guid guid) => $"Hồ sơ với id: {guid} không tồn tại";
 
             public const string ProfileFullNameRequired = "Họ và tên là bắt buộc";
             public const string ProfileFullNameLength = "Họ và tên phải chứa tối đa {1} ký tự";
@@ -216,7 +216,8 @@ namespace Utilities.Constants
             public const string ProfileHeightRange = "Chiều cao phải lớn hơn 0";
             public const string ProfileWeightRange = "Cân nặng phải lớn hơn 0";
             public const string ProfileAgeRange = "Tuổi phải lớn hơn 0";
-        }
+            public const string ProfileNotFound = "Không tìm thấy thông tin cá nhân";
 
+        }
     }
 }
