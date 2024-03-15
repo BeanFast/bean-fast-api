@@ -16,6 +16,7 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole);
         Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request);
         Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
+        Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId);
         Task<Order> GetByIdAsync(Guid id);
         Task CreateOrderAsync(CreateOrderRequest request);
         Task UpdateOrderCookingStatusAsync(Guid foodId);

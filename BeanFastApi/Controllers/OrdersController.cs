@@ -26,6 +26,7 @@ namespace BeanFastApi.Controllers
 
         // GET: api/Orders
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(SuccessApiResponse<IPaginable<GetOrderResponse>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -73,6 +74,15 @@ namespace BeanFastApi.Controllers
             }
 
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        }
+
+        [HttpGet("{profileId}")]
+        [Authorize(RoleName.CUSTOMER)]
+        public async Task<IActionResult> GetOrdersByProfileId([FromRoute] Guid profileId)
+        {
+            var userId = GetUserId();
+            var orders = await _orderService.GetOrdersByProfileIdAsync(profileId, userId);
+            return SuccessResult(orders);
         }
 
         [HttpPut("{id}/feedbacks")]
