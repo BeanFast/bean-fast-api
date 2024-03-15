@@ -137,7 +137,7 @@ namespace BeanFastApi.Extensions
                         Window = TimeSpan.FromMinutes(1)
                     }
                 ));
-                options.OnRejected = async (context, cancellationToken) =>
+                options.OnRejected = (context, cancellationToken) =>
                 {
                     Console.WriteLine(context.Lease.GetAllMetadata().FirstOrDefault(m => m.Key.Equals("RETRY_AFTER")).Value);
                     string retryAfterString = context.Lease.GetAllMetadata().FirstOrDefault(m => m.Key.Equals("RETRY_AFTER")).Value!.ToString()!;
