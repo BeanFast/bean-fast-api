@@ -20,5 +20,6 @@ namespace BeanFastApi.Controllers
             var result = await _walletService.GetWalletByCurrentCustomerAndProfileAsync(customerId, profileId);
             return SuccessResult(result);   
         }
+        
     }
 }

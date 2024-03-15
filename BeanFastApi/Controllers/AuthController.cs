@@ -30,7 +30,7 @@ public class AuthController : BaseController
         RegisterResponse registerResponse = await _userService.RegisterAsync(registerRequest);
         return SuccessResult(registerResponse);
     }
-    [HttpGet("otp")]
+    [HttpPost("otp")]
     [EnableRateLimiting("otpRateLimit")]
     public async Task<IActionResult> SendOtpAsync([FromBody] string phone)
     {

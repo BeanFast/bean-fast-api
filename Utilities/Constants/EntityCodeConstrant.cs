@@ -13,8 +13,8 @@ namespace Utilities.Constants
     {
         public static readonly string Separator = "_";
 
-        public static class GiftCodeConstrant 
-        { 
+        public static class GiftCodeConstrant
+        {
             public static string GiftPrefix = "G";
         }
 
@@ -41,6 +41,7 @@ namespace Utilities.Constants
         public class UserCodeConstrant
         {
             public static string UserPrefix = "U";
+            public static string CustomerPrefix = "Cus";
         }
 
         public class ComboCodeConstrant
