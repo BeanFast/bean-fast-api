@@ -28,6 +28,7 @@
 
     <Folder Include="Models\Location\Response\" />
     <Folder Include="Models\User\" />
+    <Folder Include="Models\Wallet\Request\" />
   </ItemGroup>
 
   <ItemGroup>

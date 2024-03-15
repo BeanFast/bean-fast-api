@@ -23,11 +23,13 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
 
         private readonly IRoleService _roleService;
+        private readonly ISmsService _smsService;
 
-        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, IRoleService roleService) : base(unitOfWork, mapper, appSettings)
+        public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, IRoleService roleService, ISmsService smsService = null) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _roleService = roleService;
+            _smsService = smsService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
@@ -53,9 +55,9 @@ namespace Services.Implements
             {
                 throw new InvalidCredentialsException();
             }
-            if(user.Status == BaseEntityStatus.Deleted)
+            if (user.Status == BaseEntityStatus.Deleted)
             {
-                throw new BannedAccountException(); 
+                throw new BannedAccountException();
             }
             return new LoginResponse
             {
@@ -66,15 +68,22 @@ namespace Services.Implements
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             var customer = _mapper.Map<User>(registerRequest);
+            List<Expression<Func<User, bool>>> filters = new() {
+                (user) => user.Phone == registerRequest.Phone
+            };
+            var existedData = await _repository.FirstOrDefaultAsync(
+                status: BaseEntityStatus.Active,
+                filters: filters
+            );
+            if (existedData is not null) throw new DataExistedException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
             customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
             customer.Id = Guid.NewGuid();
             customer.Status = BaseEntityStatus.Active;
             var avatarPath = await _cloudStorageService.UploadFileAsync(customer.Id, _appSettings.Firebase.FolderNames.User, registerRequest.Image);
-            //customer.RoleId = 
             customer.AvatarPath = avatarPath;
             customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Status = BaseEntityStatus.Active;
-            customer.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.UserCodeConstrant.UserPrefix, customer.FullName!, customer.Id);
+            customer.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customer.FullName!, customer.Id);
             await _repository.InsertAsync(customer);
             await _unitOfWork.CommitAsync();
             return new RegisterResponse();
