@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
-using DataTransferObjects.Models.Profiles;
+using DataTransferObjects.Models.Profiles.Request;
+using DataTransferObjects.Models.Profiles.Response;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -80,6 +81,18 @@ namespace Services.Implements
             var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
             await _repository.UpdateAsync(profile);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        {
+            var profiles = await _repository.GetListAsync(BaseEntityStatus.Active,
+                filters: new()
+                {
+                    p => p.UserId == customerId,
+                }, selector:
+                    p => _mapper.Map<GetProfilesByCurrentCustomerResponse>(p)
+                );
+            return profiles;
         }
     }
 }

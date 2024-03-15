@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Utilities.ValidationAttributes;
 
-namespace DataTransferObjects.Models.Profiles
+namespace DataTransferObjects.Models.Profiles.Request
 {
     public class CreateProfileRequest
     {

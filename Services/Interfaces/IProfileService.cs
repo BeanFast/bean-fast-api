@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Profiles;
+﻿using DataTransferObjects.Models.Profiles.Request;
+using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace Services.Interfaces
         Task CreateProfileAsync(CreateProfileRequest request, Guid userId);
         Task DeleteProfileAsync(Guid id);
         Task UpdateProfileAsync(Guid id, UpdateProfileRequest request);
+        Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
     }
 }

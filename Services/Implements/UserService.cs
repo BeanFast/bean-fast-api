@@ -14,6 +14,7 @@ using Utilities.Exceptions;
 using Utilities.Constants;
 using Microsoft.Extensions.Options;
 using Utilities.Settings;
+using Utilities.Statuses;
 
 namespace Services.Implements
 {
@@ -49,7 +50,10 @@ namespace Services.Implements
             {
                 throw new InvalidCredentialsException();
             }
-
+            if(user.Status == BaseEntityStatus.Deleted)
+            {
+                throw 
+            }
             return new LoginResponse
             {
                 AccessToken = JwtUtil.GenerateToken(user)
