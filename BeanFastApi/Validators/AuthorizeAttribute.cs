@@ -7,6 +7,8 @@ namespace BeanFastApi.Validators
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class AuthorizeAttribute : Microsoft.AspNetCore.Authorization.AuthorizeAttribute
     {
+
+        public AuthorizeAttribute() { }
         public AuthorizeAttribute(params RoleName[] roles)
         {
             var allowedRolesAsString = roles.Select(x => x.GetDisplayName());

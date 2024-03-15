@@ -7,5 +7,6 @@ namespace Services.Interfaces
     {
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
         Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest);
+        Task SendOtpAsync(string phone);
     }
 }

@@ -9,7 +9,7 @@ namespace Utilities.Exceptions
 {
     public class BannedAccountException : BeanFastApplicationException
     {
-        public BannedAccountException() : base(MessageConstants.AuthorizationMessageConstrant.BannedAccount, System.Net.HttpStatusCode.Forbidden) { }
+        public BannedAccountException() : base(MessageConstants.AuthorizationMessageConstrant.BannedAccount, System.Net.HttpStatusCode.Forbidden)
         {
         
         }

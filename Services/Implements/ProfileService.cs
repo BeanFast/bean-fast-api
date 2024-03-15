@@ -1,13 +1,16 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.Order.Response;
 using DataTransferObjects.Models.Profiles.Request;
 using DataTransferObjects.Models.Profiles.Response;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
@@ -94,5 +97,24 @@ namespace Services.Implements
                 );
             return profiles;
         }
+
+        public async Task<Profile> GetByIdAsync(Guid id)
+        {
+            List<Expression<Func<Profile, bool>>> filters = new()
+            {
+                (profile) => profile.Id == id
+            };
+            var profile = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters)
+                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+
+        public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id)
+        {
+            return _mapper.Map<GetProfileResponse>(await GetByIdAsync(id));
+        }
+
+
     }
 }

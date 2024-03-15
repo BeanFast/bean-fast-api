@@ -11,10 +11,13 @@ namespace DataTransferObjects.Models.Area.Request
     public class AreaFilterRequest
     {
         [Required(ErrorMessage = MessageConstants.AreaMessageConstrant.AreaCityRequired)]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = MessageConstants.AreaMessageConstrant.AreaCityLength)]
         public string City { get; set; } = "";
-
+        [Required(ErrorMessage = MessageConstants.AreaMessageConstrant.AreaDistrictRequired)]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = MessageConstants.AreaMessageConstrant.AreaDistrictLength)]
         public string District { get; set; } = "";
-
+        [Required(ErrorMessage = MessageConstants.AreaMessageConstrant.AreaWardRequired)]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = MessageConstants.AreaMessageConstrant.AreaWardLength)]
         public string Ward { get; set; } = "";
 
 

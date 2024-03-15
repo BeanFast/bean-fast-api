@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Profiles.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Profiles.Request;
 using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,7 @@ namespace Services.Interfaces
         Task DeleteProfileAsync(Guid id);
         Task UpdateProfileAsync(Guid id, UpdateProfileRequest request);
         Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
+        Task<Profile> GetByIdAsync(Guid id);
+        Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id);
     }
 }
