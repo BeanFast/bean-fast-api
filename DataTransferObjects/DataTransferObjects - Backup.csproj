@@ -22,9 +22,13 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
+
+    <Folder Include="Models\SessionDetail\Request\" />
+    <Folder Include="Models\User\Request\" />
+
     <Folder Include="Models\Location\Response\" />
-    <Folder Include="Models\Profiles\NewFolder\" />
-    <Folder Include="Models\Profiles\Request\" />
+    <Folder Include="Models\User\" />
+    <Folder Include="Models\Wallet\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -117,10 +117,10 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ICardTypeService, CardTypeService>();
             services.AddScoped<IGiftService, GiftService>();
             services.AddScoped<IProfileService, ProfileService>();
-
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ISessionDetailService, SessionDetailService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
+            services.AddScoped<IWalletService, WalletService>();
 
             services.AddScoped<IRoleService, RoleService>();
             return services;
@@ -160,7 +160,8 @@ namespace BeanFastApi.Extensions
                 typeof(KitchenMapper),
                 typeof(AreaMapper),
                 typeof(CardTypeMapper),
-                typeof(GiftMapper)
+                typeof(GiftMapper),
+                typeof(WalletMapper)
                 //typeof(Program)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;
