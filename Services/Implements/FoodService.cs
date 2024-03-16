@@ -69,16 +69,15 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetFoodResponse>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
         {
-            Expression<Func<Food, GetFoodResponse>> selector = (f => _mapper.Map<GetFoodResponse>(f));
 
             Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include = (f) => f.Include(f => f.Category!);
             var filters = GetFilterFromFilterRequest(filterRequest);
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                return await _repository.GetListAsync(include: include, filters: filters, selector: selector);
+                return await _repository.GetListAsync<GetFoodResponse>(include: include, filters: filters);
             }
 
-            return await _repository.GetListAsync(BaseEntityStatus.Active, include: include, filters: filters, selector: selector);
+            return await _repository.GetListAsync<GetFoodResponse>(BaseEntityStatus.Active, include: include, filters: filters);
         }
 
         public async Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest,
@@ -89,15 +88,13 @@ namespace Services.Implements
             IPaginable<GetFoodResponse>? page = null;
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                page = await _repository.GetPageAsync(
-                    paginationRequest: request, selector: selector,
-                    orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetFoodResponse>(paginationRequest: request, orderBy: orderBy);
             }
             else
             {
-                page = await _repository.GetPageAsync(
-                    status: BaseEntityStatus.Active, paginationRequest: request, selector: selector,
-                    orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetFoodResponse>(
+                    status: BaseEntityStatus.Active,
+                    paginationRequest: request, orderBy: orderBy);
             }
 
             return page;
@@ -114,7 +111,7 @@ namespace Services.Implements
             {
                 (food) => food.Id == id,
             };
-            
+
             var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!))
                 ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
@@ -149,13 +146,13 @@ namespace Services.Implements
             Console.WriteLine(request);
             var masterFoodId = Guid.NewGuid();
             string imagePath = await _cloudStorageService.UploadFileAsync(masterFoodId,
-                _appSettings.Firebase.FolderNames.Food,  request.Image);
+                _appSettings.Firebase.FolderNames.Food, request.Image);
             var foodEntity = _mapper.Map<Food>(request);
             await _categoryService.GetById(request.CategoryId);
             foodEntity.Id = masterFoodId;
             foodEntity.Status = BaseEntityStatus.Active;
             foodEntity.ImagePath = imagePath;
-            foodEntity.Code =  EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, request.Name, masterFoodId);
+            foodEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, request.Name, masterFoodId);
             var comboEntityList = new List<Combo>();
 
             if (request.Combos is not null && request.Combos.Count > 0)
@@ -164,12 +161,12 @@ namespace Services.Implements
 
                 foreach (var combo in request.Combos!)
                 {
-                    var comboEntity = new Combo 
-                    { 
+                    var comboEntity = new Combo
+                    {
                         MasterFoodId = masterFoodId,
                         FoodId = combo.FoodId,
                         Quantity = combo.Quantity,
-                        
+
                     };
                     comboEntityList.Add(comboEntity);
 
@@ -211,7 +208,7 @@ namespace Services.Implements
                     comboEntities.Add(comboEntity);
                 }
                 foodEntity.Combos?.Clear();
-                if (!foodEntity.MasterCombos.IsNullOrEmpty()) 
+                if (!foodEntity.MasterCombos.IsNullOrEmpty())
                     await _comboService.HardDeleteComboListAsync(foodEntity.MasterCombos!);
                 await _comboService.CreateComboListAsync(comboEntities);
             }

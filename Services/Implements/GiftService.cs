@@ -68,12 +68,9 @@ namespace Services.Implements
         public async Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest)
         {
             var filters = getFiltersFromFGiftFilterRequest(filterRequest);
-            Expression<Func<Gift, GetGiftResponse>> selector = (f => _mapper.Map<GetGiftResponse>(f));
-            var page = await _repository.GetPageAsync(
+            var page = await _repository.GetPageAsync<GetGiftResponse>(
                     status: BaseEntityStatus.Active, 
-                    paginationRequest: paginationRequest, 
-                    filters: filters,
-                    selector: selector);
+                    paginationRequest: paginationRequest,filters: filters);
             return page;
         }
         public async Task<Gift> GetGiftByIdAsync(Guid id, int status)

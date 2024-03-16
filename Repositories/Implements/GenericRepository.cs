@@ -19,11 +19,12 @@ namespace Repositories.Implements
     {
         protected readonly DbContext _dbContext;
         protected readonly DbSet<T> _dbSet;
-
-        public GenericRepository(DbContext context)
+        protected readonly IMapper _mapper;
+        public GenericRepository(DbContext context, IMapper mapper)
         {
             _dbContext = context;
             _dbSet = context.Set<T>();
+            _mapper = mapper;
         }
 
         public void Dispose()
@@ -77,25 +78,23 @@ namespace Repositories.Implements
         }
 
         public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(
-            Expression<Func<T, TResult>> selector,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(filters, orderBy, include);
 
-            return await query.Select(selector).FirstOrDefaultAsync();
+            return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
         }
 
         public async Task<TResult?> FirstOrDefaultAsync<TResult>(int status,
-            Expression<Func<T, TResult>> selector,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
 
-            return await query.Select(selector).FirstOrDefaultAsync();
+            return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
         }
 
         public virtual async Task<ICollection<T>> GetListAsync(
@@ -117,16 +116,22 @@ namespace Repositories.Implements
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
             return await query.ToListAsync();
         }
-        public async Task<ICollection<TResult>> GetListAsync<TResult>(Expression<Func<T, TResult>> selector, List<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        public async Task<ICollection<TResult>> GetListAsync<TResult>(
+            List<Expression<Func<T, bool>>>? filters = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(filters, orderBy, include);
-            return await query.Select(selector).ToListAsync();
+            return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
-        public async Task<ICollection<TResult>> GetListAsync<TResult>(int status, Expression<Func<T, TResult>> selector, List<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        public async Task<ICollection<TResult>> GetListAsync<TResult>(
+            int status, List<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>,
+                IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, 
+                IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
-            return await query.Select(selector).ToListAsync();
+            return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
 
@@ -150,23 +155,22 @@ namespace Repositories.Implements
         }
 
         public Task<IPaginable<TResult>> GetPageAsync<TResult>(
-            Expression<Func<T, TResult>> selector,
             PaginationRequest request,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(filters, orderBy, include);
-            return query.Select(selector).ToPaginableAsync(request.Page, request.Size, 1);
+            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToPaginableAsync(request.Page, request.Size, 1);
         }
 
         public Task<IPaginable<TResult>> GetPageAsync<TResult>(int status,
-            Expression<Func<T, TResult>> selector, PaginationRequest paginationRequest,
+            PaginationRequest paginationRequest,
             List<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
-            return query.Select(selector)
+            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider)
                 .ToPaginableAsync(paginationRequest.Page, paginationRequest.Size, 1);
         }
 

@@ -11,7 +11,7 @@ namespace Services.Interfaces
 {
     public interface ISessionService
     {
-        Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole);
+        Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest);
         Task<GetSessionResponse> GetSessionResponseByIdAsync(Guid id);
         Task<Session> GetByIdAsync(Guid id);
         Task CreateSessionAsync(CreateSessionRequest request);

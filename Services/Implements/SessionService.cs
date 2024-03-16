@@ -30,10 +30,26 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-
-        public async Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole)
+        private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request)
         {
-            throw new NotImplementedException();
+            List<Expression<Func<Session, bool>>> filters = new List<Expression<Func<Session, bool>>>();
+            if(request.Orderable)
+            {
+                filters.Add((s) => s.OrderStartTime > DateTime.Now && s.OrderEndTime < DateTime.Now);
+                filters.Add((s) => s.Status == BaseEntityStatus.Active);
+            }
+            if(request.MenuId != Guid.Empty)
+            {
+                filters.Add(s => s.MenuId == request.MenuId);
+            }
+           
+            //if(request.DeliveryEndTime)
+            return filters;
+        }
+        public async Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
+        {
+            var filters = getFiltersFromSessionFilterRequest(filterRequest);
+            return await _repository.GetListAsync<GetSessionResponse>(filters: filters);
         }
 
         public async Task<Session> GetByIdAsync(Guid id)

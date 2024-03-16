@@ -5,11 +5,6 @@ using DataTransferObjects.Models.CardType.Request;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
@@ -42,10 +37,8 @@ namespace Services.Implements
 
         public async Task<ICollection<GetCardTypeResponse>> GetAllAsync()
         {
-            var cardTypes = await _repository.GetListAsync(
-                BaseEntityStatus.Active,
-                selector: c => _mapper.Map<GetCardTypeResponse>(c)
-                );
+            var cardTypes = await _repository.GetListAsync<GetCardTypeResponse>(
+                BaseEntityStatus.Active);
             return cardTypes;
         }
 

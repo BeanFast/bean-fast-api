@@ -57,7 +57,7 @@ namespace Services.Implements
             var cityNames = await _repository.GetListAsync(status: BaseEntityStatus.Active, filters: new()
             {
                 area => area.Status == BaseEntityStatus.Active
-            }, selector: c => c.City);
+            });
             return searchLocation(cityNames, cityName);
         }
 
@@ -82,7 +82,7 @@ namespace Services.Implements
 
         public async Task<SearchAreaResponse> SearchAreaAsync(AreaFilterRequest request)
         {
-            return await _repository.FirstOrDefaultAsync(
+            var result = await _repository.FirstOrDefaultAsync<SearchAreaResponse>(
                         status: BaseEntityStatus.Active,
                         filters: new()
                             {
@@ -90,9 +90,9 @@ namespace Services.Implements
                                 area => area.District == request.District,
                                 area => area.Ward == request.Ward
                             },
-                        include: i => i.Include(a => a.PrimarySchools),
-                        selector: s => _mapper.Map<SearchAreaResponse>(s)
+                        include: i => i.Include(a => a.PrimarySchools!)
                         );
+            return result!;
         }
     }
 }

@@ -121,7 +121,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ISessionDetailService, SessionDetailService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IWalletService, WalletService>();
-
+            services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IRoleService, RoleService>();
             return services;
         }

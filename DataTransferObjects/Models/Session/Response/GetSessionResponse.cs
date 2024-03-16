@@ -15,6 +15,6 @@ namespace DataTransferObjects.Models.Session.Response
         public DateTime DeliveryStartTime { get; set; }
         public DateTime DeliveryEndTime { get; set; }
 
-        public GetMenuResponse? Menu { get; set; }
+        //public GetMenuResponse? Menu { get; set; }
     }
 }
