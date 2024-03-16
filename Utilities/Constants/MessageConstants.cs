@@ -31,6 +31,7 @@ namespace Utilities.Constants
             public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
             public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
             public static string DupplicatedPhone = "Số điện thoại đã tồn tại";
+            public static string NotAuthorizedToAccess = "Bạn không thể truy cập vào thông tin của người khác";
         }
 
         public static class LoginMessageConstrant
@@ -66,6 +67,34 @@ namespace Utilities.Constants
 
             public const string GuidNotValid = "Guid không hợp lệ";
         }
+
+        public static class UserMessageConstrant
+        {
+            public static string UserNotFound(Guid guid) => $"Người dùng với id: {guid} không tồn tại";
+
+            public const string UserEmailRequired = "Email là bắt buộc";
+
+            public const string UserPhoneRequired = "Số điện thoại là bắt buộc";
+
+            public const string UserPasswordRequired = "Mật khẩu là bắt buộc";
+
+            public const string UserFullNameRequired = "Họ và tên là bắt buộc";
+
+            public const string UserFullNameLength = "Họ và tên phải từ {2} đến {1} ký tự";
+
+            public const string UserAddressRequired = "Địa chỉ là bắt buộc";
+
+            public const string UserAddressLength = "Địa chỉ phải từ {2} đến {1} ký tự";
+
+            public const string UserDobRequired = "Ngày sinh là bắt buộc";
+
+            public const string UserDobInvalid = "Ngày sinh không hợp lệ";
+
+            public const string UserGenderRequired = "Giới tính là bắt buộc";
+
+            public const string UserGenderInvalid = "Giới tính không hợp lệ";
+        }
+
         public static class AreaMessageConstrant
         {
             public static string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";

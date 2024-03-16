@@ -52,10 +52,10 @@ namespace Services.Implements
             
             return filters;
         }
-        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
+            Expression<Func<School, GetSchoolIncludeAreaAndLocationResponse>> selector = (s) => _mapper.Map<GetSchoolIncludeAreaAndLocationResponse>(s);
             var page = await _repository.GetPageAsync(
                     selector: selector,
                     filters: filters,
@@ -67,10 +67,10 @@ namespace Services.Implements
             //    );
             return page;
         }
-        public async Task<ICollection<GetSchoolResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
+            Expression<Func<School, GetSchoolIncludeAreaAndLocationResponse>> selector = (s) => _mapper.Map<GetSchoolIncludeAreaAndLocationResponse>(s);
             return await _repository.GetListAsync(
                 selector: selector,
                 filters: filters,

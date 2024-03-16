@@ -31,7 +31,7 @@ namespace Services.Implements
         }
 
 
-        public async Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole)
+        public async Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole)
         {
             throw new NotImplementedException();
         }
@@ -48,9 +48,9 @@ namespace Services.Implements
             return session;
         }
 
-        public async Task<GetSessionResponse> GetSessionResponseByIdAsync(Guid id)
+        public async Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id)
         {
-            return _mapper.Map<GetSessionResponse>(await GetByIdAsync(id));
+            return _mapper.Map<GetSessionForDeliveryResponse>(await GetByIdAsync(id));
         }
 
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)

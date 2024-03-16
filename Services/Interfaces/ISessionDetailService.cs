@@ -13,5 +13,6 @@ namespace Services.Interfaces
     {
         Task<SessionDetail> GetByIdAsync(Guid id);
         Task<GetSessionDetailResponse> GetSessionDetailResponseByIdAsync(Guid id);
+        Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid delivererId, Guid userId);
     }
 }

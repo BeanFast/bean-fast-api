@@ -11,10 +11,10 @@ namespace DataTransferObjects.Models.SessionDetail.Response
 {
     public class GetSessionDetailResponse
     {
-        public string Code { get; set; }
+        public string? Code { get; set; }
 
-        public GetLocationResponse? Location { get; set; }
-        public GetSessionResponse? Session { get; set; }
+        public GetLocationIncludeSchoolResponse? Location { get; set; }
+        public GetSessionForDeliveryResponse? Session { get; set; }
         public GetDelivererResponse? Deliverer { get; set; }
     }
 }

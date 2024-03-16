@@ -12,7 +12,7 @@ namespace Services.Mappers
     {
         public LocationMapper()
         {
-            CreateMap<Location, GetLocationResponse>();
+            CreateMap<Location, GetLocationIncludeSchoolResponse>();
         }
     }
 }
