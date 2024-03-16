@@ -31,6 +31,7 @@ namespace Utilities.Constants
             public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
             public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
             public static string DupplicatedPhone = "Số điện thoại đã tồn tại";
+            public static string PhoneNotFound = "Không có tài khoản nào sử dụng số điện thoại này";
         }
 
         public static class LoginMessageConstrant

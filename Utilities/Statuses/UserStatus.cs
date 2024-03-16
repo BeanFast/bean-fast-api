@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Interfaces
+namespace Utilities.Statuses
 {
-    public interface ISmsService
+    public class UserStatus : BaseEntityStatus
     {
-        Task SendSmsAsync(string toPhone, string message);
+        public static int NotVerified = 2;
     }
 }
