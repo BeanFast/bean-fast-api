@@ -9,7 +9,7 @@ namespace DataTransferObjects.Models.Session.Request
     public class SessionFilterRequest
     {
         public bool Orderable { get; set; }
-        public Guid MenuId { get; set; } = Guid.Empty;
+        public Guid? MenuId { get; set; } = Guid.Empty;
         public DateTime? OrderStartTime { get; set; }
         public DateTime? OrderEndTime { get; set; }
         public DateTime? DeliveryStartTime { get; set; }

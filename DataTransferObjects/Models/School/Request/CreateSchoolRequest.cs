@@ -28,10 +28,10 @@ namespace DataTransferObjects.Models.School.Request
 
         public class LocationOfCreateSchoolRequest
         {
-            [Required(ErrorMessage = MessageConstants.LocationMessageConstant.LocationNameRequired)]
-            [StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.LocationMessageConstant.LocationNameLength)]
+            [Required(ErrorMessage = MessageConstants.LocationMessageConstrant.LocationNameRequired)]
+            [StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.LocationMessageConstrant.LocationNameLength)]
             public string Name { get; set; }
-            [Required(ErrorMessage = MessageConstants.LocationMessageConstant.LocationDescriptionRequired)]
+            [Required(ErrorMessage = MessageConstants.LocationMessageConstrant.LocationDescriptionRequired)]
             public string Description { get; set; }
             [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
             public IFormFile Image { get; set; }

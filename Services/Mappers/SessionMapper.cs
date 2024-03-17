@@ -12,7 +12,7 @@ namespace Services.Mappers
     {
         public SessionMapper()
         {
-            CreateMap<Session, GetSessionResponse>();
+            CreateMap<Session, GetSessionForDeliveryResponse>();
         }
     }
 }

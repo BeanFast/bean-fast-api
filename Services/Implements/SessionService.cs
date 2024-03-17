@@ -46,10 +46,10 @@ namespace Services.Implements
             //if(request.DeliveryEndTime)
             return filters;
         }
-        public async Task<ICollection<GetSessionResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
+        public async Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
         {
             var filters = getFiltersFromSessionFilterRequest(filterRequest);
-            return await _repository.GetListAsync<GetSessionResponse>(filters: filters);
+            return await _repository.GetListAsync<GetSessionForDeliveryResponse>(filters: filters);
         }
 
         public async Task<Session> GetByIdAsync(Guid id)
@@ -64,9 +64,9 @@ namespace Services.Implements
             return session;
         }
 
-        public async Task<GetSessionResponse> GetSessionResponseByIdAsync(Guid id)
+        public async Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id)
         {
-            return _mapper.Map<GetSessionResponse>(await GetByIdAsync(id));
+            return _mapper.Map<GetSessionForDeliveryResponse>(await GetByIdAsync(id));
         }
 
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)

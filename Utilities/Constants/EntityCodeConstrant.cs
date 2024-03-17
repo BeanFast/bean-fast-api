@@ -52,6 +52,16 @@ namespace Utilities.Constants
         {
             public static string SchoolPrefix = "S";
         }
+
+        public class SessionCodeConstrant
+        {
+            public static string SessionPrefix = "Ss";
+        }
+
+        public class SessionDetailCodeConstrant
+        {
+            public static string SessionDetailPrefix = "Sd";
+        }
         public class CardTypeCodeConstrant
         {
             public static string CardTypePrefix = "Ct";
@@ -59,6 +69,10 @@ namespace Utilities.Constants
         public class ProfileCodeConstrant
         {
             public static string ProfilePrefix = "Pf";
+        }
+        public class LocationCodeConstrant
+        {
+            public static string LocationPrefix = "L";
         }
     }
 }
