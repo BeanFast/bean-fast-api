@@ -1,8 +1,11 @@
 ﻿using BeanFastApi.Validators;
+using DataTransferObjects.Models.SessionDetail.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using System.Net;
 using Utilities.Enums;
+using Utilities.Exceptions;
 
 namespace BeanFastApi.Controllers
 {
@@ -15,6 +18,7 @@ namespace BeanFastApi.Controllers
             _sessionDetailService = sessionDetailService;
         }
 
+        // Get delivery schedule by delivererId
         [HttpGet("deliveryschedule/{delivererId}")]
         [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> ViewDeliveryScheduleAsync([FromRoute] Guid delivererId)
@@ -24,12 +28,22 @@ namespace BeanFastApi.Controllers
             return SuccessResult(sessionDetails);
         }
 
-        /*
-        DTO: session detail | session | location | deliverer (user)
-        Service: View session detail | Update session detail (session | location | user)
+        //Create new session detail (create new delivery schedule)
+        [HttpPost]
+        [Authorize(RoleName.MANAGER)]
+        public async Task<IActionResult> CreateSessionDetail([FromBody] CreateSessionDetailRequest request)
+        {
+            await _sessionDetailService.CreateSessionDetailAsync(request);
+            return SuccessResult<object>(statusCode: HttpStatusCode.Created);
+        }
 
-        chưa lấy được school, menu
-        chưa lấy đúng đơn hàng theo từng deliverer 
-        */
+        // Update location, session, deliverer
+        [HttpPut("update/{id}")]
+        [Authorize(RoleName.MANAGER)]
+        public async Task<IActionResult> UpdateSessionDetail([FromRoute] Guid id, [FromBody] UpdateSessionDetailRequest request)
+        {
+            await _sessionDetailService.UpdateSessionDetailByIdAsync(id, request);
+            return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        }
     }
 }

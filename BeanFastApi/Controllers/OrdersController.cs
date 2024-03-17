@@ -85,7 +85,7 @@ namespace BeanFastApi.Controllers
             return SuccessResult(orders);
         }
 
-        [HttpPut("{id}/feedbacks")]
+        [HttpPut("feedbacks/{orderId}")]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> FeedbackOrder([FromRoute] Guid id, [FromBody] FeedbackOrderRequest request)
         {

@@ -7,7 +7,7 @@ using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.SessionDetail.Request
 {
-    public class UpdateSessionDetailRequest
+    public class CreateSessionDetailRequest
     {
         [RequiredGuid]
         public Guid LocationId { get; set; }

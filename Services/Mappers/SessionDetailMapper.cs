@@ -14,6 +14,7 @@ namespace Services.Mappers
     {
         public SessionDetailMapper()
         {
+            CreateMap<CreateSessionDetailRequest, SessionDetail>();
             CreateMap<UpdateSessionDetailRequest, SessionDetail>();
             CreateMap<SessionDetail, GetSessionDetailResponse>();
         }

@@ -169,18 +169,20 @@ namespace Utilities.Constants
 
         public class SessionMessageConstrant
         {
-            public static string SessionNotFound(Guid guid) => $"Phiên với id: {guid} không tồn tại";
+            public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
 
         }
 
         public class SessionDetailMessageConstrant
         {
-            public static string SessionDetailNotFound(Guid guid) => $"Phiên chi tiết với id: {guid} không tồn tại";
+            public static string SessionDetailNotFound(Guid guid) => $"Buổi chi tiết với id: {guid} không tồn tại";
 
         }
 
-        public class LocationMessageConstant
+        public class LocationMessageConstrant
         {
+            public static string LocationlNotFound(Guid guid) => $"Địa điểm với id: {guid} không tồn tại";
+
             public const string LocationNameRequired = "Tên địa điểm là bắt buộc";
             public const string LocationNameLength = "Tên địa điểm phải từ {2} đến {1} ký tự";
             public const string LocationDescriptionRequired = "Mô tả địa điểm là bắt buộc";

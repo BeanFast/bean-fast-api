@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataTransferObjects.Models.Location.Request
+namespace DataTransferObjects.Models.Location.Response
 {
-    public class CreateLocationRequest
+    public class GetLocationResponse
     {
         public string Code { get; set; }
         public string Name { get; set; }
