@@ -88,13 +88,11 @@ namespace Services.Implements
 
         public async Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
         {
-            var profiles = await _repository.GetListAsync(BaseEntityStatus.Active,
+            var profiles = await _repository.GetListAsync<GetProfilesByCurrentCustomerResponse>(BaseEntityStatus.Active,
                 filters: new()
                 {
                     p => p.UserId == customerId,
-                }, selector:
-                    p => _mapper.Map<GetProfilesByCurrentCustomerResponse>(p)
-                );
+                });
             return profiles;
         }
 
@@ -115,6 +113,14 @@ namespace Services.Implements
             return _mapper.Map<GetProfileResponse>(await GetByIdAsync(id));
         }
 
-
+        public async Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId)
+        {
+            var profile = await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
+            {
+                p => p.Id == profileId,
+                p => p.UserId == customerId
+            });
+            return profile ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+        }
     }
 }

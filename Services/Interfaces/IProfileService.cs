@@ -17,5 +17,6 @@ namespace Services.Interfaces
         Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
         Task<Profile> GetByIdAsync(Guid id);
         Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id);
+        Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId);
     }
 }

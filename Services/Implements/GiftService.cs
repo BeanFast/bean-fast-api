@@ -86,6 +86,32 @@ namespace Services.Implements
             }
             return gift;    
         }
+        public async Task<Gift> GetGiftByIdAsync(Guid id)
+        {
+            List<Expression<Func<Gift, bool>>> filters = new()
+            {
+                f => f.Id == id,
+            };
+            var gift = await _repository.FirstOrDefaultAsync(filters: filters);
+            if (gift == null)
+            {
+                throw new EntityNotFoundException(MessageConstants.GiftMessageConstrant.GiftNotFound(id));
+            }
+            return gift;
+        }
+        public async Task<Gift> GetGiftByIdAsync(int status, Guid id)
+        {
+            List<Expression<Func<Gift, bool>>> filters = new()
+            {
+                f => f.Id == id,
+            };
+            var gift = await _repository.FirstOrDefaultAsync(status: status, filters: filters);
+            if (gift == null)
+            {
+                throw new EntityNotFoundException(MessageConstants.GiftMessageConstrant.GiftNotFound(id));
+            }
+            return gift;
+        }
 
         public async Task UpdateGiftAsync(Guid id, UpdateGiftRequest request)
         {
@@ -108,5 +134,8 @@ namespace Services.Implements
             await _repository.DeleteAsync(gift);
             await _unitOfWork.CommitAsync();
         }
+
+
+        
     }
 }

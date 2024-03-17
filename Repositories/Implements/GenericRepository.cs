@@ -133,7 +133,15 @@ namespace Repositories.Implements
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
             return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToListAsync();
         }
-
+        public async Task<ICollection<TResult>> GetListAsync<TResult>(
+            int status, Expression<Func<T, TResult>> selector, 
+            List<Expression<Func<T, bool>>>? filters = null, 
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+        {
+            IQueryable<T> query = buildQuery(status, filters, orderBy, include);
+            return await query.Select(selector).ToListAsync();
+        }
 
         public Task<IPaginable<T>> GetPageAsync(
             PaginationRequest request,
@@ -228,5 +236,7 @@ namespace Repositories.Implements
             _dbSet.RemoveRange(entities);
             await _dbContext.SaveChangesAsync();
         }
+
+        
     }
 }

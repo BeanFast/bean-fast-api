@@ -123,6 +123,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IExchangeGIftService, ExchangeGiftService>();
             return services;
         }
         public static IServiceCollection AddRateLimiting(this IServiceCollection services)

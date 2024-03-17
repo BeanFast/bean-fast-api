@@ -142,12 +142,15 @@ namespace Utilities.Constants
         {
             public static string SessionNotFound(Guid guid) => $"Phiên với id: {guid} không tồn tại";
 
+            
+
         }
 
         public class SessionDetailMessageConstrant
         {
             public static string SessionDetailNotFound(Guid guid) => $"Phiên chi tiết với id: {guid} không tồn tại";
-
+            public const string SessionOrderClosed = "Thời gian đặt hàng đã đóng, không thể thực hiện thao tác này";
+            public const string InvalidSchoolLocation = "Địa điểm không thuộc trường học mà bạn đã đăng ký";
         }
 
         public class LocationMessageConstant

@@ -57,7 +57,7 @@ namespace Services.Implements
             var cityNames = await _repository.GetListAsync(status: BaseEntityStatus.Active, filters: new()
             {
                 area => area.Status == BaseEntityStatus.Active
-            });
+            }, selector: l => l.City);
             return searchLocation(cityNames, cityName);
         }
 

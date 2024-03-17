@@ -75,13 +75,13 @@ namespace Services.Implements
             IPaginable<GetOrderResponse>? page = null;
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                page = await _repository.GetPageAsync(
-                    paginationRequest: request, selector: selector, orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetOrderResponse>(
+                    paginationRequest: request, orderBy: orderBy);
             }
             else
             {
-                page = await _repository.GetPageAsync(BaseEntityStatus.Active,
-                    paginationRequest: request, selector: selector, orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetOrderResponse>(BaseEntityStatus.Active,
+                    paginationRequest: request, orderBy: orderBy);
             }
             return page;
         }

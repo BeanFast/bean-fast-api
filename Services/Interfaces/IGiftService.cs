@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Core.Pagination;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Gift.Request;
 using DataTransferObjects.Models.Gift.Response;
 using System;
@@ -13,7 +14,10 @@ namespace Services.Interfaces
     {
         Task CreateGiftAsync(CreateGiftRequest request);
         Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest);
+        Task<Gift> GetGiftByIdAsync(int status, Guid id);
+        Task<Gift> GetGiftByIdAsync(Guid id);
         Task UpdateGiftAsync(Guid id, UpdateGiftRequest request);
         Task DeleteGiftAsync(Guid id);
+
     }
 }
