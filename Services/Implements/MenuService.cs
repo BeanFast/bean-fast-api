@@ -52,9 +52,9 @@ public class MenuService : BaseService<Menu>, IMenuService
         {
             filters.Add(f => f.UpdateDate!.Value.Date == filterRequest.UpdateDate.Value.Date);
         }
-        if(filterRequest.Status != null)
+        if (filterRequest.Status != null)
         {
-            if(userRole == null || userRole == RoleName.CUSTOMER.ToString())
+            if (userRole == null || userRole == RoleName.CUSTOMER.ToString())
             {
                 filters.Add(f => f.Status == BaseEntityStatus.Active);
             }
@@ -67,10 +67,9 @@ public class MenuService : BaseService<Menu>, IMenuService
         IPaginable<GetMenuResponse>? menuPage = null;
         if (userRole == RoleName.ADMIN.ToString())
         {
-            menuPage = await _repository.GetPageAsync(
+            menuPage = await _repository.GetPageAsync<GetMenuResponse>(
                 paginationRequest: request,
-                include: i => i.Include(menu => menu.Kitchen),
-                selector: menu => _mapper.Map<GetMenuResponse>(menu)
+                include: i => i.Include(menu => menu.Kitchen!)
             );
         }
         return menuPage;
@@ -80,8 +79,8 @@ public class MenuService : BaseService<Menu>, IMenuService
     {
         var filters = GetFilterFromFilterRequest(userRole, menuFilterRequest);
         Expression<Func<Menu, GetMenuResponse>> selector = (menu) => _mapper.Map<GetMenuResponse>(menu);
-        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include = (menu) => menu.Include(menu => menu.Kitchen);
-        return await _repository.GetListAsync(selector: selector, filters: filters, include: include);
+        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include = (menu) => menu.Include(menu => menu.Kitchen!);
+        return await _repository.GetListAsync<GetMenuResponse>(filters: filters, include: include);
 
     }
     public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId)

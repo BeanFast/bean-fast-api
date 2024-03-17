@@ -53,15 +53,14 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         IPaginable<GetKitchenResponse> page = default!;
         if (RoleName.ADMIN.ToString().Equals(userRole))
         {
-            page = await _repository.GetPageAsync(
-                paginationRequest: paginationRequest,
-                filters: filters, selector: selector);
+            page = await _repository.GetPageAsync<GetKitchenResponse>(
+                paginationRequest: paginationRequest, filters: filters);
         }
         else
         {
-            page = await _repository.GetPageAsync(
-                status: BaseEntityStatus.Active, paginationRequest: paginationRequest,
-                filters: filters, selector: selector);
+            page = await _repository.GetPageAsync<GetKitchenResponse>(
+                status: BaseEntityStatus.Active, 
+                paginationRequest: paginationRequest, filters: filters);
         }
         return page;
     }

@@ -6,7 +6,7 @@ namespace DataTransferObjects.Models.Food.Request;
 
 public class FoodFilterRequest
 {
-    [RequiredGuid(ErrorMessage = MessageConstants.FoodMessageConstrant.FoodCategoryIdRequired)]
+    //[RequiredGuid(ErrorMessage = MessageConstants.FoodMessageConstrant.FoodCategoryIdRequired)]
     public Guid? CategoryId { get; set; }
     [StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.FoodMessageConstrant.FoodCodeLength)]
     public string? Code { get; set; }

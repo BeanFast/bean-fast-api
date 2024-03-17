@@ -13,8 +13,8 @@ namespace Services.Interfaces
     public interface ISchoolService
     {
         Task CreateSchoolAsync(CreateSchoolRequest request);
-        Task<IPaginable<GetSchoolResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
-        Task<ICollection<GetSchoolResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
+        Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
+        Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
         Task<School> GetSchoolByIdAsync(int status, Guid id);
         Task<School> GetSchoolByIdAsync(Guid id);
         Task DeleteSchoolAsync(Guid id);

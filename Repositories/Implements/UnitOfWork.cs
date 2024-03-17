@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
@@ -9,10 +10,11 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
 {
     public TContext Context { get; }
     private Dictionary<Type, object>? _repositories;
-
-    public UnitOfWork(TContext context)
+    private IMapper _mapper { get; set; }
+    public UnitOfWork(TContext context, IMapper mapper)
     {
         Context = context;
+        _mapper = mapper;
     }
 
     public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity
@@ -23,7 +25,7 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
             return (IGenericRepository<TEntity>)repository;
         }
 
-        repository = new GenericRepository<TEntity>(Context);
+        repository = new GenericRepository<TEntity>(Context, _mapper);
         _repositories.Add(typeof(TEntity), repository);
         return (IGenericRepository<TEntity>)repository;
     }

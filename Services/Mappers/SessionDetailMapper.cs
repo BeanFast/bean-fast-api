@@ -1,4 +1,6 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Session.Request;
+using DataTransferObjects.Models.SessionDetail.Request;
 using DataTransferObjects.Models.SessionDetail.Response;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,8 @@ namespace Services.Mappers
     {
         public SessionDetailMapper()
         {
+            CreateMap<CreateSessionDetailRequest, SessionDetail>();
+            CreateMap<UpdateSessionDetailRequest, SessionDetail>();
             CreateMap<SessionDetail, GetSessionDetailResponse>();
         }
     }
