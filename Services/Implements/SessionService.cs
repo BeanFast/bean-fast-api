@@ -54,6 +54,7 @@ namespace Services.Implements
                     await _locationService.GetByIdAsync(sessionDetail.LocationId);
                     var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
                     sessionDetail.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
+                    sessionDetail.Status = BaseEntityStatus.Active;
                     uniqueLocationIds.Add(sessionDetail.Id);
                 }
             }
