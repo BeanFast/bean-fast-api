@@ -7,6 +7,7 @@ using Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using DataTransferObjects.Models.Menu.Response;
 using DataTransferObjects.Models.Menu.Request;
+using BeanFastApi.Validators;
 namespace BeanFastApi.Controllers;
 
 public class MenusController : BaseController
@@ -36,5 +37,12 @@ public class MenusController : BaseController
 
         return SuccessResult(foods);
         //return Problem()
+    }
+    [HttpPost]
+    [Authorize(Utilities.Enums.RoleName.MANAGER)]
+    public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuRequest request)
+    {
+        await _menuService.CreateMenuAsync(request, GetUserId());
+        return SuccessResult<object>();
     }
 }

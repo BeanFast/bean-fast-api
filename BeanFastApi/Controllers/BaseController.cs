@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Core.Response;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -22,6 +23,11 @@ namespace BeanFastApi.Controllers
             };
 
             return new ObjectResult(response) { StatusCode = (int)statusCode };
+        }
+        protected User GetUser()
+        {
+            string? userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //string? 
         }
 
         protected string? GetUserRole()

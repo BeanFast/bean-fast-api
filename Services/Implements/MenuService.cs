@@ -12,9 +12,11 @@ using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System.Linq.Expressions;
+using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Settings;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements;
 
@@ -86,12 +88,14 @@ public class MenuService : BaseService<Menu>, IMenuService
     public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId)
     {
         await _kitchenService.GetByIdAsync(MenuStatus.Active, createMenuRequest.KitchenId);
-
+        var menuId = Guid.NewGuid();
         var menuEntity = _mapper.Map<Menu>(createMenuRequest);
         menuEntity.CreaterId = createrId;
         menuEntity.UpdaterId = createrId;
         menuEntity.CreateDate = DateTime.UtcNow;
         menuEntity.UpdateDate = DateTime.UtcNow;
+        menuEntity.Id = menuId;
+        menuEntity.Code = EntityCodeUtil.GenerateUnnamedEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuId);
         //menuEntity.
 
     }

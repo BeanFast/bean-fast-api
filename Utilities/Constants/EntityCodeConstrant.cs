@@ -74,5 +74,9 @@ namespace Utilities.Constants
         {
             public static string LocationPrefix = "L";
         }
+        public class MenuCodeConstrant
+        {
+            public static string MenuPrefix = "M";
+        }
     }
 }
