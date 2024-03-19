@@ -12,7 +12,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly ISchoolService _schoolService;
 
-        public SchoolsController(ISchoolService schoolService)
+        public SchoolsController(ISchoolService schoolService, IUserService userService) : base(userService)
         {
             _schoolService = schoolService;
         }

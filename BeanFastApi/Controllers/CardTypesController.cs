@@ -8,7 +8,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly ICardTypeService _cardTypeService;
 
-        public CardTypesController(ICardTypeService cardTypeService)
+        public CardTypesController(ICardTypeService cardTypeService, IUserService userService) : base(userService)
         {
             _cardTypeService = cardTypeService;
         }

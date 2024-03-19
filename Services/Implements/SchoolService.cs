@@ -107,7 +107,8 @@ namespace Services.Implements
         {
             var schoolEntity = _mapper.Map<School>(request);
             var schoolId = Guid.NewGuid();
-            schoolEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.SchoolCodeConstrant.SchoolPrefix, schoolEntity.Name, schoolId);
+            var schoolNumber = await _repository.CountAsync() + 1;
+            schoolEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SchoolCodeConstrant.SchoolPrefix, schoolNumber);
             await _areaService.GetAreaByIdAsync(AreaStatus.Active, request.AreaId);
             var duplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
             if (duplicatedSchool != null)

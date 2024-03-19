@@ -28,7 +28,8 @@ public class ComboService : BaseService<Combo>, IComboService
     {
         combo.Status = ComboStatus.Active;
         combo.Id = Guid.NewGuid();
-        combo.Code = EntityCodeUtil.GenerateUnnamedEntityCode(ComboCodeConstrant.ComboPrefix, combo.Id);
+        var comboNumber = await _repository.CountAsync() + 1;
+        combo.Code = EntityCodeUtil.GenerateEntityCode(ComboCodeConstrant.ComboPrefix, comboNumber);
         await _repository.InsertAsync(combo);
         await _unitOfWork.CommitAsync();
     }

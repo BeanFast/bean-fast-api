@@ -13,7 +13,7 @@ namespace BeanFastApi.Controllers;
 public class MenusController : BaseController
 {
     private readonly IMenuService _menuService;
-    public MenusController(IMenuService menuService)
+    public MenusController(IMenuService menuService, IUserService userService) : base(userService)
     {
         _menuService = menuService;
     }
@@ -24,18 +24,18 @@ public class MenusController : BaseController
         [FromQuery] MenuFilterRequest filterRequest
         )
     {
-        object foods;
+        object menus;
         var userRole = GetUserRole();
         if (paginationRequest is { Size: 0, Page: 0 })
         {
-            foods = await _menuService.GetAllAsync(userRole, filterRequest);
+            menus = await _menuService.GetAllAsync(userRole, filterRequest);
         }
         else
         {
-            foods = await _menuService.GetPageAsync(paginationRequest, userRole, filterRequest);
+            menus = await _menuService.GetPageAsync(paginationRequest, userRole, filterRequest);
         }
 
-        return SuccessResult(foods);
+        return SuccessResult(menus);
         //return Problem()
     }
     [HttpPost]

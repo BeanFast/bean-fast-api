@@ -103,7 +103,8 @@ namespace Services.Implements
             customer.AvatarPath = avatarPath;
             customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Status = BaseEntityStatus.Active;
-            customer.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customer.FullName!, customer.Id);
+            var customerNumber = await _repository.CountAsync() + 1;
+            customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
             await _repository.InsertAsync(customer);
             await _unitOfWork.CommitAsync();
             return new RegisterResponse();

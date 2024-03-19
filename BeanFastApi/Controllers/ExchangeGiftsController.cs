@@ -10,7 +10,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly IExchangeGIftService _exchangeGiftService;
 
-        public ExchangeGiftsController(IExchangeGIftService exchangeGiftService)
+        public ExchangeGiftsController(IExchangeGIftService exchangeGiftService, IUserService userService) : base(userService)
         {
             _exchangeGiftService = exchangeGiftService;
         }

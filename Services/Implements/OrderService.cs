@@ -115,7 +115,8 @@ namespace Services.Implements
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
             orderEntity.Status = OrderStatus.Pending;
-            orderEntity.Code = EntityCodeUtil.GenerateUnnamedEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderId);
+            var orderNumber = await _repository.CountAsync() + 1;
+            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
             var orderDetailEntityList = new List<OrderDetail>();
 
             if (request.OrderDetails is not null && request.OrderDetails.Count > 0)

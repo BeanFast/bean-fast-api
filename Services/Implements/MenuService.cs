@@ -27,11 +27,11 @@ public class MenuService : BaseService<Menu>, IMenuService
     {
         _kitchenService = kitchenService;
     }
-    private List<Expression<Func<Menu, bool>>> GetFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
+    private List<Expression<Func<Menu, bool>>> getFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
     {
         List<Expression<Func<Menu, bool>>> filters = new();
 
-        if (filterRequest.KitchenId != Guid.Empty)
+        if (filterRequest.KitchenId != Guid.Empty && filterRequest.KitchenId != null)
         {
             filters.Add((f) => f.KitchenId == filterRequest.KitchenId);
         }
@@ -41,7 +41,7 @@ public class MenuService : BaseService<Menu>, IMenuService
             filters.Add(f => f.Code == filterRequest.Code);
         }
 
-        if (filterRequest.CreaterId != Guid.Empty)
+        if (filterRequest.CreaterId != Guid.Empty && filterRequest.CreaterId != null)
         {
             filters.Add(f => f.CreaterId == filterRequest.CreaterId);
         }
@@ -56,10 +56,18 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
         if (filterRequest.Status != null)
         {
-            if (userRole == null || userRole == RoleName.CUSTOMER.ToString())
-            {
-                filters.Add(f => f.Status == BaseEntityStatus.Active);
-            }
+            //if (userRole == null || userRole == RoleName.CUSTOMER.ToString())
+            //{
+            //    filters.Add(f => f.Status == BaseEntityStatus.Active);
+            //}
+        }
+        if (filterRequest.OrderStartTime != null)
+        {
+            filters.Add(
+                f => f.Sessions!
+                .Where(s =>
+                    s.OrderStartTime.Date.CompareTo(filterRequest.OrderStartTime.Value.Date) == 0
+                    && s.Status == BaseEntityStatus.Active).Any());
         }
         return filters;
     }
@@ -79,9 +87,12 @@ public class MenuService : BaseService<Menu>, IMenuService
 
     public async Task<ICollection<GetMenuResponse>> GetAllAsync(string userRole, MenuFilterRequest menuFilterRequest)
     {
-        var filters = GetFilterFromFilterRequest(userRole, menuFilterRequest);
-        Expression<Func<Menu, GetMenuResponse>> selector = (menu) => _mapper.Map<GetMenuResponse>(menu);
-        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include = (menu) => menu.Include(menu => menu.Kitchen!);
+        var filters = getFilterFromFilterRequest(userRole, menuFilterRequest);
+        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include =
+            (menu) => menu.Include(menu => menu.Kitchen!)
+            .Include(menu => menu.Sessions!)
+            .ThenInclude(session => session.SessionDetails!)
+            .ThenInclude(sd => sd.Location!);
         return await _repository.GetListAsync<GetMenuResponse>(filters: filters, include: include);
 
     }
@@ -95,7 +106,8 @@ public class MenuService : BaseService<Menu>, IMenuService
         menuEntity.CreateDate = DateTime.UtcNow;
         menuEntity.UpdateDate = DateTime.UtcNow;
         menuEntity.Id = menuId;
-        menuEntity.Code = EntityCodeUtil.GenerateUnnamedEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuId);
+        var menuNumber = await _repository.CountAsync() + 1;
+        menuEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuNumber);
         //menuEntity.
 
     }

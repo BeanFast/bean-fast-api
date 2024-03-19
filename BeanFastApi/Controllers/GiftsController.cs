@@ -11,7 +11,7 @@ namespace BeanFastApi.Controllers
 
         private readonly IGiftService _giftService;
 
-        public GiftsController(IGiftService giftService)
+        public GiftsController(IGiftService giftService, IUserService userService) : base(userService)
         {
             _giftService = giftService;
         }
