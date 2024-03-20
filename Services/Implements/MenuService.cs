@@ -23,9 +23,11 @@ namespace Services.Implements;
 public class MenuService : BaseService<Menu>, IMenuService
 {
     private readonly IKitchenService _kitchenService;
-    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting) : base(unitOfWork, mapper, appSetting)
+    private readonly IFoodService _foodService;
+    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting, IFoodService foodService) : base(unitOfWork, mapper, appSetting)
     {
         _kitchenService = kitchenService;
+        _foodService = foodService;
     }
     private List<Expression<Func<Menu, bool>>> getFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
     {
@@ -108,6 +110,23 @@ public class MenuService : BaseService<Menu>, IMenuService
         menuEntity.Id = menuId;
         var menuNumber = await _repository.CountAsync() + 1;
         menuEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuNumber);
+        foreach (var menuDetail in menuEntity.MenuDetails!)
+        {
+            await _foodService.GetByIdAsync(menuDetail.FoodId);
+        }
+        using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        {
+            try
+            {
+                await _repository.InsertAsync(menuEntity);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
         //menuEntity.
 
     }

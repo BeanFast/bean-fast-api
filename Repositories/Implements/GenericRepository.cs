@@ -187,10 +187,7 @@ namespace Repositories.Implements
             return result;
         }
 
-        public async Task<IDbContextTransaction> CreateTransaction()
-        {
-            return await _dbContext.Database.BeginTransactionAsync();
-        }
+        
 
         public async Task InsertAsync(T entity)
         {

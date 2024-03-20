@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Repositories.Interfaces
 {
@@ -7,6 +8,8 @@ namespace Repositories.Interfaces
 		int Commit();
 
 		Task<int> CommitAsync();
+
+        Task<IDbContextTransaction> BeginTransactionAsync();
 	}
 
 	public interface IUnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
