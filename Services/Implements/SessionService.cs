@@ -16,33 +16,67 @@ using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
     public class SessionService : BaseService<Session>, ISessionService
     {
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+
+        private readonly ILocationService _locationService;
+        private readonly ISessionDetailService _sessionDetailService;
+
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService) : base(unitOfWork, mapper, appSettings)
         {
+            _locationService = locationService;
+            _sessionDetailService = sessionDetailService;
         }
 
         public async Task CreateSessionAsync(CreateSessionRequest request)
         {
-            throw new NotImplementedException();
+            var sessionEntity = _mapper.Map<Session>(request);
+            sessionEntity.Status = BaseEntityStatus.Active;
+            sessionEntity.Id = Guid.NewGuid();
+            HashSet<Guid> uniqueLocationIds = new();
+
+            //sessionEntity.SessionDetails!.ToList().ForEach(async s =>
+            //{
+
+            //});
+            foreach (var sessionDetail in sessionEntity.SessionDetails)
+            {
+                if (uniqueLocationIds.Contains(sessionDetail.LocationId))
+                {
+                    throw new DataExistedException(MessageConstants.SessionMessageConstrant.DuplicateLocationInSession);
+                }
+                else
+                {
+                    await _locationService.GetByIdAsync(sessionDetail.LocationId);
+                    var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
+                    sessionDetail.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
+                    sessionDetail.Status = BaseEntityStatus.Active;
+                    uniqueLocationIds.Add(sessionDetail.Id);
+                }
+            }
+            var sessionNumber = await _repository.CountAsync() + 1;
+            sessionEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionCodeConstrant.SessionPrefix, sessionNumber);
+            await _repository.InsertAsync(sessionEntity);
+            await _unitOfWork.CommitAsync();
         }
 
         private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request)
         {
             List<Expression<Func<Session, bool>>> filters = new List<Expression<Func<Session, bool>>>();
-            if(request.Orderable)
+            if (request.Orderable)
             {
                 filters.Add((s) => s.OrderStartTime > DateTime.Now && s.OrderEndTime < DateTime.Now);
                 filters.Add((s) => s.Status == BaseEntityStatus.Active);
             }
-            if(request.MenuId != Guid.Empty)
+            if (request.MenuId != Guid.Empty)
             {
                 filters.Add(s => s.MenuId == request.MenuId);
             }
-           
+
             //if(request.DeliveryEndTime)
             return filters;
         }
@@ -68,7 +102,12 @@ namespace Services.Implements
         {
             return _mapper.Map<GetSessionForDeliveryResponse>(await GetByIdAsync(id));
         }
-
+        //public async Task CreateSessionAsync(CreateSessionRequest request)
+        //{
+        //    var session = _mapper.Map<Session>(request);
+        //    await _repository.InsertAsync(session);
+        //    await _unitOfWork.CommitAsync();
+        //}
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)
         {
             throw new NotImplementedException();

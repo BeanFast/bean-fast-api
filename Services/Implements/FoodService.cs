@@ -152,7 +152,8 @@ namespace Services.Implements
             foodEntity.Id = masterFoodId;
             foodEntity.Status = BaseEntityStatus.Active;
             foodEntity.ImagePath = imagePath;
-            foodEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, request.Name, masterFoodId);
+            var foodNumber = await _repository.CountAsync() + 1;
+            foodEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.FoodCodeConstrant.FoodPrefix, foodNumber);
             var comboEntityList = new List<Combo>();
 
             if (request.Combos is not null && request.Combos.Count > 0)

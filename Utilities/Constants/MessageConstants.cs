@@ -171,7 +171,7 @@ namespace Utilities.Constants
         {
             public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
 
-            
+            public const string DuplicateLocationInSession = "Địa điểm đã tồn tại trong buổi này";
 
         }
 

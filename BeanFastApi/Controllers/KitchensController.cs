@@ -11,7 +11,7 @@ public class KitchensController : BaseController
 {
     private readonly IKitchenService _kitchenService;
 
-    public KitchensController(IKitchenService kitchenService)
+    public KitchensController(IKitchenService kitchenService, IUserService userService) : base(userService)
     {
         _kitchenService = kitchenService;
     }
