@@ -13,7 +13,7 @@ namespace Services.Interfaces
     {
         Task CreateLocationAsync(CreateLocationRequest request);
         Task<ICollection<GetLocationResponse>> GetAllLocationAsync();
-        Task<GetLocationResponse> GetLocationResponseByIdAsync(Guid id);
+        Task<Location> GetLocationBySchoolIdAndNameAsync(Guid schoolId, string name);
         Task<Location> GetByIdAsync(Guid id);
         Task DeleteLocationAsync(Guid id);
         Task UpdateLocationAsync(Guid id, UpdateLocationRequest request);

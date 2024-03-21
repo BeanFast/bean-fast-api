@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Utilities.Settings
 {
-    
+
     public class FirebaseSettings
     {
         public string StorageBucket { get; set; } = string.Empty;
@@ -18,7 +18,7 @@ namespace Utilities.Settings
 
         public FolderNames FolderNames { get; set; } = default!;
 
-        
+
     }
     public class FolderNames
     {
@@ -30,6 +30,7 @@ namespace Utilities.Settings
         public string CardType { get; set; } = string.Empty;
         public string Gift { get; set; } = string.Empty;
         public string Profile { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
     }
 
 }

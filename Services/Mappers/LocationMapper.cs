@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Location.Request;
 using DataTransferObjects.Models.Location.Response;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,9 @@ namespace Services.Mappers
         public LocationMapper()
         {
             CreateMap<Location, GetLocationIncludeSchoolResponse>();
+            CreateMap<Location, GetLocationResponse>();
+            CreateMap<CreateLocationRequest, Location>();
+            CreateMap<UpdateLocationRequest, Location>();
         }
     }
 }
