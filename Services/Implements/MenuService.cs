@@ -2,8 +2,6 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Core.Pagination;
-using DataTransferObjects.Models.Food.Request;
-using DataTransferObjects.Models.Food.Response;
 using DataTransferObjects.Models.Menu.Request;
 using DataTransferObjects.Models.Menu.Response;
 using Microsoft.EntityFrameworkCore;
@@ -24,10 +22,12 @@ public class MenuService : BaseService<Menu>, IMenuService
 {
     private readonly IKitchenService _kitchenService;
     private readonly IFoodService _foodService;
-    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting, IFoodService foodService) : base(unitOfWork, mapper, appSetting)
+    private readonly IMenuDetailService _menuDetailService;
+    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting, IFoodService foodService, IMenuDetailService menuDetailService) : base(unitOfWork, mapper, appSetting)
     {
         _kitchenService = kitchenService;
         _foodService = foodService;
+        _menuDetailService = menuDetailService;
     }
     private List<Expression<Func<Menu, bool>>> getFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
     {
@@ -110,9 +110,15 @@ public class MenuService : BaseService<Menu>, IMenuService
         menuEntity.Id = menuId;
         var menuNumber = await _repository.CountAsync() + 1;
         menuEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuNumber);
+        menuEntity.Status = BaseEntityStatus.Active;
+        var menuDetailNumber = await _menuDetailService.CountAsync();
         foreach (var menuDetail in menuEntity.MenuDetails!)
         {
+            
             await _foodService.GetByIdAsync(menuDetail.FoodId);
+            menuDetail.Status = BaseEntityStatus.Active;
+            menuDetailNumber++;
+            menuDetail.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuDetailCodeConstrant.MenuDetailPrefix, menuDetailNumber);
         }
         using (var transaction = await _unitOfWork.BeginTransactionAsync())
         {
@@ -120,9 +126,11 @@ public class MenuService : BaseService<Menu>, IMenuService
             {
                 await _repository.InsertAsync(menuEntity);
                 await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                await Console.Out.WriteLineAsync(ex.Message);
                 await transaction.RollbackAsync();
                 throw;
             }

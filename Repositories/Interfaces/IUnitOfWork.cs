@@ -10,7 +10,9 @@ namespace Repositories.Interfaces
 		Task<int> CommitAsync();
 
         Task<IDbContextTransaction> BeginTransactionAsync();
-	}
+		Task CommitTransactionAsync();
+
+    }
 
 	public interface IUnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
 	{

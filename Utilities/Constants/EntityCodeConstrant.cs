@@ -78,5 +78,9 @@ namespace Utilities.Constants
         {
             public static string MenuPrefix = "M";
         }
+        public class MenuDetailCodeConstrant
+        {
+            public static string MenuDetailPrefix = "Md";
+        }
     }
 }

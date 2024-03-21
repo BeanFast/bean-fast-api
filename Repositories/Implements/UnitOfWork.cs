@@ -65,6 +65,11 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
         var transaction = await Context.Database.BeginTransactionAsync();
+        
         return transaction;
+    }
+    public async Task CommitTransactionAsync()
+    {
+        await Context.Database.CommitTransactionAsync();
     }
 }
