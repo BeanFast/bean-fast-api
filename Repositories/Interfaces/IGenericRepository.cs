@@ -9,6 +9,7 @@ namespace Repositories.Interfaces
     {
 
         #region Read
+        Task<int> CountAsync();
         Task<T?> FirstOrDefaultAsync(
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,

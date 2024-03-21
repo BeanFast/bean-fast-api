@@ -11,11 +11,10 @@ namespace BeanFastApi.Controllers;
 
 public class AuthController : BaseController
 {
-    private readonly IUserService _userService;
 
-    public AuthController(IUserService userService)
+    public AuthController(IUserService userService) : base(userService)
     {
-        _userService = userService;
+
     }
 
     [HttpPost("login")]

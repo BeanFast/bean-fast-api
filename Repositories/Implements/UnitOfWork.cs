@@ -2,6 +2,7 @@
 using AutoMapper;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Repositories.Interfaces;
 
 namespace Repositories.Implements;
@@ -59,5 +60,16 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
                 validationErrors.Select(error => $"Properties {error.MemberNames} Error: {error.ErrorMessage}"));
             throw new Exception(exceptionMessage);
         }
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        var transaction = await Context.Database.BeginTransactionAsync();
+        
+        return transaction;
+    }
+    public async Task CommitTransactionAsync()
+    {
+        await Context.Database.CommitTransactionAsync();
     }
 }

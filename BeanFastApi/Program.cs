@@ -5,22 +5,15 @@ using Utilities.Constants;
 using Utilities.Utils;
 using Microsoft.AspNetCore.Http.Features;
 using static System.Net.Mime.MediaTypeNames;
+using Repositories.Interfaces;
+using BusinessObjects.Models;
+using BusinessObjects;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
+Console.WriteLine(DateTime.Now);
 services.AddHttpContextAccessor();
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.Limits.MaxRequestBodySize = null;
-//});
-//services.Configure<FormOptions>(x =>
-//{
-//    x.ValueLengthLimit = int.MaxValue;
-//    x.MultipartBodyLengthLimit = int.MaxValue;
-//    // In case of multipart
-//});
-
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -57,8 +50,11 @@ if (app.Environment.IsDevelopment())
 }
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "bean-fast-firebase-adminsdk.json");
 app.UseMiddleware<ExceptionHandlingMiddleWare>();
-var qrCodeByteArray = QrCodeUtil.GenerateQRCode("Hello_world");
-
+//using (var scope = app.Services.CreateScope())
+//{
+//    var userRepo = scope.ServiceProvider.GetRequiredService<IUnitOfWork<BeanFastContext>>().GetRepository<User>();
+//    Console.WriteLine(await userRepo.CountAsync());
+//}
 app.UseHttpsRedirection();
 app.UseAuthentication();
 //app.UseRouting()

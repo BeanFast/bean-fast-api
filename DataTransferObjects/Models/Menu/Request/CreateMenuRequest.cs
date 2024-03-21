@@ -20,16 +20,18 @@ namespace DataTransferObjects.Models.Menu.Request
         public DateTime? CreateDate { get; set; }
         [DataType(DataType.DateTime, ErrorMessage = MessageConstants.MenuMessageContrant.MenuUpdateDateInvalid)]
         public DateTime? UpdateDate { get; set; }
+        [RequiredListLength(max: 20)]
         public List<MenuDetailOfCreateMenuRequest> MenuDetails { get; set; }
+        //[Range(1, 20)]
+        
         public class MenuDetailOfCreateMenuRequest
         {
             [RequiredGuid]
             public Guid FoodId { get; set; }
-            [RequiredGuid]
-            public Guid MenuId { get; set; }
             [Required(ErrorMessage = MessageConstants.FoodMessageConstrant.FoodPriceRequired)]
             [Range(1000, 500000, ErrorMessage = MessageConstants.FoodMessageConstrant.FoodPriceRange)]
             public double Price { get; set; }
         }
+       
     }
 }

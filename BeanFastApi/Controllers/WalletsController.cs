@@ -8,7 +8,7 @@ namespace BeanFastApi.Controllers
     public class WalletsController : BaseController
     {
         private readonly IWalletService _walletService;
-        public WalletsController(IWalletService walletService)
+        public WalletsController(IWalletService walletService, IUserService userService) : base(userService)
         {
             _walletService = walletService;
         }

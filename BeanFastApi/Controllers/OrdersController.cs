@@ -19,7 +19,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly IOrderService _orderService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IUserService userService) : base(userService)
         {
             _orderService = orderService;
         }

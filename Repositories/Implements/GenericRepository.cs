@@ -117,8 +117,8 @@ namespace Repositories.Implements
             return await query.ToListAsync();
         }
         public async Task<ICollection<TResult>> GetListAsync<TResult>(
-            List<Expression<Func<T, bool>>>? filters = null, 
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, 
+            List<Expression<Func<T, bool>>>? filters = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(filters, orderBy, include);
@@ -127,15 +127,15 @@ namespace Repositories.Implements
 
         public async Task<ICollection<TResult>> GetListAsync<TResult>(
             int status, List<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>,
-                IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, 
+                IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>,
                 IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = buildQuery(status, filters, orderBy, include);
             return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToListAsync();
         }
         public async Task<ICollection<TResult>> GetListAsync<TResult>(
-            int status, Expression<Func<T, TResult>> selector, 
-            List<Expression<Func<T, bool>>>? filters = null, 
+            int status, Expression<Func<T, TResult>> selector,
+            List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
@@ -181,11 +181,13 @@ namespace Repositories.Implements
             return query.ProjectTo<TResult>(_mapper.ConfigurationProvider)
                 .ToPaginableAsync(paginationRequest.Page, paginationRequest.Size, 1);
         }
-
-        public async Task<IDbContextTransaction> CreateTransaction()
+        public async Task<int> CountAsync()
         {
-            return await _dbContext.Database.BeginTransactionAsync();
+            var result = await _dbSet.CountAsync();
+            return result;
         }
+
+        
 
         public async Task InsertAsync(T entity)
         {
@@ -237,6 +239,6 @@ namespace Repositories.Implements
             await _dbContext.SaveChangesAsync();
         }
 
-        
+
     }
 }

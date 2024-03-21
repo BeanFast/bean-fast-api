@@ -10,7 +10,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly IProfileService _profileService;
 
-        public ProfilesController(IProfileService profileService)
+        public ProfilesController(IProfileService profileService, IUserService userService) : base(userService)
         {
             _profileService = profileService;
         }

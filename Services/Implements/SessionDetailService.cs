@@ -27,7 +27,6 @@ namespace Services.Implements
     {
         private readonly IUserService _userService;
         private readonly ILocationService _locationService;
-        private readonly ISessionService _sessionService;
         private readonly IUserService _delivererService;
 
         public SessionDetailService(
@@ -36,13 +35,16 @@ namespace Services.Implements
             IOptions<AppSettings> appSettings,
             IUserService userService,
             ILocationService locationService,
-            ISessionService sessionService,
             IUserService delivererService) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
             _locationService = locationService;
-            _sessionService = sessionService;
             _delivererService = delivererService;
+        }
+        public async Task<int> CountAsync()
+        {
+            var result = await _repository.CountAsync();
+            return result;
         }
 
         public async Task<SessionDetail> GetByIdAsync(Guid id)
@@ -91,9 +93,9 @@ namespace Services.Implements
             var sessionDetailEntity = _mapper.Map<SessionDetail>(request);
             sessionDetailEntity.Id = sessionDetailId;
             await _locationService.GetByIdAsync(request.LocationId);
-            await _sessionService.GetByIdAsync(request.SessionId);
             await _delivererService.GetByIdAsync(request.DelivererId);
-            sessionDetailEntity.Code = EntityCodeUtil.GenerateUnnamedEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailId);
+            var sessionDetailNumber = await _repository.CountAsync() + 1;
+            sessionDetailEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
             sessionDetailEntity.Status = BaseEntityStatus.Active;
 
             await _repository.InsertAsync(sessionDetailEntity);

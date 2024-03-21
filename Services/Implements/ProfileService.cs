@@ -41,7 +41,8 @@ namespace Services.Implements
             currentBMI.Id = Guid.NewGuid();
             var profileId = Guid.NewGuid();
             profileEntity.UserId = userId;
-            profileEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.ProfileCodeConstrant.ProfilePrefix, profileEntity.FullName, profileId); ;
+            var profileNumber = await _repository.CountAsync() + 1;
+            profileEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.ProfileCodeConstrant.ProfilePrefix, profileNumber);
             currentBMI.ProfileId = profileId;
 
             var school = await _schoolService.GetSchoolByIdAsync(request.SchoolId);

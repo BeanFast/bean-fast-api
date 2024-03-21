@@ -70,9 +70,10 @@ namespace Services.Implements
         {
             var locationEntity = _mapper.Map<Location>(request);
             var locationId = Guid.NewGuid();
-            locationEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.LocationCodeConstrant.LocationPrefix, locationEntity.Name, locationId);
             locationEntity.Status = BaseEntityStatus.Active;
             await _schoolService.GetSchoolByIdAsync(SchoolStatus.Active, request.SchoolId);
+            var locationNumber = await _repository.CountAsync() + 1;
+            locationEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.LocationCodeConstrant.LocationPrefix, locationNumber);
             var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId, request.Name);
             if (duplicatedLocation != null)
             {

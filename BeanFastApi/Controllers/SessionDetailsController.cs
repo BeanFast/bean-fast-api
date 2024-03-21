@@ -13,7 +13,7 @@ namespace BeanFastApi.Controllers
     public class SessionDetailsController : BaseController
     {
         private readonly ISessionDetailService _sessionDetailService;
-        public SessionDetailsController(ISessionDetailService sessionDetailService)
+        public SessionDetailsController(ISessionDetailService sessionDetailService, IUserService userService) : base(userService)
         {
             _sessionDetailService = sessionDetailService;
         }

@@ -29,7 +29,8 @@ namespace Services.Implements
             cardTypeEntity.Id = cardId;
             cardTypeEntity.Status = BaseEntityStatus.Active;
             cardTypeEntity.BackgroundImagePath = imagePath;
-            cardTypeEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.CardTypeCodeConstrant.CardTypePrefix, cardTypeEntity.Name, cardId);
+            var cardNumber = await _repository.CountAsync() + 1;    
+            cardTypeEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.CardTypeCodeConstrant.CardTypePrefix, cardNumber);
             await _repository.InsertAsync(cardTypeEntity);
             await _unitOfWork.CommitAsync();
             //return ;
@@ -55,7 +56,6 @@ namespace Services.Implements
             cardType.Name = request.Name;
             cardType.Width = request.Width;
             cardType.Height = request.Height;
-            cardType.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.CardTypeCodeConstrant.CardTypePrefix, request.Name, id);
             if (request.Image is not null)
             {
                 await _cloudStorageService.DeleteFileAsync(id, _appSettings.Firebase.FolderNames.CardType);

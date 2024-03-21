@@ -1,4 +1,5 @@
 ﻿using Diacritics.Extensions;
+using Sqids;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,14 @@ namespace Utilities.Utils
     public class EntityCodeUtil
     {
 
-        public static string GenerateNamedEntityCode(string entityPrefix, string entityName, Guid entityId)
+        public static string GenerateEntityCode(string entityPrefix, int entityNumber)
         {
-            return $"{entityPrefix}{EntityCodeConstrant.Separator}{entityName.RemoveDiacritics().ToLower().Replace(" ", "-")}{EntityCodeConstrant.Separator}{entityId}";
-        }
-
-        public static string GenerateUnnamedEntityCode(string entityPrefix, Guid entityId)
-        {
-            return $"{entityPrefix}{EntityCodeConstrant.Separator}{entityId}";
+            var sqids = new SqidsEncoder<long>(new()
+            {
+                MinLength = 6,
+            });
+            var id = sqids.Encode(entityNumber).ToUpper();
+            return $"{entityPrefix}{DateTime.Now.ToString("yyyyMMdd").Substring(2)}{id}";
         }
     }
 }
