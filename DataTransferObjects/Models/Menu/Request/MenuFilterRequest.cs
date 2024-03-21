@@ -11,8 +11,8 @@ namespace DataTransferObjects.Models.Menu.Request
 {
     public class MenuFilterRequest
     {
-        [RequiredGuid]
-        public Guid KitchenId { get; set; }
+        //[RequiredGuid]
+        public Guid? KitchenId { get; set; }
         public Guid? CreaterId { get; set; }
         public Guid? UpdaterId { get; set; }
         [StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCodeLength)]

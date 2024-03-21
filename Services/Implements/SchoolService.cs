@@ -49,15 +49,14 @@ namespace Services.Implements
             {
                 filters.Add(s => s.Address.ToLower().Contains(filterRequest.Address.ToLower()));
             }
-            
+
             return filters;
         }
-        public async Task<IPaginable<GetSchoolResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
-            var page = await _repository.GetPageAsync(
-                    selector: selector,
+            var page = await _repository.GetPageAsync<GetSchoolIncludeAreaAndLocationResponse>(
+
                     filters: filters,
                     paginationRequest: paginationRequest,
                     include: s => s.Include(s => s.Area).Include(s => s.Locations!)
@@ -67,12 +66,10 @@ namespace Services.Implements
             //    );
             return page;
         }
-        public async Task<ICollection<GetSchoolResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            Expression<Func<School, GetSchoolResponse>> selector = (s) => _mapper.Map<GetSchoolResponse>(s);
-            return await _repository.GetListAsync(
-                selector: selector,
+            return await _repository.GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
                 filters: filters,
                 include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
             );

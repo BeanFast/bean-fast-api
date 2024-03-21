@@ -17,8 +17,8 @@ namespace DataTransferObjects.Models.School.Request
         public string? Name { get; set; }
         [StringLength(500, ErrorMessage = MessageConstants.SchoolMessageConstrant.SchoolAddressLength)]
         public string? Address { get; set; }
-        [RequiredGuid]
-        public Guid AreaId { get; set; }
+        //[RequiredGuid]
+        public Guid? AreaId { get; set; }
 
     }
 }

@@ -29,12 +29,9 @@ namespace Services.Implements
                 p => p.UserId == customerId,
                 p => p.ProfileId == profileId
             };
-            Expression<Func<Wallet, GetWalletByCurrentCustomerAndProfileResponse>> selector = (p) => _mapper.Map<GetWalletByCurrentCustomerAndProfileResponse>(p);
-            var wallets = await _repository.GetListAsync(
+            var wallets = await _repository.GetListAsync<GetWalletByCurrentCustomerAndProfileResponse>(
                 status: BaseEntityStatus.Active,
-                filters: filters,
-                selector: selector
-                );
+                filters: filters);
             return wallets;
         }
     }

@@ -39,16 +39,15 @@ namespace Services.Implements
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
         {
-            Expression<Func<Order, GetOrderResponse>> selector = (o => _mapper.Map<GetOrderResponse>(o));
 
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
 
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                return await _repository.GetListAsync(include: include, selector: selector);
+                return await _repository.GetListAsync<GetOrderResponse>(include: include);
             }
 
-            return await _repository.GetListAsync(BaseEntityStatus.Active, include: include, selector: selector);
+            return await _repository.GetListAsync<GetOrderResponse>(BaseEntityStatus.Active, include: include);
 
         }
 
@@ -76,13 +75,13 @@ namespace Services.Implements
             IPaginable<GetOrderResponse>? page = null;
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                page = await _repository.GetPageAsync(
-                    paginationRequest: request, selector: selector, orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetOrderResponse>(
+                    paginationRequest: request, orderBy: orderBy);
             }
             else
             {
-                page = await _repository.GetPageAsync(BaseEntityStatus.Active,
-                    paginationRequest: request, selector: selector, orderBy: orderBy);
+                page = await _repository.GetPageAsync<GetOrderResponse>(BaseEntityStatus.Active,
+                    paginationRequest: request, orderBy: orderBy);
             }
             return page;
         }

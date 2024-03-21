@@ -15,6 +15,7 @@ using Utilities.Constants;
 using Microsoft.Extensions.Options;
 using Utilities.Settings;
 using Utilities.Statuses;
+using DataTransferObjects.Models.User.Response;
 
 namespace Services.Implements
 {
@@ -32,6 +33,25 @@ namespace Services.Implements
             _cloudStorageService = cloudStorageService;
             _roleService = roleService;
             _smsService = smsService;
+        }
+
+        public async Task<User> GetByIdAsync(Guid userId)
+        {
+            List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.Id == userId
+            };
+
+            var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters,
+                include: queryable => queryable.Include(u => u.Role!))
+                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            return user;
+        }
+
+        public async Task<GetDelivererResponse> GetDelivererResponseById(Guid id)
+        {
+            return _mapper.Map<GetDelivererResponse>(await GetByIdAsync(id));
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
