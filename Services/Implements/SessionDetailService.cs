@@ -19,7 +19,6 @@ using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
-using static Utilities.Constants.MessageConstants;
 
 namespace Services.Implements
 {
@@ -70,7 +69,7 @@ namespace Services.Implements
 
             if (delivere.Id != delivererId)
             {
-                throw new UserNotMatchException();
+                throw new   UserNotMatchException();
             }
 
             List<Expression<Func<SessionDetail, bool>>> filters = new()

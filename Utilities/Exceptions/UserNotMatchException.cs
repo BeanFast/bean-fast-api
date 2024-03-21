@@ -10,7 +10,7 @@ namespace Utilities.Exceptions
 {
     public class UserNotMatchException : BeanFastApplicationException
     {
-        public UserNotMatchException() : base(MessageConstants.AuthorizationMessageConstrant.NotAuthorizedToAccess, HttpStatusCode.BadRequest)
+        public UserNotMatchException() : base(MessageConstants.AuthorizationMessageConstrant.NotAllowed, HttpStatusCode.BadRequest)
         {
         }
     }

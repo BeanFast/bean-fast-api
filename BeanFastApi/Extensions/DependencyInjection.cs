@@ -123,9 +123,13 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<ISmsService, SmsService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IExchangeGIftService, ExchangeGiftService>();
+            services.AddScoped<IMenuDetailService, MenuDetailService>();
+            services.AddScoped<ISmsOtpService, SmsOtpService>();
             return services;
         }
         public static IServiceCollection AddRateLimiting(this IServiceCollection services)
