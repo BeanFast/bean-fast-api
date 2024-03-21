@@ -14,7 +14,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly ICategoryService _categoryService;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService, IUserService userService) : base(userService)
         {
             _categoryService = categoryService;
         }

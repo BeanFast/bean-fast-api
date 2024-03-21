@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Utilities.Settings;
 using Utilities.Statuses;
 using DataTransferObjects.Models.User.Response;
+using DataTransferObjects.Models.SmsOtp;
 
 namespace Services.Implements
 {
@@ -24,15 +25,15 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
 
         private readonly IRoleService _roleService;
-        private readonly ISmsService _smsService;
+        private readonly ISmsOtpService _smsOtpService;
 
         public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
-            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsService smsService) : base(
+            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService) : base(
             unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _roleService = roleService;
-            _smsService = smsService;
+            _smsOtpService = smsOtpService;
         }
 
         public async Task<User> GetByIdAsync(Guid userId)
@@ -112,8 +113,9 @@ namespace Services.Implements
             customer.AvatarPath = avatarPath;
             customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Status = UserStatus.NotVerified;
-            customer.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix,
-                customer.FullName!, customer.Id);
+            var customerNumber = await _repository.CountAsync() + 1;
+            customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
+
             await _repository.InsertAsync(customer);
             await _unitOfWork.CommitAsync();
             return new RegisterResponse();
@@ -121,21 +123,26 @@ namespace Services.Implements
 
         public async Task SendOtpAsync(string phone)
         {
+            phone = phone.Replace("+84", "0");
             var user = await findNotVerifiedUserByPhone(phone);
-            var otpValue = generateOtpValue();
-            user.SmsOtp = otpValue;
-            await _smsService.SendSmsAsync(phone, _appSettings.Twilio.BodyTemplate + otpValue);
-            await _repository.UpdateAsync(user);
-            await _unitOfWork.CommitAsync();
+            await _smsOtpService.SendOtpAsync(user);
         }
 
-        public async Task VerifyOtpAsync(string phone, string otp)
+        public async Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request)
         {
-            var user = await findNotVerifiedUserByPhone(phone);
-            if (user.SmsOtp != otp)
+            var user = await findNotVerifiedUserByPhone(request.Phone);
+            var verifyResult = await _smsOtpService.VerifyOtpAsync(request, user);
+            if (verifyResult)
             {
-                throw new BeanFastApplicationException();
+                user.Status = UserStatus.Active;
+                await _repository.UpdateAsync(user);
+                await _unitOfWork.CommitAsync();
             }
+            else
+            {
+                throw new InvalidOtpException();
+            }
+            return verifyResult;
         }
 
         private async Task<User> findNotVerifiedUserByPhone(string phone)
@@ -144,15 +151,12 @@ namespace Services.Implements
                 status: UserStatus.NotVerified,
                 filters: new List<Expression<Func<User, bool>>>
                 {
-                    (user) => user.Phone == phone
+                    (user) => user.Phone == phone,
+                    (user) => user.Status == UserStatus.NotVerified,
                 }
             ) ?? throw new EntityNotFoundException(MessageConstants.AuthorizationMessageConstrant.PhoneNotFound);
         }
 
-        private string generateOtpValue()
-        {
-            Random generator = new Random();
-            return generator.Next(0, 1000000).ToString("D6");
-        }
+
     }
 }

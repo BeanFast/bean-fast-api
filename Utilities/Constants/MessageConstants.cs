@@ -32,6 +32,7 @@ namespace Utilities.Constants
             public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
             public static string DupplicatedPhone = "Số điện thoại đã tồn tại";
             public static string PhoneNotFound = "Không tìm thấy số điện thoại này!";
+            public static string InvalidSmsOtp = "Mã xác nhận OTP không hợp lệ";
 
         }
 
@@ -172,7 +173,7 @@ namespace Utilities.Constants
         {
             public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
 
-            
+            public const string DuplicateLocationInSession = "Địa điểm đã tồn tại trong buổi này";
 
         }
 

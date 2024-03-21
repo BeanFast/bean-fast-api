@@ -12,5 +12,6 @@ namespace Utilities.Settings
         public string AccountSid { get; set; } = default!;
         public string BodyTemplate { get; set; } = default!;
         public string AuthToken { get; set; } = default!;
+        public int OtpLifeTimeInMinutes { get; set; } = default!;
     }
 }

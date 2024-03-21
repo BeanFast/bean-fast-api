@@ -9,7 +9,6 @@
         public string Password { get; set; }
         public string? Email { get; set; }
         public string AvatarPath { get; set; }
-        public string? SmsOtp { get; set; }
         public string? RefreshToken { get; set; }
         
 

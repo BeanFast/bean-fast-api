@@ -9,7 +9,7 @@ namespace BeanFastApi.Controllers
     {
         private readonly IAreaService _areaService;
 
-        public AreasController(IAreaService areaService)
+        public AreasController(IAreaService areaService, IUserService userService) : base(userService)
         {
             _areaService = areaService;
         }

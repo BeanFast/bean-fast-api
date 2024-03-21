@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DataTransferObjects.Models.Auth.Request;
 using DataTransferObjects.Models.Auth.Response;
+using DataTransferObjects.Models.SmsOtp;
 using DataTransferObjects.Models.User.Response;
 
 namespace Services.Interfaces
@@ -12,6 +13,6 @@ namespace Services.Interfaces
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
         Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest);
         Task SendOtpAsync(string phone);
-        Task VerifyOtpAsync(string phone, string otp);
+        Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request);
     }
 }

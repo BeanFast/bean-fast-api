@@ -1,5 +1,6 @@
 ﻿using DataTransferObjects.Models.Auth.Request;
 using DataTransferObjects.Models.Auth.Response;
+using DataTransferObjects.Models.SmsOtp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -11,11 +12,10 @@ namespace BeanFastApi.Controllers;
 
 public class AuthController : BaseController
 {
-    private readonly IUserService _userService;
 
-    public AuthController(IUserService userService)
+    public AuthController(IUserService userService) : base(userService)
     {
-        _userService = userService;
+
     }
 
     [HttpPost("login")]
@@ -35,6 +35,13 @@ public class AuthController : BaseController
     public async Task<IActionResult> SendOtpAsync([FromBody] string phone)
     {
         await _userService.SendOtpAsync(phone);
+        return SuccessResult("OK");
+    }
+    [HttpPost("otp/verify")]
+    //[EnableRateLimiting("otpRateLimit")]
+    public async Task<IActionResult> VerifyOtpAsync([FromBody] SmsOtpVerificationRequest request)
+    {
+        await _userService.VerifyOtpAsync(request);
         return SuccessResult("OK");
     }
     //public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)

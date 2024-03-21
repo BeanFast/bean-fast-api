@@ -17,7 +17,7 @@ public class FoodsController : BaseController
 {
     private readonly IFoodService _foodService;
 
-    public FoodsController(IFoodService foodService)
+    public FoodsController(IFoodService foodService, IUserService userService) : base(userService)
     {
         _foodService = foodService;
     }

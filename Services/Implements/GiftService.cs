@@ -35,7 +35,8 @@ namespace Services.Implements
         {
             var giftEntity = _mapper.Map<Gift>(request);
             var giftId = Guid.NewGuid();
-            giftEntity.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.GiftCodeConstrant.GiftPrefix, request.Name, giftId);
+            var giftNumber = await _repository.CountAsync() + 1;
+            giftEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.GiftCodeConstrant.GiftPrefix, giftNumber);
             giftEntity.Status = BaseEntityStatus.Active;
             giftEntity.Id = giftId;
 
@@ -119,7 +120,6 @@ namespace Services.Implements
             gift.Name = request.Name;
             gift.Points = request.Points;
             gift.InStock = request.InStock;
-            gift.Code = EntityCodeUtil.GenerateNamedEntityCode(EntityCodeConstrant.GiftCodeConstrant.GiftPrefix, request.Name, id);
             if(request.Image != null)
             {
                 await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Gift, request.Image);
