@@ -171,7 +171,7 @@ namespace Utilities.Constants
         {
             public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
 
-            
+
 
         }
 
@@ -184,6 +184,7 @@ namespace Utilities.Constants
 
         public class LocationMessageConstrant
         {
+            public static string LocationAlreadyExists() => $"Địa điểm này đã tồn tại";
             public static string LocationlNotFound(Guid guid) => $"Địa điểm với id: {guid} không tồn tại";
 
             public const string LocationNameRequired = "Tên địa điểm là bắt buộc";
