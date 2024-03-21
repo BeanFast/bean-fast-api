@@ -71,7 +71,7 @@ public class MenuService : BaseService<Menu>, IMenuService
                     s.OrderStartTime.Date.CompareTo(filterRequest.OrderStartTime.Value.Date) == 0
                     && s.Status == BaseEntityStatus.Active).Any());
         }
-        if (userRole.Equals(RoleName.ADMIN.ToString()))
+        if (RoleName.ADMIN.ToString().Equals(userRole))
         {
             if (filterRequest.SessionExpired)
             {
@@ -95,18 +95,24 @@ public class MenuService : BaseService<Menu>, IMenuService
                         ).Any());
             }
         }
-        if (userRole.Equals(RoleName.CUSTOMER.ToString()))
+        else
         {
             if (filterRequest.SessionOrderable)
             {
                 filters.Add(
                     m => m.Sessions!.Where(
-                            s => s.OrderStartTime <= DateTime.Now 
-                                && s.OrderEndTime > DateTime.Now 
+                            s => s.OrderStartTime <= DateTime.Now
+                                && s.OrderEndTime > DateTime.Now
                                 && s.Status == BaseEntityStatus.Active
                         ).Any());
             }
+
         }
+        if(filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
+        {
+            filters.Add(m => m.Sessions!.Where(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == filterRequest.SchoolId).Any()).Any());
+        }
+
         return filters;
     }
 

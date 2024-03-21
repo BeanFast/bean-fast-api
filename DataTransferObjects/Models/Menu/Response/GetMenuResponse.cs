@@ -27,6 +27,7 @@ public class GetMenuResponse
             public class LocationOfSessionDetail
             {
                 public string Name { get; set; }
+                public Guid SchoolId { get; set; }
             }
         }
     }
