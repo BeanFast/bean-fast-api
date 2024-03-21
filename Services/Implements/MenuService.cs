@@ -71,6 +71,42 @@ public class MenuService : BaseService<Menu>, IMenuService
                     s.OrderStartTime.Date.CompareTo(filterRequest.OrderStartTime.Value.Date) == 0
                     && s.Status == BaseEntityStatus.Active).Any());
         }
+        if (userRole.Equals(RoleName.ADMIN.ToString()))
+        {
+            if (filterRequest.SessionExpired)
+            {
+                filters.Add(
+                    m => m.Sessions!.Where(
+                            s => s.OrderEndTime < DateTime.Now
+                        ).Any());
+            }
+            if (filterRequest.SessonIncomming)
+            {
+                filters.Add(
+                    m => m.Sessions!.Where(
+                            s => s.OrderStartTime > DateTime.Now
+                        ).Any());
+            }
+            if (filterRequest.SessionOrderable)
+            {
+                filters.Add(
+                    m => m.Sessions!.Where(
+                            s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now
+                        ).Any());
+            }
+        }
+        if (userRole.Equals(RoleName.CUSTOMER.ToString()))
+        {
+            if (filterRequest.SessionOrderable)
+            {
+                filters.Add(
+                    m => m.Sessions!.Where(
+                            s => s.OrderStartTime <= DateTime.Now 
+                                && s.OrderEndTime > DateTime.Now 
+                                && s.Status == BaseEntityStatus.Active
+                        ).Any());
+            }
+        }
         return filters;
     }
 
@@ -114,7 +150,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         var menuDetailNumber = await _menuDetailService.CountAsync();
         foreach (var menuDetail in menuEntity.MenuDetails!)
         {
-            
+
             await _foodService.GetByIdAsync(menuDetail.FoodId);
             menuDetail.Status = BaseEntityStatus.Active;
             menuDetailNumber++;
