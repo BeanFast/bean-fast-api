@@ -15,6 +15,10 @@ public class GetMenuResponse
     public class SessionOfGetMenuResponse
     {
         public Guid Id { get; set; }
+        public DateTime OrderStartTime { get; set; }
+        public DateTime OrderEndTime { get; set; }
+        public DateTime DeliveryStartTime { get; set; }
+        public DateTime DeliveryEndTime { get; set; }
         public ICollection<SessionDetailOfSession> SessionDetails { get; set; }
         public class SessionDetailOfSession
         {
