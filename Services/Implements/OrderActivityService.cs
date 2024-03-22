@@ -13,11 +13,10 @@ using Utilities.Settings;
 
 namespace Services.Implements
 {
-    public class MenuDetailService : BaseService<MenuDetail>, IMenuDetailService
+    public class OrderActivityService : BaseService<OrderActivity>, IOrderActivityService
     {
-        public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
-
     }
 }

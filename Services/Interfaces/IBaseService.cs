@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IMenuDetailService : IBaseService
+    public interface IBaseService
     {
+        Task<int> CountAsync();
     }
 }

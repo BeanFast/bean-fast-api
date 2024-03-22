@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IGiftService
+    public interface IGiftService : IBaseService
     {
         Task CreateGiftAsync(CreateGiftRequest request);
         Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest);

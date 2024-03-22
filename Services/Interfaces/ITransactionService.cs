@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IMenuDetailService : IBaseService
+    public interface ITransactionService : IBaseService
     {
     }
 }

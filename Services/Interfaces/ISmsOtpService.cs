@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ISmsOtpService
+    public interface ISmsOtpService : IBaseService
     {
         Task<SmsOtp> SendOtpAsync(User user);
         Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request, User user);

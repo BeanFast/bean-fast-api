@@ -2,7 +2,7 @@
 
 namespace Services.Interfaces;
 
-public interface IComboService
+public interface IComboService : IBaseService
 {
     Task CreateComboAsync(Combo combo);
     Task CreateComboListAsync(List<Combo> combos);

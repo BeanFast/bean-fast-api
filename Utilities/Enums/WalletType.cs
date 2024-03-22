@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Interfaces
+namespace Utilities.Enums
 {
-    public interface IMenuDetailService : IBaseService
+    public enum WalletType
     {
+        Points,
+        Money
     }
 }

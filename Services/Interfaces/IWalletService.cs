@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IWalletService
+    public interface IWalletService : IBaseService
     {
         Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid profileId);
     }

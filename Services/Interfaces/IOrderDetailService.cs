@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IOrderDetailService
+    public interface IOrderDetailService : IBaseService
     {
         Task CreateOrderDetailAsync(OrderDetail orderDetail);
         Task CreateOrderDetailListAsync(List<OrderDetail> orderDetails);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IExchangeGIftService
+    public interface IExchangeGIftService : IBaseService
     {
         Task CreateExchangeGiftAsync(ExchangeGiftRequest request, Guid customerId);
     }

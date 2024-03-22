@@ -10,7 +10,7 @@ using DataTransferObjects.Models.Food.Request;
 
 namespace Services.Interfaces
 {
-    public interface IFoodService
+    public interface IFoodService : IBaseService
     {
         Task<ICollection<GetFoodResponse>>  GetAllAsync(string? userRole, FoodFilterRequest filterRequest);
         Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest, PaginationRequest request);

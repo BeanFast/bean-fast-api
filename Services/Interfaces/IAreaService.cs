@@ -10,7 +10,7 @@ using Utilities.Enums;
 
 namespace Services.Interfaces
 {
-    public interface IAreaService
+    public interface IAreaService : IBaseService
     {
         Task<Area> GetAreaByIdAsync(Guid id);
         Task<Area> GetAreaByIdAsync(int status, Guid id);
