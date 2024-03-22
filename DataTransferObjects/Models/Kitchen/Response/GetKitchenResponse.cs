@@ -1,4 +1,6 @@
-﻿namespace DataTransferObjects.Models.Kitchen.Response;
+﻿using DataTransferObjects.Models.Menu.Response;
+
+namespace DataTransferObjects.Models.Kitchen.Response;
 
 public class GetKitchenResponse
 {
@@ -17,6 +19,4 @@ public class GetKitchenResponse
         public string District { get; set; }
         public string Ward { get; set; }
     }
-
-    //public class 
 }

@@ -82,5 +82,20 @@ namespace Utilities.Constants
         {
             public static string MenuDetailPrefix = "Md";
         }
+
+        public class OrderActivityCodeConstrant
+        {
+            public static string OrderActivityPrefix = "Oa";
+        }
+
+        public class OrderDetailCodeConstrant
+        {
+            public static string OrderDetailPrefix = "Od";
+        }
+
+        public class TransactionCodeConstrant
+        {
+            public static string TransactionPrefix = "Tr";
+        }
     }
 }

@@ -17,6 +17,10 @@ namespace Services.Mappers
             CreateMap<CreateProfileRequest.BMIOfProfile, ProfileBodyMassIndex>();
             CreateMap<Profile, GetProfilesByCurrentCustomerResponse>();
             CreateMap<Profile, GetProfileResponse>();
+            CreateMap<School, GetProfileResponse.SchoolOfProfile>();
+            CreateMap<Kitchen, GetProfileResponse.KitchenOfSchool>();
+            CreateMap<Menu, GetProfileResponse.MenuOfKitchen>();
+            CreateMap<MenuDetail, GetProfileResponse.MenuDetailOfMenu>();
         }
     }
 }

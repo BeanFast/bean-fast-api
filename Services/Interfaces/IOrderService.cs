@@ -18,7 +18,7 @@ namespace Services.Interfaces
         Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
         Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId);
         Task<Order> GetByIdAsync(Guid id);
-        Task CreateOrderAsync(CreateOrderRequest request);
+        Task CreateOrderAsync(Guid profileId, Guid menuDetailId, int quantity, string note, CreateOrderRequest request);
         Task UpdateOrderCookingStatusAsync(Guid foodId);
         Task UpdateOrderCompleteStatusAsync(Guid foodId);
         Task UpdateOrderDeliveryStatusAsync(Guid foodId);

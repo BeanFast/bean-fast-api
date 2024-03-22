@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Transaction.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Transaction.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Services.Interfaces
 {
     public interface ITransactionService
     {
-        Task CreateTransactionAsync(CreateTransactionRequest request);
+        Task CreateTransactionAsync(Transaction transaction);
+        Task CreateTransactionListAsync(List<Transaction> transactions);
     }
 }

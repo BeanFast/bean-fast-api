@@ -114,6 +114,16 @@ namespace Utilities.Constants
 
         }
 
+        public class MenuMessageConstrant
+        {
+            public static string MenuNotFound(Guid guid) => $"Thực đơn với id: {guid} không tồn tại";
+        }
+
+        public class MenuDetailMessageConstrant
+        {
+            public static string MenuDetailNotFound(Guid guid) => $"Chi tiết thực đơn với id: {guid} không tồn tại";
+        }
+
         public static class CategoryMessageConstrant
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";

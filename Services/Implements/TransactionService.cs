@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using DataTransferObjects.Models.Transaction.Request;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Settings;
+using Utilities.Statuses;
 
 namespace Services.Implements
 {
@@ -18,10 +20,25 @@ namespace Services.Implements
         public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
-
-        public Task CreateTransactionAsync(CreateTransactionRequest request)
+        public async Task CreateTransactionAsync(Transaction transaction)
         {
-            throw new NotImplementedException();
+            if (transaction == null)
+            {
+                throw new ArgumentNullException(nameof(transaction));
+            }
+
+            transaction.Status = OrderActivityStatus.Active;
+            transaction.Id = Guid.NewGuid();
+            await _repository.InsertAsync(transaction);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task CreateTransactionListAsync(List<Transaction> transactions)
+        {
+            foreach (var transaction in transactions)
+            {
+                await CreateTransactionAsync(transaction);
+            }
         }
     }
 }
