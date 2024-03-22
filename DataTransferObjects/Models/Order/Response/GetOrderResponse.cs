@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Profiles.Response;
+﻿using DataTransferObjects.Models.Order.Request;
+using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,6 @@ namespace DataTransferObjects.Models.Order.Response
         public string? Feedback { get; set; }
 
         public GetProfileResponse? Profile { get; set; }
+        public CreateOrderRequest.OrderActivityList? orderActivity { get; set; }
     }
 }

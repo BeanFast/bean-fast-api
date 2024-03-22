@@ -20,6 +20,7 @@ namespace DataTransferObjects.Models.Order.Request
         [Range(1000, double.MaxValue, ErrorMessage = MessageConstants.OrderMessageConstrant.OrderTotalPriceRange)]
         public double TotalPrice { get; set; }
         public IList<OrderDetailList>? OrderDetails { get; set; }
+        public IList<OrderActivityList>? OrderActivities { get; set; }
 
         public class OrderDetailList
         {
@@ -29,6 +30,12 @@ namespace DataTransferObjects.Models.Order.Request
             public int Quantity { get; set; }
             public double Price { get; set; }
             public string? Note { get; set; }
+        }
+
+        public class OrderActivityList
+        {
+            public string Name { get; set; }
+            public DateTime Time { get; set; }
         }
 
 

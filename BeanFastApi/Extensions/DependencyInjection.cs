@@ -118,6 +118,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IGiftService, GiftService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IOrderActivityService, OrderActivityService>();
             services.AddScoped<ISessionDetailService, SessionDetailService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<ISessionService, SessionService>();

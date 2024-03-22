@@ -238,6 +238,11 @@ namespace Utilities.Constants
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
         }
 
+        public class OrderActivityMessageConstrant
+        {
+            public static string OrderActivityNotFound(Guid id) => $"Theo dõi hoạt động đơn hàng với id: {id} không tồn tại";
+        }
+
         public class ProfileMessageConstrant
         {
             //public static string ProfileNotFound(Guid guid) => $"Hồ sơ với id: {guid} không tồn tại";
