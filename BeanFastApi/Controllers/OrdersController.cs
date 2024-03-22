@@ -36,6 +36,14 @@ namespace BeanFastApi.Controllers
             return SuccessResult(orders);
         }
 
+        [HttpGet("status/{status}")]
+        [Authorize]
+        public async Task<IActionResult> GetOrdersByStatus(int status)
+        {
+            var orders = await _orderService.GetOrdersByStatusAsync(status);
+            return SuccessResult(orders);
+        }
+
         [HttpPost]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> CreateOrder(Guid customerId, Guid menuDetailId, [FromBody] CreateOrderRequest request)
