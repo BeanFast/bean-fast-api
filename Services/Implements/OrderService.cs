@@ -121,6 +121,19 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
+        public async Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status)
+        {
+            List<Expression<Func<Order, bool>>> filters = new()
+            {
+                (order) => order.Status == status
+            };
+
+            var orders = await _repository.GetListAsync(filters: filters,
+                include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
+
+            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
+        }
+
         public async Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request)
         {
             var orderId = Guid.NewGuid();
