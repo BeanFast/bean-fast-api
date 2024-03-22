@@ -176,13 +176,14 @@ namespace Services.Implements
             var userId = Guid.NewGuid();
             var checkDupplicatedUserData = await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
             {
-                u => user.Email == request.Email
+                u => u.Email == request.Email || u.Phone == request.Phone,
             });
             if (checkDupplicatedUserData is not null) throw new DataExistedException(MessageConstants.AuthorizationMessageConstrant.DupplicatedEmail);
             user.AvatarPath = await _cloudStorageService.UploadFileAsync(userId, _appSettings.Firebase.FolderNames.User, request.Image);
             user.Status = UserStatus.Active;
             var userNumber = await _repository.CountAsync() + 1;
             user.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.UserPrefix, userNumber);
+            user.Password = PasswordUtil.HashPassword(request.Password);
             await _repository.UpdateAsync(user);
             await _unitOfWork.CommitAsync();
         }

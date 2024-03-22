@@ -14,14 +14,14 @@ namespace BeanFastApi.Controllers
         }
         [HttpPut]
         [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
-        public async Task<IActionResult> UpdateCustomer(UpdateCustomerRequest request)
+        public async Task<IActionResult> UpdateCustomer([FromForm] UpdateCustomerRequest request)
         {
             await _userService.UpdateCustomerAsync(request, await GetUser());
             return SuccessResult<object>(new object());
         }
         [HttpPost]
         [Authorize(Utilities.Enums.RoleName.ADMIN)]
-        public async Task<IActionResult> CreateUser(CreateUserRequest request)
+        public async Task<IActionResult> CreateUser([FromForm] CreateUserRequest request)
         {
             await _userService.CreateUserAsync(request);
             return SuccessResult(new object());
