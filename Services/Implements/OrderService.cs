@@ -33,13 +33,15 @@ namespace Services.Implements
         private readonly IOrderActivityService _orderActivityService;
         private readonly IMenuDetailService _menuDetailService;
         private readonly ITransactionService _transactionService;
+        private readonly IWalletService _walletService;
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
            IProfileService profileService,
            ISessionDetailService sessionDetailService,
            IOrderDetailService orderDetailService,
            IOrderActivityService orderActivityService,
            IMenuDetailService menuDetailService,
-           ITransactionService transactionService) : base(unitOfWork, mapper, appSettings)
+           ITransactionService transactionService,
+           IWalletService walletService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -47,6 +49,7 @@ namespace Services.Implements
             _orderActivityService = orderActivityService;
             _menuDetailService = menuDetailService;
             _transactionService = transactionService;
+            _walletService = walletService;
         }
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
