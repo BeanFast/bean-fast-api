@@ -11,5 +11,6 @@ namespace Services.Interfaces
     public interface IRoleService
     {
         Task<Role> GetRoleByRoleNameAsync(RoleName roleName);
+        Task<Role> GetRoleByIdAsync(Guid id);
     }
 }

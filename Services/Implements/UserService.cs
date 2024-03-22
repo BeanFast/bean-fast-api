@@ -17,6 +17,7 @@ using Utilities.Settings;
 using Utilities.Statuses;
 using DataTransferObjects.Models.User.Response;
 using DataTransferObjects.Models.SmsOtp;
+using DataTransferObjects.Models.User.Request;
 
 namespace Services.Implements
 {
@@ -128,6 +129,17 @@ namespace Services.Implements
             await _smsOtpService.SendOtpAsync(user);
         }
 
+        public async Task UpdateCustomerAsync(UpdateCustomerRequest request, User user)
+        {
+            user.FullName = request.FullName;
+            if (request.Image != null)
+            {
+                user.AvatarPath = await _cloudStorageService.UploadFileAsync(user.Id, _appSettings.Firebase.FolderNames.User, request.Image);
+            }
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+        }
+
         public async Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request)
         {
             var user = await findNotVerifiedUserByPhone(request.Phone);
@@ -157,6 +169,23 @@ namespace Services.Implements
             ) ?? throw new EntityNotFoundException(MessageConstants.AuthorizationMessageConstrant.PhoneNotFound);
         }
 
-
+        public async Task CreateUserAsync(CreateUserRequest request)
+        {
+            var user = _mapper.Map<User>(request);
+            await _roleService.GetRoleByIdAsync(request.RoleId);
+            var userId = Guid.NewGuid();
+            var checkDupplicatedUserData = await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
+            {
+                u => u.Email == request.Email || u.Phone == request.Phone,
+            });
+            if (checkDupplicatedUserData is not null) throw new DataExistedException(MessageConstants.AuthorizationMessageConstrant.DupplicatedEmail);
+            user.AvatarPath = await _cloudStorageService.UploadFileAsync(userId, _appSettings.Firebase.FolderNames.User, request.Image);
+            user.Status = UserStatus.Active;
+            var userNumber = await _repository.CountAsync() + 1;
+            user.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.UserPrefix, userNumber);
+            user.Password = PasswordUtil.HashPassword(request.Password);
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+        }
     }
 }

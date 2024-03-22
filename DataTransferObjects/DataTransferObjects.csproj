@@ -22,8 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
-    <Folder Include="Models\User\Request\" />
-    <Folder Include="Models\User\" />
     <Folder Include="Models\Wallet\Request\" />
   </ItemGroup>
 
