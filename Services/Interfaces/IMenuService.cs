@@ -5,7 +5,7 @@ using DataTransferObjects.Models.Menu.Response;
 
 namespace Services.Interfaces;
 
-public interface IMenuService
+public interface IMenuService : IBaseService
 {
     Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest);
     Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest);

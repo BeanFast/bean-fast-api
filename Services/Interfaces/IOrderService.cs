@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IOrderService
+    public interface IOrderService : IBaseService
     {
         Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole);
         Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request);

@@ -8,7 +8,7 @@ using Utilities.Exceptions;
 
 namespace Services.Interfaces;
 
-public interface IKitchenService
+public interface IKitchenService : IBaseService
 {
     public Task<IPaginable<GetKitchenResponse>> GetKitchenPageAsync(PaginationRequest paginationRequest, KitchenFilterRequest filterRequest, string? userRole);
 

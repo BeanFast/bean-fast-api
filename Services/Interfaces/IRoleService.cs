@@ -8,7 +8,7 @@ using Utilities.Enums;
 
 namespace Services.Interfaces
 {
-    public interface IRoleService
+    public interface IRoleService : IBaseService
     {
         Task<Role> GetRoleByRoleNameAsync(RoleName roleName);
         Task<Role> GetRoleByIdAsync(Guid id);

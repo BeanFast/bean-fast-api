@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ISessionDetailService
+    public interface ISessionDetailService : IBaseService
     {
-        Task<int> CountAsync();
         Task<SessionDetail> GetByIdAsync(Guid id);
         Task<GetSessionDetailResponse> GetSessionDetailResponseByIdAsync(Guid id);
         Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid delivererId, Guid userId);

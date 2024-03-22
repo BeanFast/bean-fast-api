@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ILocationService
+    public interface ILocationService : IBaseService
     {
         Task CreateLocationAsync(CreateLocationRequest request);
         Task<ICollection<GetLocationResponse>> GetAllLocationAsync();

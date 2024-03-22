@@ -258,8 +258,15 @@ namespace Utilities.Constants
             public const string ProfileAgeRange = "Tuổi phải lớn hơn 0";
             public const string ProfileDoesNotBelongToUser = "Thông tin đứa trẻ không thuộc về người dùng này";
             public const string ProfileNotFound = "Không tìm thấy thông tin cá nhân";
-
-
+        }
+        public class WalletMessageConstrant
+        {
+            public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
+        }
+        public class OrderActivityMessageConstrant
+        {
+            public const string DefaultOrderCreatedActivityName = "Đơn hàng được tạo thành công";
+            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ISchoolService
+    public interface ISchoolService : IBaseService
     {
         Task CreateSchoolAsync(CreateSchoolRequest request);
         Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);

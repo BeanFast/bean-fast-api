@@ -13,9 +13,9 @@ using Utilities.Settings;
 
 namespace Services.Implements
 {
-    public class MenuDetailService : BaseService<MenuDetail>, IMenuDetailService
+    public class TransactionService : BaseService<Transaction>, ITransactionService
     {
-        public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
 

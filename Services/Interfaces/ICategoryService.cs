@@ -9,7 +9,7 @@ using Utilities.Enums;
 
 namespace Services.Interfaces
 {
-    public interface ICategoryService
+    public interface ICategoryService : IBaseService
     {
         public Task<ICollection<Category>> GetAll(string? role);
 

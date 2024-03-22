@@ -10,8 +10,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
+using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
@@ -21,11 +25,13 @@ namespace Services.Implements
         private readonly IGiftService _giftService;
         private readonly IProfileService _profileService;
         private readonly ISessionDetailService _sessionDetailService;
-        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService) : base(unitOfWork, mapper, appSettings)
+        private readonly ITransactionService _transactionService;
+        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService) : base(unitOfWork, mapper, appSettings)
         {
             _giftService = giftService;
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
+            _transactionService = transactionService;
         }
 
         public async Task CreateExchangeGiftAsync(ExchangeGiftRequest request, Guid customerId)
@@ -33,7 +39,7 @@ namespace Services.Implements
             var gift = await _giftService.GetGiftByIdAsync(request.GiftId);
             var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
             var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
-            if (sessionDetail.Session!.OrderEndTime.CompareTo(DateTime.Now) >= 0)
+            if (sessionDetail.Session!.OrderEndTime.CompareTo(DateTime.Now) <= 0)
             {
                 throw new ClosedSessionException();
             }
@@ -42,22 +48,39 @@ namespace Services.Implements
                 throw new InvalidSchoolException();
             }
             var exchangeGift = _mapper.Map<ExchangeGift>(request);
-            //exchangeGift.Status = ExchangeGiftStatus.Pending;
             exchangeGift.Points = gift.Points;
+            var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Points.ToString())!;
+            if (wallet.Balance - gift.Points < 0)
+            {
+                throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughPoints);
+            }
             exchangeGift.PaymentDate = DateTime.Now;
-            //exchangeGift.
+            exchangeGift.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.ExchangeGiftCodeConstraint.ExchangeGiftPrefix, await _repository.CountAsync());
             exchangeGift.Transactions = new List<Transaction>
             {
                 new Transaction
                 {
                     Value = -gift.Points,
                     Time = DateTime.Now,
-                    WalletId = profile.Wallets.FirstOrDefault(w => w.Type == "Ví điểm").Id,
-                    Code = "ExchangeGift",
-                    ExchangeGiftId = exchangeGift.Id
+                    WalletId = wallet.Id,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.ExchangeGiftTransactionPrefix, await _transactionService.CountAsync() + 1),
+                    
                 }
             };
-            await Console.Out.WriteLineAsync(sessionDetail.ToString());
+            exchangeGift.Activities = new List<OrderActivity>
+            {
+                new OrderActivity
+                {
+                    Name = MessageConstants.OrderActivityMessageConstrant.DefaultExchangeGiftCreatedActivityName,
+                    Time = DateTime.Now,
+                    ImagePath = null,
+                    Status = BaseEntityStatus.Active,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, await _transactionService.CountAsync() + 1)
+                }
+            };
+            await _repository.InsertAsync(exchangeGift);
+            await _unitOfWork.CommitAsync();
+            //await Console.Out.WriteLineAsync(sessionDetail.ToString());
         }
 
     }
