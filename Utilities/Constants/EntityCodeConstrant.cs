@@ -37,10 +37,6 @@ namespace Utilities.Constants
         {
             public static string OrderPrefix = "O";
         }
-        public class OrderActivityCodeConstrant
-        {
-            public static string OrderActivityPrefix = "Oa";
-        }
 
         public class UserCodeConstrant
         {
@@ -86,15 +82,26 @@ namespace Utilities.Constants
         {
             public static string MenuDetailPrefix = "Md";
         }
+
+        public class OrderActivityCodeConstrant
+        {
+            public static string OrderActivityPrefix = "Oa";
+        }
+
+        public class OrderDetailCodeConstrant
+        {
+            public static string OrderDetailPrefix = "Od";
+        }
+
+        public class TransactionCodeConstrant
+        {
+            public static string TransactionPrefix = "Tr";
+            public static string ExchangeGiftTransactionPrefix = TransactionPrefix + ExchangeGiftCodeConstraint.ExchangeGiftPrefix;
+        }
+
         public class ExchangeGiftCodeConstraint
         {
             public static string ExchangeGiftPrefix = "Eg";
-        }
-        public class TransactionCodeConstrant
-        {
-            public static string TransactionPrefix = "T";
-            public static string ExchangeGiftTransactionPrefix = TransactionPrefix + ExchangeGiftCodeConstraint.ExchangeGiftPrefix;
-
         }
     }
 }

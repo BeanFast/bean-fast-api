@@ -10,6 +10,6 @@ public interface IMenuService : IBaseService
     Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest);
     Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest);
 
-
+    Task<Menu> GetByIdAsync(Guid id);
     Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId);
 }

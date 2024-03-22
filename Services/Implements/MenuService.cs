@@ -12,6 +12,7 @@ using Services.Interfaces;
 using System.Linq.Expressions;
 using Utilities.Constants;
 using Utilities.Enums;
+using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
@@ -108,12 +109,26 @@ public class MenuService : BaseService<Menu>, IMenuService
             }
 
         }
-        if(filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
+        if (filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
         {
             filters.Add(m => m.Sessions!.Where(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == filterRequest.SchoolId).Any()).Any());
         }
 
         return filters;
+    }
+
+    public async Task<Menu> GetByIdAsync(Guid id)
+    {
+        List<Expression<Func<Menu, bool>>> filters = new()
+            {
+                (menu) => menu.Id == id
+            };
+        var menu = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+            filters: filters, include: queryable => queryable
+            .Include(m => m.Kitchen!)
+            .Include(m => m.MenuDetails!))
+            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
+        return menu;
     }
 
     public async Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string userRole, MenuFilterRequest menuFilterRequest)
@@ -180,5 +195,4 @@ public class MenuService : BaseService<Menu>, IMenuService
         //menuEntity.
 
     }
-
 }

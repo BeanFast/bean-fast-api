@@ -19,19 +19,14 @@ namespace DataTransferObjects.Models.Order.Request
         [Required(ErrorMessage = MessageConstants.OrderMessageConstrant.OrderTotalPriceRequired)]
         [Range(1000, double.MaxValue, ErrorMessage = MessageConstants.OrderMessageConstrant.OrderTotalPriceRange)]
         public double TotalPrice { get; set; }
-        public IList<OrderDetailList>? OrderDetails { get; set; }
+        public ICollection<OrderDetailList>? OrderDetails { get; set; }
 
         public class OrderDetailList
         {
-            [RequiredGuid]
-            public Guid FoodId { get; set; }
             [Required]
             public int Quantity { get; set; }
-            public double Price { get; set; }
             public string? Note { get; set; }
         }
-
-
 
     }
 }

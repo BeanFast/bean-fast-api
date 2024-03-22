@@ -114,6 +114,16 @@ namespace Utilities.Constants
 
         }
 
+        public class MenuMessageConstrant
+        {
+            public static string MenuNotFound(Guid guid) => $"Thực đơn với id: {guid} không tồn tại";
+        }
+
+        public class MenuDetailMessageConstrant
+        {
+            public static string MenuDetailNotFound(Guid guid) => $"Chi tiết thực đơn với id: {guid} không tồn tại";
+        }
+
         public static class CategoryMessageConstrant
         {
             public const string CategoryNameExisted = "Danh mục đã tồn tại";
@@ -242,6 +252,13 @@ namespace Utilities.Constants
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
         }
 
+        public class OrderActivityMessageConstrant
+        {
+            public static string OrderActivityNotFound(Guid id) => $"Theo dõi hoạt động đơn hàng với id: {id} không tồn tại";
+            public const string DefaultOrderCreatedActivityName = "Đơn hàng được tạo thành công";
+            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
+        }
+
         public class ProfileMessageConstrant
         {
             //public static string ProfileNotFound(Guid guid) => $"Hồ sơ với id: {guid} không tồn tại";
@@ -262,11 +279,6 @@ namespace Utilities.Constants
         public class WalletMessageConstrant
         {
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
-        }
-        public class OrderActivityMessageConstrant
-        {
-            public const string DefaultOrderCreatedActivityName = "Đơn hàng được tạo thành công";
-            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }
     }
 }

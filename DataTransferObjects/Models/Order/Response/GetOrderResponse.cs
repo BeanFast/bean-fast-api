@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Profiles.Response;
+﻿using DataTransferObjects.Models.Order.Request;
+using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;

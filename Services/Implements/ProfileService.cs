@@ -104,7 +104,11 @@ namespace Services.Implements
                 (profile) => profile.Id == id
             };
             var profile = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters)
+                filters: filters, include: queryable => queryable
+                .Include(p => p.School!)
+                .ThenInclude(s => s.Kitchen)
+                .ThenInclude(k => k.Menus!.Where(m => m.Status == BaseEntityStatus.Active))
+                .ThenInclude(m => m.MenuDetails!.Where(md => md.Status == BaseEntityStatus.Active)))
                 ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
             return profile;
         }

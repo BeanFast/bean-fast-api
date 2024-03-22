@@ -30,11 +30,26 @@ namespace Services.Implements
         private readonly IProfileService _profileService;
         private readonly ISessionDetailService _sessionDetailService;
         private readonly IOrderDetailService _orderDetailService;
-        public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IProfileService profileService, ISessionDetailService sessionDetailService, IOrderDetailService orderDetailService) : base(unitOfWork, mapper, appSettings)
+        private readonly IOrderActivityService _orderActivityService;
+        private readonly IMenuDetailService _menuDetailService;
+        private readonly ITransactionService _transactionService;
+        private readonly IWalletService _walletService;
+        public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
+           IProfileService profileService,
+           ISessionDetailService sessionDetailService,
+           IOrderDetailService orderDetailService,
+           IOrderActivityService orderActivityService,
+           IMenuDetailService menuDetailService,
+           ITransactionService transactionService,
+           IWalletService walletService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
             _orderDetailService = orderDetailService;
+            _orderActivityService = orderActivityService;
+            _menuDetailService = menuDetailService;
+            _transactionService = transactionService;
+            _walletService = walletService;
         }
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
@@ -106,18 +121,33 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
-        public async Task CreateOrderAsync(CreateOrderRequest request)
+        public async Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request)
         {
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
-            await _profileService.GetByIdAsync(request.ProfileId);
-            await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
-            orderEntity.Status = OrderStatus.Pending;
+            orderEntity.Status = OrderStatus.Cooking;
+            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
+            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
+            var menuDetail = await _menuDetailService.GetByIdAsync(menuDetailId);
+            if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
+            {
+                throw new ClosedSessionException();
+            }
+            if (sessionDetail.Location!.SchoolId != profile.SchoolId)
+            {
+                throw new InvalidSchoolException();
+            }
+
+            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var transactionNumber = await _repository.CountAsync() + 1;
             var orderNumber = await _repository.CountAsync() + 1;
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
+
             var orderDetailEntityList = new List<OrderDetail>();
+            //var orderActivityEntityList = new List<OrderActivity>();
+            //var transactionEntityList = new List<Transaction>();
 
             if (request.OrderDetails is not null && request.OrderDetails.Count > 0)
             {
@@ -126,17 +156,49 @@ namespace Services.Implements
                     var orderDetailEntity = new OrderDetail
                     {
                         OrderId = orderId,
-                        FoodId = orderDetail.FoodId,
-                        Quantity = orderDetail.Quantity,
-                        Note = orderDetail.Note
+                        FoodId = menuDetail.FoodId,
+                        Price = menuDetail.Price,
+                        Status = OrderDetailStatus.Active,
                     };
                     orderDetailEntityList.Add(orderDetailEntity);
                 }
             }
             orderEntity.OrderDetails?.Clear();
+
+            orderEntity.TotalPrice = orderDetailEntityList.Sum(od => od.Price);
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    OrderId = orderId,
+                    ExchangeGiftId = null,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.DefaultOrderCreatedActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
+            orderEntity.Transactions = new List<Transaction>
+            {
+                new Transaction
+                {
+                    OrderId = orderId,
+                    ExchangeGiftId = null,
+                    WalletId = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!.Id,
+                    Value = orderEntity.TotalPrice,
+                    Time = DateTime.Now,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
+                    Status = TransactionStatus.Active
+                }
+            };
             await _repository.InsertAsync(orderEntity);
-            await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-            await _unitOfWork.CommitAsync();
+            //await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+            //await _orderActivityService.CreateOrderActivityListAsync(orderActivityEntityList);
+            //await _transactionService.CreateTransactionListAsync(transactionEntityList);
+            //await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
