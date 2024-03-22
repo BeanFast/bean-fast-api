@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Menu.Response;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
 using System;
@@ -16,6 +17,8 @@ namespace Services.Mappers
             CreateMap<Session, GetSessionForDeliveryResponse>();
             CreateMap<CreateSessionRequest, Session>();
             CreateMap<CreateSessionRequest.SessionDetailOfCreateSessionRequest, SessionDetail>();
+            CreateMap<SessionDetail, GetSessionForDeliveryResponse.SessionDetailOfSession>();
+            CreateMap<Location, GetSessionForDeliveryResponse.SessionDetailOfSession.LocationOfSessionDetail>();
         }
     }
 }
