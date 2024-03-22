@@ -132,6 +132,8 @@ namespace Services.Implements
 
 
                 orderEntity.Status = OrderStatus.Cooking;
+            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var transactionNumber = await _repository.CountAsync() + 1;
             var orderNumber = await _repository.CountAsync() + 1;
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
@@ -146,24 +148,36 @@ namespace Services.Implements
                     var orderDetailEntity = new OrderDetail
                     {
                         OrderId = orderId,
-                        FoodId = orderDetail.FoodId,
-                        Quantity = orderDetail.Quantity,
-                        Note = orderDetail.Note,
-                        Price = orderDetail.Price
+                        FoodId = menuDetail.FoodId,
+                        Price = menuDetail.Price,
+                        Status = OrderDetailStatus.Active,
                     };
                     orderDetailEntityList.Add(orderDetailEntity);
                 }
             }
+            orderEntity.OrderDetails?.Clear();
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    OrderId = orderId,
+                    ExchangeGiftId = null,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = "Create order",
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
             orderEntity.Transactions = new List<Transaction>
             {
                 new Transaction
                 {
                     OrderId = orderId,
-                    Amount = request.TotalPrice,
-                    TransactionType = TransactionType.Order,
-                    Status = TransactionStatus.Success,
-                    PaymentMethod = PaymentMethod.Cash,
-                    PaymentDate = DateTime.Now
+                    ExchangeGiftId = null,
+
                 }
             };
             await _repository.InsertAsync(orderEntity);

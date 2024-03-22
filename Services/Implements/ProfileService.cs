@@ -124,7 +124,7 @@ namespace Services.Implements
             {
                 p => p.Id == profileId,
                 p => p.UserId == customerId
-            });
+            }, include: i => i.Include(p => p.Wallets!.Where(w => w.Status == BaseEntityStatus.Active)));
             return profile ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
         }
     }

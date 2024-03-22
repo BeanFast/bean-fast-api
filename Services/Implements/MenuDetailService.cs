@@ -22,7 +22,6 @@ namespace Services.Implements
         public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
-
         public async Task<int> CountAsync()
         {
             return await _repository.CountAsync();

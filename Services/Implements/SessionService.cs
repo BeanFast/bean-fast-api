@@ -44,6 +44,8 @@ namespace Services.Implements
             //{
 
             //});
+            var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
+
             foreach (var sessionDetail in sessionEntity.SessionDetails)
             {
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
@@ -53,9 +55,9 @@ namespace Services.Implements
                 else
                 {
                     await _locationService.GetByIdAsync(sessionDetail.LocationId);
-                    var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
                     sessionDetail.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
-                    sessionDetail.Status = BaseEntityStatus.Active;
+                    sessionDetail.Status = BaseEntityStatus.Active; 
+                    sessionDetailNumber++;
                     uniqueLocationIds.Add(sessionDetail.Id);
                 }
             }
@@ -114,7 +116,7 @@ namespace Services.Implements
             {
                 filters.Add(s => s.MenuId == request.MenuId);
             }
-            if(request.SchoolId != null && request.SchoolId != Guid.Empty)
+            if (request.SchoolId != null && request.SchoolId != Guid.Empty)
             {
                 filters.Add(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == request.SchoolId && sd.Status == BaseEntityStatus.Active).Any());
             }

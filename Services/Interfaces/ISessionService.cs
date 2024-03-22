@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ISessionService
+    public interface ISessionService : IBaseService
     {
         Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest);
         Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id);

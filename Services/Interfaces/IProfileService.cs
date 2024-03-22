@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IProfileService
+    public interface IProfileService : IBaseService
     {
         Task CreateProfileAsync(CreateProfileRequest request, Guid userId);
         Task DeleteProfileAsync(Guid id);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface ICardTypeService
+    public interface ICardTypeService : IBaseService
     {
         Task CreateCardTypeAsync(CreateCardTypeRequest request);
         Task<ICollection<GetCardTypeResponse>> GetAllAsync();

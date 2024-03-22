@@ -7,7 +7,7 @@ using DataTransferObjects.Models.User.Response;
 
 namespace Services.Interfaces
 {
-    public interface IUserService
+    public interface IUserService : IBaseService
     {
         Task<User> GetByIdAsync(Guid userId);
         Task<GetDelivererResponse> GetDelivererResponseById(Guid id);

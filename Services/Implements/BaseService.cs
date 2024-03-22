@@ -3,11 +3,12 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
+using Services.Interfaces;
 using Utilities.Settings;
 
-namespace Services
+namespace Services.Implements
 {
-    public class BaseService<T> where T : BaseEntity
+    public class BaseService<T> : IBaseService where T : BaseEntity
     {
         protected IUnitOfWork<BeanFastContext> _unitOfWork;
         protected IMapper _mapper;
@@ -21,6 +22,9 @@ namespace Services
             _repository = _unitOfWork.GetRepository<T>();
         }
 
-
+        public async Task<int> CountAsync()
+        {
+            return await _repository.CountAsync();
+        }
     }
 }

@@ -40,11 +40,6 @@ namespace Services.Implements
             _locationService = locationService;
             _delivererService = delivererService;
         }
-        public async Task<int> CountAsync()
-        {
-            var result = await _repository.CountAsync();
-            return result;
-        }
 
         public async Task<SessionDetail> GetByIdAsync(Guid id)
         {
