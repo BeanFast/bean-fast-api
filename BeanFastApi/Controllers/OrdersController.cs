@@ -38,9 +38,9 @@ namespace BeanFastApi.Controllers
 
         [HttpPost]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+        public async Task<IActionResult> CreateOrder(Guid customerId, Guid menuDetailId, [FromBody] CreateOrderRequest request)
         {
-            await _orderService.CreateOrderAsync(request);
+            await _orderService.CreateOrderAsync(customerId, menuDetailId, request);
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
 

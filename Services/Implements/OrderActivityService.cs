@@ -1,19 +1,15 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
-<<<<<<< HEAD
 using DataTransferObjects.Models.Order.Response;
 using DataTransferObjects.Models.OrderActivity.Response;
 using Microsoft.EntityFrameworkCore;
-=======
->>>>>>> fc91342a0402d3445967991dcfd8a792b0fae0db
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-<<<<<<< HEAD
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,11 +17,9 @@ using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
-=======
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Settings;
->>>>>>> fc91342a0402d3445967991dcfd8a792b0fae0db
 
 namespace Services.Implements
 {
@@ -34,7 +28,6 @@ namespace Services.Implements
         public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
-<<<<<<< HEAD
 
         public async Task<OrderActivity> GetByIdAsync(Guid id)
         {
@@ -72,7 +65,5 @@ namespace Services.Implements
                 await CreateOrderActivityAsync(orderActivity);
             }
         }
-=======
->>>>>>> fc91342a0402d3445967991dcfd8a792b0fae0db
     }
 }

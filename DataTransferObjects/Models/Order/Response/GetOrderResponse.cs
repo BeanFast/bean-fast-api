@@ -19,6 +19,5 @@ namespace DataTransferObjects.Models.Order.Response
         public string? Feedback { get; set; }
 
         public GetProfileResponse? Profile { get; set; }
-        public CreateOrderRequest.OrderActivityList? orderActivity { get; set; }
     }
 }

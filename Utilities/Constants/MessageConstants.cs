@@ -255,6 +255,8 @@ namespace Utilities.Constants
         public class OrderActivityMessageConstrant
         {
             public static string OrderActivityNotFound(Guid id) => $"Theo dõi hoạt động đơn hàng với id: {id} không tồn tại";
+            public const string DefaultOrderCreatedActivityName = "Đơn hàng được tạo thành công";
+            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }
 
         public class ProfileMessageConstrant
@@ -277,11 +279,6 @@ namespace Utilities.Constants
         public class WalletMessageConstrant
         {
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
-        }
-        public class OrderActivityMessageConstrant
-        {
-            public const string DefaultOrderCreatedActivityName = "Đơn hàng được tạo thành công";
-            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }
     }
 }

@@ -121,28 +121,33 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
-        public async Task CreateOrderAsync(Guid profileId, Guid menuDetailId, int quantity, string note, CreateOrderRequest request)
+        public async Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request)
         {
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
-            var profile = await _profileService.GetByIdAsync(profileId);
-            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
-            var menuDetail = await _menuDetailService.GetByIdAsync(menuDetailId);
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
-            if (orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime &&
-                orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime)
+            orderEntity.Status = OrderStatus.Cooking;
+            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
+            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
+            var menuDetail = await _menuDetailService.GetByIdAsync(menuDetailId);
+            if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
+            {
+                throw new ClosedSessionException();
+            }
+            if (sessionDetail.Location!.SchoolId != profile.SchoolId)
+            {
+                throw new InvalidSchoolException();
+            }
 
-
-                orderEntity.Status = OrderStatus.Cooking;
             var orderActivityNumber = await _repository.CountAsync() + 1;
             var transactionNumber = await _repository.CountAsync() + 1;
             var orderNumber = await _repository.CountAsync() + 1;
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
             var orderDetailEntityList = new List<OrderDetail>();
-            var orderActivityEntityList = new List<OrderActivity>();
-            var transactionEntityList = new List<Transaction>();
+            //var orderActivityEntityList = new List<OrderActivity>();
+            //var transactionEntityList = new List<Transaction>();
 
             if (request.OrderDetails is not null && request.OrderDetails.Count > 0)
             {
@@ -160,6 +165,8 @@ namespace Services.Implements
             }
             orderEntity.OrderDetails?.Clear();
 
+            orderEntity.TotalPrice = orderDetailEntityList.Sum(od => od.Price);
+
             orderEntity.OrderActivities = new List<OrderActivity>
             {
 
@@ -168,7 +175,7 @@ namespace Services.Implements
                     OrderId = orderId,
                     ExchangeGiftId = null,
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = "Create order",
+                    Name = MessageConstants.OrderActivityMessageConstrant.DefaultOrderCreatedActivityName,
                     Time = DateTime.Now,
                     Status = OrderActivityStatus.Active
                 }
@@ -180,13 +187,17 @@ namespace Services.Implements
                 {
                     OrderId = orderId,
                     ExchangeGiftId = null,
-
+                    WalletId = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!.Id,
+                    Value = orderEntity.TotalPrice,
+                    Time = DateTime.Now,
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
+                    Status = TransactionStatus.Active
                 }
             };
             await _repository.InsertAsync(orderEntity);
-            await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-            await _orderActivityService.CreateOrderActivityListAsync(orderActivityEntityList);
-            await _transactionService.CreateTransactionListAsync(transactionEntityList);
+            //await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+            //await _orderActivityService.CreateOrderActivityListAsync(orderActivityEntityList);
+            //await _transactionService.CreateTransactionListAsync(transactionEntityList);
             //await _unitOfWork.CommitAsync();
         }
 

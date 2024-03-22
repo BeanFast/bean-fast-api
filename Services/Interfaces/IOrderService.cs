@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Enums;
 
 namespace Services.Interfaces
 {
@@ -18,7 +19,7 @@ namespace Services.Interfaces
         Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
         Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId);
         Task<Order> GetByIdAsync(Guid id);
-        Task CreateOrderAsync(Guid profileId, Guid menuDetailId, int quantity, string note, CreateOrderRequest request);
+        Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request);
         Task UpdateOrderCookingStatusAsync(Guid foodId);
         Task UpdateOrderCompleteStatusAsync(Guid foodId);
         Task UpdateOrderDeliveryStatusAsync(Guid foodId);
