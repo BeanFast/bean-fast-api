@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -13,11 +14,11 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
-
 namespace Services.Implements
 {
     public class SessionService : BaseService<Session>, ISessionService
@@ -64,25 +65,65 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request)
+        private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request, string userRole)
         {
             List<Expression<Func<Session, bool>>> filters = new List<Expression<Func<Session, bool>>>();
-            if (request.Orderable)
+            //Expression<Func<Session, bool>> orFilter = (s) =>
+            //{
+            //    bool filter = false;
+            //    if (request.Expired)
+            //    {
+            //        filter = filter || s.OrderEndTime < DateTime.Now;
+            //    }
+            //    if (request.Incomming)
+            //    {
+            //        filter = filter || s.OrderStartTime > DateTime.Now;
+            //    }
+            //    if (request.Orderable)
+            //    {
+            //        filter = filter || (s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now);
+            //    }
+            //    return filter;
+            //};
+            //filters.Add(orFilter);
+            if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                filters.Add((s) => s.OrderStartTime > DateTime.Now && s.OrderEndTime < DateTime.Now);
-                filters.Add((s) => s.Status == BaseEntityStatus.Active);
+                if (request.Expired)
+                {
+                    filters.Add(s => s.OrderEndTime < DateTime.Now);
+                }
+                if (request.Incomming)
+                {
+                    filters.Add(s => s.OrderStartTime > DateTime.Now);
+                }
+                if (request.Orderable)
+                {
+                    filters.Add(s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now);
+                }
+
+
+            }
+            else
+            {
+                if (request.Orderable)
+                {
+                    filters.Add(s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now && s.Status == BaseEntityStatus.Active);
+                }
             }
             if (request.MenuId != Guid.Empty)
             {
                 filters.Add(s => s.MenuId == request.MenuId);
             }
-
+            if(request.SchoolId != null && request.SchoolId != Guid.Empty)
+            {
+                filters.Add(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == request.SchoolId && sd.Status == BaseEntityStatus.Active).Any());
+            }
             //if(request.DeliveryEndTime)
             return filters;
         }
         public async Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
         {
-            var filters = getFiltersFromSessionFilterRequest(filterRequest);
+            var filters = getFiltersFromSessionFilterRequest(filterRequest, userRole!);
             return await _repository.GetListAsync<GetSessionForDeliveryResponse>(filters: filters);
         }
 

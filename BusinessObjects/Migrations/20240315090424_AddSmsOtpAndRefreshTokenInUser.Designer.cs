@@ -4,6 +4,7 @@ using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObjects.Migrations
 {
     [DbContext(typeof(BeanFastContext))]
-    partial class BeanFastContextModelSnapshot : ModelSnapshot
+    [Migration("20240315090424_AddSmsOtpAndRefreshTokenInUser")]
+    partial class AddSmsOtpAndRefreshTokenInUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -832,35 +835,6 @@ namespace BusinessObjects.Migrations
                     b.ToTable("SessionDetail", (string)null);
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.SmsOtp", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiredAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SmsOtp");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -935,10 +909,15 @@ namespace BusinessObjects.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SmsOtp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1305,17 +1284,6 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.SmsOtp", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany("SmsOtps")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Transaction", b =>
                 {
                     b.HasOne("BusinessObjects.Models.ExchangeGift", "ExchangeGift")
@@ -1487,8 +1455,6 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Profiles");
 
                     b.Navigation("SessionDetails");
-
-                    b.Navigation("SmsOtps");
 
                     b.Navigation("UpdatedMenus");
 

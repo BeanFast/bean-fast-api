@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Utilities.Constants;
-using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Menu.Request
 {
@@ -23,6 +17,9 @@ namespace DataTransferObjects.Models.Menu.Request
         public DateTime? CreateDate { get; set; }
         [DataType(DataType.DateTime, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCreateDateInvalid)]
         public DateTime? UpdateDate { get; set; }
+        public bool SessionExpired { get; set; }
+        public bool SessionOrderable { get; set; }
+        public bool SessonIncomming { get; set; }
         public int? Status { get; set; }
     }
 }

@@ -9,23 +9,9 @@ public class GetMenuResponse
     public string Code { get; set; }
     public DateTime? CreateDate { get; set; }
     public DateTime? UpdateDate { get; set; }
-    public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }
     public ICollection<MenuDetailOfGetMenuResponse> MenuDetails { get; set; }
-    //public GetMenuKitchenResponse? Kitchen { get; set; }
-    public class SessionOfGetMenuResponse
-    {
-        public Guid Id { get; set; }
-        public ICollection<SessionDetailOfSession> SessionDetails { get; set; }
-        public class SessionDetailOfSession
-        {
-            public Guid Id { get; set; }
-            public LocationOfSessionDetail Location { get; set; }
-            public class LocationOfSessionDetail
-            {
-                public string Name { get; set; }
-            }
-        }
-    }
+
+
     public class MenuDetailOfGetMenuResponse
     {
         public double Price { get; set; }
@@ -45,6 +31,7 @@ public class GetMenuResponse
             }
         }
     }
+
     //public class GetMenuKitchenResponse
     //{
     //    public Guid Id { get; set; }
