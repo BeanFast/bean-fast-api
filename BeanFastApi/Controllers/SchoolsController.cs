@@ -24,6 +24,11 @@ namespace BeanFastApi.Controllers
         {
             return SuccessResult(await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest));
         }
+        [HttpGet("{schooldId}/students/count")]
+        public async Task<IActionResult> CountStudentAsync([FromRoute] Guid schooldId)
+        {
+            return SuccessResult(await _schoolService.CountStudentAsync(schooldId));
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateSchoolAsync([FromForm] CreateSchoolRequest request)

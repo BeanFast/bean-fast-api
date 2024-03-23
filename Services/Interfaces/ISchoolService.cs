@@ -19,5 +19,6 @@ namespace Services.Interfaces
         Task<School> GetSchoolByIdAsync(Guid id);
         Task DeleteSchoolAsync(Guid id);
         Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request);
+        Task<int> CountStudentAsync(Guid schoolId);
     }
 }

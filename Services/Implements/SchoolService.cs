@@ -161,5 +161,18 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task<School> GetByIdIncludeProfile(Guid schoolId)
+        {
+            var school = await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
+            {
+                s => s.Id == schoolId
+            }, include: i => i.Include(s => s.Profiles!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(schoolId));
+            return school;
+        }
+        public async Task<int> CountStudentAsync(Guid schoolId)
+        {
+            var school = await GetByIdIncludeProfile(schoolId);
+            return school.Profiles.Count();
+        }
     }
 }

@@ -18,6 +18,8 @@ public interface IKitchenService : IBaseService
 
     public Task<Kitchen> GetByIdAsync(Guid id);
 
+    Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request);
 
     public Task DeleteKitchenAsync(Guid id);
+    Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId);
 }

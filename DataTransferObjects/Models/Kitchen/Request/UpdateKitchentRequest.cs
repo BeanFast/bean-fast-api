@@ -11,16 +11,16 @@ using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Kitchen.Request
 {
-    public class CreateKitchenRequest
+    public class UpdateKitchentRequest
     {
+
         [RequiredGuid]
         public Guid AreaId { get; set; }
-        
         [Required(ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenNameRequired)]
         [StringLength(200, MinimumLength = 10, ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenNameLength)]
         public string Name { get; set; }
         [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
         [Required(ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenAddressRequired)]
         [StringLength(500, MinimumLength = 10, ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenAddressLength)]
         public string Address { get; set; }
