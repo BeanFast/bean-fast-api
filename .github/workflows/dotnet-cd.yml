@@ -12,10 +12,7 @@ jobs:
         uses: fifsky/ssh-action@master
         with:
           command: |
-            cd bean-fast-api
-            git pull
-            cd BeanFastApi
-            nohup dotnet run
+            sudo systemctl restart api
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
           pass: ${{ secrets.PASSWORD }}
