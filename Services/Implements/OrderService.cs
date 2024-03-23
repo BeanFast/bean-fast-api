@@ -134,16 +134,22 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
-        public async Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request)
+        public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
+            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
+            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
+
+            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var transactionNumber = await _repository.CountAsync() + 1;
+            var orderNumber = await _repository.CountAsync() + 1;
+            
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
             orderEntity.Status = OrderStatus.Cooking;
-            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
-            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
-            var menuDetail = await _menuDetailService.GetByIdAsync(menuDetailId);
+            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
+
             if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
             {
                 throw new ClosedSessionException();
@@ -153,40 +159,35 @@ namespace Services.Implements
                 throw new InvalidSchoolException();
             }
 
-            var orderActivityNumber = await _repository.CountAsync() + 1;
-            var transactionNumber = await _repository.CountAsync() + 1;
-            var orderNumber = await _repository.CountAsync() + 1;
-            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
-
             var orderDetailEntityList = new List<OrderDetail>();
-            //var orderActivityEntityList = new List<OrderActivity>();
-            //var transactionEntityList = new List<Transaction>();
 
-            if (request.OrderDetails is not null && request.OrderDetails.Count > 0)
+            foreach (var orderDetailModel in request.OrderDetails!)
             {
-                foreach (var orderDetail in request.OrderDetails)
-                {
-                    var orderDetailEntity = new OrderDetail
-                    {
-                        OrderId = orderId,
-                        FoodId = menuDetail.FoodId,
-                        Price = menuDetail.Price,
-                        Status = OrderDetailStatus.Active,
-                    };
-                    orderDetailEntityList.Add(orderDetailEntity);
-                }
+                var orderDetailEntity = _mapper.Map<OrderDetail>(orderDetailModel);
+                var menuDetail = await _menuDetailService.GetByIdAsync(orderDetailModel.MenuDetailId);
+                orderDetailEntity.OrderId = orderId;
+                orderDetailEntity.FoodId = menuDetail.FoodId;
+                orderDetailEntity.Price = menuDetail.Price;
+                orderDetailEntity.Status = OrderDetailStatus.Active;
+                orderDetailEntityList.Add(orderDetailEntity);
             }
             orderEntity.OrderDetails?.Clear();
 
-            orderEntity.TotalPrice = orderDetailEntityList.Sum(od => od.Price);
+            var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Price);
+            orderEntity.TotalPrice = totalPriceOfOrderDetail;
+
+            var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!;
+            if (wallet.Balance - totalPriceOfOrderDetail < 0)
+            {
+                throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
+            }
 
             orderEntity.OrderActivities = new List<OrderActivity>
             {
 
             new OrderActivity
                 {
-                    OrderId = orderId,
-                    ExchangeGiftId = null,
+                    Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                     Name = MessageConstants.OrderActivityMessageConstrant.DefaultOrderCreatedActivityName,
                     Time = DateTime.Now,
@@ -200,17 +201,16 @@ namespace Services.Implements
                 {
                     OrderId = orderId,
                     ExchangeGiftId = null,
-                    WalletId = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!.Id,
+                    WalletId = wallet.Id,
                     Value = orderEntity.TotalPrice,
                     Time = DateTime.Now,
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
                     Status = TransactionStatus.Active
                 }
             };
+
+            wallet.Balance -= totalPriceOfOrderDetail;
             await _repository.InsertAsync(orderEntity);
-            //await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-            //await _orderActivityService.CreateOrderActivityListAsync(orderActivityEntityList);
-            //await _transactionService.CreateTransactionListAsync(transactionEntityList);
             //await _unitOfWork.CommitAsync();
         }
 
