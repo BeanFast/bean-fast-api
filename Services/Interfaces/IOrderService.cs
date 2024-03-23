@@ -20,7 +20,7 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId);
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
         Task<Order> GetByIdAsync(Guid id);
-        Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request);
+        Task CreateOrderAsync(User user, CreateOrderRequest request);
         Task UpdateOrderCookingStatusAsync(Guid foodId);
         Task UpdateOrderCompleteStatusAsync(Guid foodId);
         Task UpdateOrderDeliveryStatusAsync(Guid foodId);

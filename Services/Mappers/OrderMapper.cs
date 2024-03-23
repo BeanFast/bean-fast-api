@@ -15,7 +15,7 @@ namespace Services.Mappers
         {
             CreateMap<Order, GetOrderResponse>();
             CreateMap<CreateOrderRequest, Order>();
-            CreateMap<CreateOrderRequest.OrderDetailList, OrderDetail>();
+            CreateMap<CreateOrderRequest.OrderDetailOfCreateOrderRequest, OrderDetail>();
         }
     }
 }

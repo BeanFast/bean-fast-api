@@ -279,6 +279,7 @@ namespace Utilities.Constants
         public class WalletMessageConstrant
         {
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
+            public const string NotEnoughMoney = "Quý khách không có đủ tiền để thực hiện giao dịch này!";
         }
     }
 }

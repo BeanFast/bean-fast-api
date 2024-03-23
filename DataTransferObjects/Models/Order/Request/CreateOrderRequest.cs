@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+﻿
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,17 +16,17 @@ namespace DataTransferObjects.Models.Order.Request
         public Guid SessionDetailId { get; set; }
         [RequiredGuid]
         public Guid ProfileId { get; set; }
-        [Required(ErrorMessage = MessageConstants.OrderMessageConstrant.OrderTotalPriceRequired)]
-        [Range(1000, double.MaxValue, ErrorMessage = MessageConstants.OrderMessageConstrant.OrderTotalPriceRange)]
-        public double TotalPrice { get; set; }
-        public ICollection<OrderDetailList>? OrderDetails { get; set; }
 
-        public class OrderDetailList
+        public ICollection<OrderDetailOfCreateOrderRequest>? OrderDetails { get; set; }
+
+        public class OrderDetailOfCreateOrderRequest
         {
             [Required]
             public int Quantity { get; set; }
-            public string? Note { get; set; }
-        }
 
+            public string? Note { get; set; }
+            public Guid MenuDetailId { get; set; }
+
+        }
     }
 }
