@@ -24,6 +24,11 @@ public class KitchensController : BaseController
         string? userRole = GetUserRole();
         return SuccessResult(await _kitchenService.GetKitchenPageAsync(paginationRequest, filterRequest, userRole));
     }
+    [HttpGet("{kitchenId}/schools/count")]
+    public async Task<IActionResult> CountSchoolByKitchenIdAsync([FromRoute] Guid kitchenId)
+    {
+        return SuccessResult(await _kitchenService.CountSchoolByKitchenIdAsync(kitchenId));
+    }
     [HttpPost]
     public async Task<IActionResult> CreateKitchenAsync([FromForm] CreateKitchenRequest request)
     {
