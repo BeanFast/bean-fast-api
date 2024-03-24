@@ -21,7 +21,7 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
         Task<Order> GetByIdAsync(Guid id);
         Task CreateOrderAsync(User user, CreateOrderRequest request);
-        Task UpdateOrderCookingStatusAsync(Guid foodId);
+        //Task UpdateOrderCookingStatusAsync(Guid foodId);
         Task UpdateOrderCompleteStatusAsync(Guid foodId);
         Task UpdateOrderDeliveryStatusAsync(Guid foodId);
         Task UpdateOrderCancelStatusAsync(Guid foodId);
