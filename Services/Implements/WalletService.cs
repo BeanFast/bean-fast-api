@@ -22,13 +22,13 @@ namespace Services.Implements
         {
         }
 
-        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid profileId)
+        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId)
         {
             List<Expression<Func<Wallet, bool>>> filters = new()
             {
-                p => p.UserId == customerId,
-                p => p.ProfileId == profileId
+                p => p.UserId == customerId
             };
+            if (profileId != null) filters.Add(p => p.ProfileId == profileId);
             var wallets = await _repository.GetListAsync<GetWalletByCurrentCustomerAndProfileResponse>(
                 status: BaseEntityStatus.Active,
                 filters: filters);
