@@ -9,6 +9,7 @@ public class GetKitchenResponse
     public string Name { get; set; }
     public string ImagePath { get; set; }
     public string Address { get; set; }
+    public int SchoolCount { get; set; }
     public virtual AreaOfKitchen? Area { get; set; }
 
     public class AreaOfKitchen

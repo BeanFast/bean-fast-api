@@ -14,6 +14,7 @@ namespace DataTransferObjects.Models.School.Response
         public string Address { get; set; }
         public string ImagePath { get; set; }
 
+        public int StudentCount { get; set; }
         public AreaOfGetSchoolResponse Area { get; set; }
 
         public ICollection<LocationOfGetSchoolResponse> Locations { get; set; }
