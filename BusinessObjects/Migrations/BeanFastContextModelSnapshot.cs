@@ -1362,7 +1362,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.User", "Deliverer")
                         .WithMany("SessionDetails")
                         .HasForeignKey("DelivererId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_SessionDetail_User");
 
                     b.HasOne("BusinessObjects.Models.Location", "Location")
@@ -1375,7 +1375,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Session", "Session")
                         .WithMany("SessionDetails")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_SessionDetail_Session");
 

@@ -8,6 +8,7 @@ namespace BusinessObjects.Models
 {
     public class NotificationDetail : BaseEntity
     {
+        public Guid NotificationId { get; set; }
         public Guid UserId { get; set; }
         public DateTime SendDate { get; set; }
         public DateTime ReadDate { get; set; }

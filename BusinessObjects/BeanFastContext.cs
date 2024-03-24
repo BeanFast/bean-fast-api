@@ -256,12 +256,12 @@ namespace BusinessObjects
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.SessionId)
                     .HasConstraintName("FK_SessionDetail_Session")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Deliverer)
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.DelivererId)
                     .HasConstraintName("FK_SessionDetail_User")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
             modelBuilder.Entity<School>(entity =>
             {
@@ -474,15 +474,20 @@ namespace BusinessObjects
                 entity.ToTable("Notification");
                 entity.HasKey(e => e.Id)
                     .HasName("PK_Notification");
-                entity.HasMany(e => e.NotificationDetails).WithOne(e => e.Notification).HasConstraintName("FK_Notification_NotificationDetail");
+               
             });
             modelBuilder.Entity<NotificationDetail>(entity =>
             {
                 entity.ToTable("NotificationDetail");
                 entity.HasKey(e => e.Id).HasName("PK_NotificationDetail");
-                entity.HasOne(e => e.User).WithMany(e => e.NotificationDetails).HasConstraintName("FK_NotificationDetail_User");
-                entity.HasOne(e => e.Notification).WithMany(e => e.NotificationDetails).HasConstraintName("FK_NotificationDetail_Notification");
-
+                entity.HasOne(e => e.User)
+                    .WithMany(e => e.NotificationDetails)
+                    .HasForeignKey(e => e.UserId)
+                    .HasConstraintName("FK_NotificationDetail_User");
+                entity.HasOne(e => e.Notification)
+                    .WithMany(e => e.NotificationDetails)
+                    .HasForeignKey(e => e.NotificationId)   
+                    .HasConstraintName("FK_NotificationDetail_Notification");
             });
 
             #endregion
