@@ -173,7 +173,7 @@ namespace Services.Implements
             }
             orderEntity.OrderDetails?.Clear();
 
-            var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Price);
+            var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
             orderEntity.TotalPrice = totalPriceOfOrderDetail;
 
             var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!;
@@ -189,7 +189,7 @@ namespace Services.Implements
                 {
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.DefaultOrderCreatedActivityName,
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
                     Time = DateTime.Now,
                     Status = OrderActivityStatus.Active
                 }
@@ -211,39 +211,84 @@ namespace Services.Implements
 
             wallet.Balance -= totalPriceOfOrderDetail;
             await _repository.InsertAsync(orderEntity);
-            //await _unitOfWork.CommitAsync();
+            await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = DateTime.Now;
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateOrderCookingStatusAsync(Guid orderId)
-        {
-            var orderEntity = await GetByIdAsync(orderId);
-            orderEntity.Status = OrderStatus.Cooking;
-            await _repository.UpdateAsync(orderEntity);
-            await _unitOfWork.CommitAsync();
-        }
+        //public async Task UpdateOrderCookingStatusAsync(Guid orderId)
+        //{
+        //    var orderEntity = await GetByIdAsync(orderId);
+        //    orderEntity.Status = OrderStatus.Cooking;
+        //    await _repository.UpdateAsync(orderEntity);
+        //    await _unitOfWork.CommitAsync();
+        //}
 
         public async Task UpdateOrderDeliveryStatusAsync(Guid foodId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(foodId);
             orderEntity.Status = OrderStatus.Delivering;
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateOrderCancelStatusAsync(Guid orderId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = (int)OrderStatus.Cancelled;
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }

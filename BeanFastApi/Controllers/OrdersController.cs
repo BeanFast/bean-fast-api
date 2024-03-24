@@ -58,22 +58,20 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
         {
             var order = await _orderService.GetByIdAsync(id);
-            var userRole = GetUserRole();
+            var user = await GetUser();
 
-            if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Pending)
-            {
-                await _orderService.UpdateOrderCookingStatusAsync(id);
-            }
-            else if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
+            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderDeliveryStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.CUSTOMER.ToString()) && order.Status == OrderStatus.Pending
-                || userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
+            else if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
+            {
+                await _orderService.UpdateOrderCancelStatusAsync(id);
+            }else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderCancelStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.DELIVERER.ToString()) && order.Status == OrderStatus.Delivering)
+            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Delivering)
             {
                 await _orderService.UpdateOrderCompleteStatusAsync(id);
             }
