@@ -4,6 +4,7 @@ using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObjects.Migrations
 {
     [DbContext(typeof(BeanFastContext))]
-    partial class BeanFastContextModelSnapshot : ModelSnapshot
+    [Migration("20240324041453_addNotificationAndNotificationDetail")]
+    partial class addNotificationAndNotificationDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -491,19 +494,15 @@ namespace BusinessObjects.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id")
-                        .HasName("PK_Notification");
+                    b.HasKey("Id");
 
-                    b.ToTable("Notification", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.NotificationDetail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("NotificationId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ReadDate")
@@ -518,14 +517,11 @@ namespace BusinessObjects.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id")
-                        .HasName("PK_NotificationDetail");
-
-                    b.HasIndex("NotificationId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("NotificationDetail", (string)null);
+                    b.ToTable("NotificationDetails");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
@@ -974,9 +970,6 @@ namespace BusinessObjects.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("DeviceToken")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -1213,21 +1206,11 @@ namespace BusinessObjects.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.NotificationDetail", b =>
                 {
-                    b.HasOne("BusinessObjects.Models.Notification", "Notification")
-                        .WithMany("NotificationDetails")
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_NotificationDetail_Notification");
-
                     b.HasOne("BusinessObjects.Models.User", "User")
-                        .WithMany("NotificationDetails")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_NotificationDetail_User");
-
-                    b.Navigation("Notification");
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -1515,11 +1498,6 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Sessions");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.Notification", b =>
-                {
-                    b.Navigation("NotificationDetails");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
                 {
                     b.Navigation("OrderActivities");
@@ -1569,8 +1547,6 @@ namespace BusinessObjects.Migrations
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
                 {
                     b.Navigation("CreatedMenus");
-
-                    b.Navigation("NotificationDetails");
 
                     b.Navigation("Profiles");
 

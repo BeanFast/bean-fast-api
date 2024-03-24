@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
+    <Folder Include="Models\Notification\Response\" />
     <Folder Include="Models\Wallet\Request\" />
   </ItemGroup>
 
