@@ -30,11 +30,17 @@ namespace Services.Implements
         {
             List<string> deviceTokens = new();
             var notification = _mapper.Map<BusinessObjects.Models.Notification>(request);
+            notification.Id = Guid.NewGuid();
             foreach (var notificationDetail in notification.NotificationDetails)
             {
-                await _userService.GetByIdAsync(notificationDetail.UserId);
+                var user = await _userService.GetByIdAsync(notificationDetail.UserId);
                 notificationDetail.SendDate = DateTime.UtcNow;
                 notificationDetail.Status = BaseEntityStatus.Active;
+                notificationDetail.Id = Guid.NewGuid();
+                if(user.DeviceToken != null)
+                {
+                    deviceTokens.Add(user.DeviceToken);
+                }
                 //notificationDetail.
             }
             var messageData = new Dictionary<string, string>
@@ -49,10 +55,7 @@ namespace Services.Implements
                     Body = request.Body
                 },
                 Data = messageData,
-                Tokens = new List<string>
-                {
-                    request.DeviceToken
-                }
+                Tokens = deviceTokens
             };
             var app = FirebaseApp.DefaultInstance;
             if (FirebaseApp.DefaultInstance == null)
