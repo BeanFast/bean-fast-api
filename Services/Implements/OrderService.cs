@@ -51,18 +51,33 @@ namespace Services.Implements
             _transactionService = transactionService;
             _walletService = walletService;
         }
-
-        public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
+        private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
-
+            List<Expression<Func<Order, bool>>> filters = new();
+            if (request.Status != null)
+            {
+                filters.Add(o => o.Status == request.Status);
+            }
+            return filters;
+        }
+        public async Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user)
+        {
+            var filters = GetFiltersFromOrderRequest(request);
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
 
-            if (RoleName.ADMIN.ToString().Equals(userRole))
+            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
             {
-                return await _repository.GetListAsync<GetOrderResponse>(include: include);
+                //filters.Add()
+            }else if(RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
+            {
+                filters.Add(o => o.Profile!.UserId == user.Id);
+            }
+            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
+            {
+                filters.Add(o => o.SessionDetail!.DelivererId == user.Id);   
             }
 
-            return await _repository.GetListAsync<GetOrderResponse>(BaseEntityStatus.Active, include: include);
+            return await _repository.GetListAsync<GetOrderResponse>(filters: filters, include: include);
 
         }
 
@@ -142,7 +157,7 @@ namespace Services.Implements
             var orderActivityNumber = await _repository.CountAsync() + 1;
             var transactionNumber = await _repository.CountAsync() + 1;
             var orderNumber = await _repository.CountAsync() + 1;
-            
+
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = orderId;

@@ -14,10 +14,10 @@ namespace Services.Interfaces
 {
     public interface IOrderService : IBaseService
     {
-        Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole);
+        Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user);
         Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request);
         Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
-        Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId);
+        //Task<ICollection<GetOrderResponse>> GetOrdersByCustomerIdAsync(Guid userId);
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
         Task<Order> GetByIdAsync(Guid id);
         Task CreateOrderAsync(User user, CreateOrderRequest request);

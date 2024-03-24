@@ -133,6 +133,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ISmsOtpService, SmsOtpService>();
             services.AddScoped<IOrderActivityService, OrderActivityService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<INotificationService, NotificationService>();
             return services;
         }
         public static IServiceCollection AddRateLimiting(this IServiceCollection services)
@@ -172,7 +173,8 @@ namespace BeanFastApi.Extensions
                 typeof(CardTypeMapper),
                 typeof(GiftMapper),
                 typeof(WalletMapper),
-                typeof(ExchangeGiftMapper)
+                typeof(ExchangeGiftMapper),
+                typeof(NotificationMapper)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;
         }
