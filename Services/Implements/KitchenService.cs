@@ -62,6 +62,10 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
                 status: BaseEntityStatus.Active,
                 paginationRequest: paginationRequest, filters: filters);
         }
+        foreach (var item in page.Items)
+        {
+            item.SchoolCount = await CountSchoolByKitchenIdAsync(item.Id);
+        }
         return page;
     }
 

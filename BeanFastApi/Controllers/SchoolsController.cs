@@ -22,7 +22,8 @@ namespace BeanFastApi.Controllers
             [FromQuery] SchoolFilterRequest filterRequest, 
             [FromQuery] PaginationRequest paginationRequest)
         {
-            return SuccessResult(await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest));
+            var result = await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest);
+            return SuccessResult(result);
         }
         [HttpGet("{schooldId}/students/count")]
         public async Task<IActionResult> CountStudentAsync([FromRoute] Guid schooldId)
