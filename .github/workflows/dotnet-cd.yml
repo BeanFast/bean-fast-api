@@ -12,6 +12,8 @@ jobs:
         uses: fifsky/ssh-action@master
         with:
           command: |
+            cd bean-fast-api
+            git pull
             sudo systemctl restart api
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
