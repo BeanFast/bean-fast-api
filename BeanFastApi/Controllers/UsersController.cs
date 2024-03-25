@@ -16,7 +16,7 @@ namespace BeanFastApi.Controllers
         [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
         public async Task<IActionResult> UpdateCustomer([FromForm] UpdateCustomerRequest request)
         {
-            await _userService.UpdateCustomerAsync(request, await GetUser());
+            await _userService.UpdateCustomerAsync(request, await GetUserAsync());
             return SuccessResult<object>(new object());
         }
         [HttpPost]

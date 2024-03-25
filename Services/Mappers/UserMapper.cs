@@ -15,6 +15,7 @@ namespace Services.Mappers
         public UserMapper()
         {
             CreateMap<User, GetDelivererResponse>();
+            CreateMap<User, GetCurrentUserResponse>();
             CreateMap<RegisterRequest, User>();
             CreateMap<CreateUserRequest, User>();
         }

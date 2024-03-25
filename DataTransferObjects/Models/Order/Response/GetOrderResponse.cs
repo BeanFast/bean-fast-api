@@ -11,6 +11,7 @@ namespace DataTransferObjects.Models.Order.Response
 {
     public class GetOrderResponse
     {
+        public Guid Id { get; set; }
         public string? Code { get; set; }
         public double TotalPrice { get; set; }
         public DateTime PaymentDate { get; set; }

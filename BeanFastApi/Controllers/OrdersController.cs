@@ -32,7 +32,7 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> GetAllOrders([FromQuery]OrderFilterRequest request)
         {
             object orders;
-            var user = await GetUser();
+            var user = await GetUserAsync();
             orders = await _orderService.GetAllAsync(request, user);
             return SuccessResult(orders);
         }
@@ -40,7 +40,7 @@ namespace BeanFastApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetOrderActivitiesByOrderIdAsync([FromRoute] Guid orderId)
         {
-            var user = await GetUser();
+            var user = await GetUserAsync();
             var result = await _orderService.GetOrderActivitiesByOrderIdAsync(orderId, user);
             return SuccessResult(result);
         }
@@ -56,7 +56,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderRequest request)
         {
-            var user = await GetUser();
+            var user = await GetUserAsync();
             await _orderService.CreateOrderAsync(user, request);
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
@@ -72,7 +72,7 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
         {
             var order = await _orderService.GetByIdAsync(id);
-            var user = await GetUser();
+            var user = await GetUserAsync();
 
             if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {

@@ -17,5 +17,6 @@ namespace Services.Interfaces
         Task UpdateCustomerAsync(UpdateCustomerRequest request, User user);
         Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request);
         Task CreateUserAsync(CreateUserRequest request);
+        Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId);
     }
 }

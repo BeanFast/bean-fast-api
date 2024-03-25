@@ -187,5 +187,30 @@ namespace Services.Implements
             await _repository.UpdateAsync(user);
             await _unitOfWork.CommitAsync();
         }
+        public async Task<User> GetUserByIdIncludeWallet(Guid userId)
+        {
+            List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.Id == userId
+            };
+
+            var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters,
+                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets))
+                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            return user;
+        }
+        public async Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId)
+        {
+            var user = await GetUserByIdIncludeWallet(userId);
+            var mappedUser = _mapper.Map<GetCurrentUserResponse>(user);
+            //mappedUser.Balance = user.Wallets?.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))?.Balance;
+            if(user.Wallets != null && user.Wallets.Any())
+            {
+                mappedUser.Balance = user.Wallets.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!.Balance;
+            }
+            return mappedUser;
+
+        }
     }
 }
