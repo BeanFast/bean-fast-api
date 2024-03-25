@@ -41,7 +41,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> topUp([FromQuery] double amount)
         {
-           var user = await GetUser();
+           var user = await GetUserAsync();
             var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
             var vnPayEntity = new VnPayRequest
             {
