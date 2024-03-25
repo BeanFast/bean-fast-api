@@ -77,7 +77,7 @@ namespace Services.Implements
             var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId, request.Name);
             if (duplicatedLocation != null)
             {
-                throw new DataExistedException(MessageConstants.LocationMessageConstrant.LocationAlreadyExists());
+                throw new InvalidRequestException(MessageConstants.LocationMessageConstrant.LocationAlreadyExists());
             }
             var imagePath = await _cloudStorageService.UploadFileAsync(
                 locationId, _appSettings.Firebase.FolderNames.Location,
@@ -99,7 +99,7 @@ namespace Services.Implements
                 var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId, request.Name);
                 if (duplicatedLocation != null)
                 {
-                    throw new DataExistedException(MessageConstants.LocationMessageConstrant.LocationAlreadyExists());
+                    throw new InvalidRequestException(MessageConstants.LocationMessageConstrant.LocationAlreadyExists());
                 }
                 locationEntity.SchoolId = request.SchoolId;
                 locationEntity.Name = request.Name;

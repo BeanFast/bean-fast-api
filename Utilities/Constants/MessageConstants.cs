@@ -250,6 +250,7 @@ namespace Utilities.Constants
             public const string OrderTotalPriceRange = "Tổng giá đơn hàng phải ít nhất 1000 VNĐ";
             public const string OrderCreateDateInvalid = "Ngày tạo đơn hàng không hợp lệ";
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
+            public const string OrderIdRequired= "Order id là bắt buộc";
         }
 
         public class OrderActivityMessageConstrant
@@ -285,6 +286,10 @@ namespace Utilities.Constants
         {
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
             public const string NotEnoughMoney = "Quý khách không có đủ tiền để thực hiện giao dịch này!";
+        }
+        public class ExchangeGiftMessageConstrant
+        {
+            public const string ExchangeGiftIdRequired = "ExchangeGiftId là bắt buộc";
         }
     }
 }

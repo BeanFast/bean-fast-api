@@ -78,21 +78,21 @@ public class MenuService : BaseService<Menu>, IMenuService
             {
                 filters.Add(
                     m => m.Sessions!.Where(
-                            s => s.OrderEndTime < DateTime.Now
+                            s => s.OrderEndTime < TimeUtil.GetCurrentVietNamTime()
                         ).Any());
             }
             if (filterRequest.SessonIncomming)
             {
                 filters.Add(
                     m => m.Sessions!.Where(
-                            s => s.OrderStartTime > DateTime.Now
+                            s => s.OrderStartTime > TimeUtil.GetCurrentVietNamTime()
                         ).Any());
             }
             if (filterRequest.SessionOrderable)
             {
                 filters.Add(
                     m => m.Sessions!.Where(
-                            s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now
+                            s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
                         ).Any());
             }
         }
@@ -102,8 +102,8 @@ public class MenuService : BaseService<Menu>, IMenuService
             {
                 filters.Add(
                     m => m.Sessions!.Where(
-                            s => s.OrderStartTime <= DateTime.Now
-                                && s.OrderEndTime > DateTime.Now
+                            s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime()
+                                && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
                                 && s.Status == BaseEntityStatus.Active
                         ).Any());
             }

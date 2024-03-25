@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using Utilities.Settings;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
@@ -24,8 +25,8 @@ namespace Services.Implements
         public async Task<SmsOtp> SendOtpAsync(User user)
         {
             var smsOtp = new SmsOtp();
-            smsOtp.CreateAt = DateTime.Now;
-            smsOtp.ExpiredAt = DateTime.Now.AddMinutes(_appSettings.Twilio.OtpLifeTimeInMinutes);  
+            smsOtp.CreateAt = TimeUtil.GetCurrentVietNamTime();
+            smsOtp.ExpiredAt = TimeUtil.GetCurrentVietNamTime().AddMinutes(_appSettings.Twilio.OtpLifeTimeInMinutes);  
             smsOtp.Value = generateOtpValue();
             string convertedNumber = "+84" + user.Phone;
             //await _smsService.SendSmsAsync(convertedNumber, _appSettings.Twilio.BodyTemplate + smsOtp.Value);
@@ -41,7 +42,7 @@ namespace Services.Implements
                 otp => otp.Value == request.OtpValue,
                 otp => otp.UserId == user.Id,
             }, orderBy: o => o.OrderByDescending(otp => otp.CreateAt));
-            if (otp == null || otp.ExpiredAt < DateTime.Now) return false;
+            if (otp == null || otp.ExpiredAt < TimeUtil.GetCurrentVietNamTime()) return false;
             return true; 
         }
     }

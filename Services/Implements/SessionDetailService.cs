@@ -64,7 +64,7 @@ namespace Services.Implements
 
             if (delivere.Id != delivererId)
             {
-                throw new   UserNotMatchException();
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.NotAllowed);
             }
 
             List<Expression<Func<SessionDetail, bool>>> filters = new()

@@ -118,7 +118,7 @@ namespace Services.Implements
             var duplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
             if (duplicatedSchool != null)
             {
-                throw new DataExistedException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
+                throw new InvalidRequestException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
             }
             var imagePath = await _cloudStorageService.UploadFileAsync(
                 schoolId, _appSettings.Firebase.FolderNames.School,
@@ -146,7 +146,7 @@ namespace Services.Implements
                 var dupplicatedSchool = await GetSchoolByAreaIdAndAddress(request.AreaId, request.Address);
                 if (dupplicatedSchool != null)
                 {
-                    throw new DataExistedException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
+                    throw new InvalidRequestException(MessageConstants.SchoolMessageConstrant.SchoolAlreadyExists());
                 }
                 schoolEntity.AreaId = request.AreaId;
                 schoolEntity.Address = request.Address;
