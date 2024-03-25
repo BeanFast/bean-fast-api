@@ -50,7 +50,7 @@ namespace Services.Implements
             {
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
                 {
-                    throw new DataExistedException(MessageConstants.SessionMessageConstrant.DuplicateLocationInSession);
+                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.DuplicateLocationInSession);
                 }
                 else
                 {
@@ -75,32 +75,33 @@ namespace Services.Implements
             //    bool filter = false;
             //    if (request.Expired)
             //    {
-            //        filter = filter || s.OrderEndTime < DateTime.Now;
+            //        filter = filter || s.OrderEndTime < TimeUtil.GetCurrentVietNamTime();
             //    }
             //    if (request.Incomming)
             //    {
-            //        filter = filter || s.OrderStartTime > DateTime.Now;
+            //        filter = filter || s.OrderStartTime > TimeUtil.GetCurrentVietNamTime();
             //    }
             //    if (request.Orderable)
             //    {
-            //        filter = filter || (s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now);
+            //        filter = filter || (s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime());
             //    }
             //    return filter;
             //};
             //filters.Add(orFilter);
+            var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();  
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
                 if (request.Expired)
                 {
-                    filters.Add(s => s.OrderEndTime < DateTime.Now);
+                    filters.Add(s => s.OrderEndTime < currentVietNamTime);
                 }
                 if (request.Incomming)
                 {
-                    filters.Add(s => s.OrderStartTime > DateTime.Now);
+                    filters.Add(s => s.OrderStartTime > currentVietNamTime);
                 }
                 if (request.Orderable)
                 {
-                    filters.Add(s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now);
+                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
                 }
 
 
@@ -109,7 +110,7 @@ namespace Services.Implements
             {
                 if (request.Orderable)
                 {
-                    filters.Add(s => s.OrderStartTime <= DateTime.Now && s.OrderEndTime > DateTime.Now && s.Status == BaseEntityStatus.Active);
+                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime && s.Status == BaseEntityStatus.Active);
                 }
             }
             if (request.MenuId != Guid.Empty)

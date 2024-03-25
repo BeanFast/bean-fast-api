@@ -1,4 +1,5 @@
 using BusinessObjects.Models;
+using DataTransferObjects.Models.OrderActivity.Request;
 using DataTransferObjects.Models.OrderActivity.Response;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,9 @@ namespace Services.Interfaces
         Task<OrderActivity> GetByIdAsync(Guid id);
 
         Task<GetOrderActivityResponse> GetOrderActivityResponseByIdAsync(Guid id);
-        Task CreateOrderActivityAsync(OrderActivity orderActivity);
-        Task CreateOrderActivityListAsync(List<OrderActivity> orderActivities);
+        Task CreateOrderActivityAsync(CreateOrderActivityRequest orderActivity);
+        //Task CreateOrderActivityListAsync(List<OrderActivity> orderActivities);
+        Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
+        Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
     }
 }

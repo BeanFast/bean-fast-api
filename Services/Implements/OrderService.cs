@@ -10,18 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities.Enums;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Exceptions;
 using Utilities.Constants;
 using Utilities.Utils;
+using DataTransferObjects.Models.OrderActivity.Response;
+using DataTransferObjects.Models.OrderActivity.Request;
 
 namespace Services.Implements
 {
@@ -122,7 +119,7 @@ namespace Services.Implements
 
             if (profile.UserId != userId)
             {
-                throw new ProfileNotMatchException();
+                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
             }
 
             List<Expression<Func<Order, bool>>> filters = new()
@@ -161,17 +158,17 @@ namespace Services.Implements
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = orderId;
-            orderEntity.PaymentDate = DateTime.Now;
+            orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.Status = OrderStatus.Cooking;
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
             if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
             {
-                throw new ClosedSessionException();
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
             }
             if (sessionDetail.Location!.SchoolId != profile.SchoolId)
             {
-                throw new InvalidSchoolException();
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
             }
 
             var orderDetailEntityList = new List<OrderDetail>();
@@ -205,7 +202,7 @@ namespace Services.Implements
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                     Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
-                    Time = DateTime.Now,
+                    Time = TimeUtil.GetCurrentVietNamTime(),
                     Status = OrderActivityStatus.Active
                 }
             };
@@ -218,7 +215,7 @@ namespace Services.Implements
                     ExchangeGiftId = null,
                     WalletId = wallet.Id,
                     Value = orderEntity.TotalPrice,
-                    Time = DateTime.Now,
+                    Time = TimeUtil.GetCurrentVietNamTime(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
                     Status = TransactionStatus.Active
                 }
@@ -235,7 +232,7 @@ namespace Services.Implements
             var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Completed;
-            orderEntity.DeliveryDate = DateTime.Now;
+            orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
 
             orderEntity.OrderActivities = new List<OrderActivity>
@@ -246,7 +243,7 @@ namespace Services.Implements
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                     Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-                    Time = DateTime.Now,
+                    Time = TimeUtil.GetCurrentVietNamTime(),
                     Status = OrderActivityStatus.Active
                 }
             };
@@ -254,15 +251,6 @@ namespace Services.Implements
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
-
-        //public async Task UpdateOrderCookingStatusAsync(Guid orderId)
-        //{
-        //    var orderEntity = await GetByIdAsync(orderId);
-        //    orderEntity.Status = OrderStatus.Cooking;
-        //    await _repository.UpdateAsync(orderEntity);
-        //    await _unitOfWork.CommitAsync();
-        //}
-
         public async Task UpdateOrderDeliveryStatusAsync(Guid foodId)
         {
             var orderActivityNumber = await _repository.CountAsync() + 1;
@@ -277,7 +265,7 @@ namespace Services.Implements
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                     Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
-                    Time = DateTime.Now,
+                    Time = TimeUtil.GetCurrentVietNamTime(),
                     Status = OrderActivityStatus.Active
                 }
             };
@@ -299,7 +287,7 @@ namespace Services.Implements
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                     Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-                    Time = DateTime.Now,
+                    Time = TimeUtil.GetCurrentVietNamTime(),
                     Status = OrderActivityStatus.Active
                 }
             };
@@ -327,6 +315,22 @@ namespace Services.Implements
         {
             double points = totalOrderPrice / 1000;
             return (int)Math.Round(points, MidpointRounding.AwayFromZero);
+        }
+
+        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user)
+        {
+            var orderActivities = await _orderActivityService.GetOrderActivitiesByOrderIdAsync(orderId, user);
+            return orderActivities;
+        }
+
+        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
+        {
+            request.ExchangeGiftId = null;
+            if(request.OrderId == null || request.OrderId == Guid.Empty)
+            {
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderIdRequired);
+            }
+            await _orderActivityService.CreateOrderActivityAsync(request);
         }
     }
 }
