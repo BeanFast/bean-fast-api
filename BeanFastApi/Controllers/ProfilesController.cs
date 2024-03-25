@@ -32,6 +32,14 @@ namespace BeanFastApi.Controllers
             var profiles = await _profileService.GetProfilesByCustomerIdAsync(uid);
             return SuccessResult(profiles);
         }
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetProfileByIdAsync([FromRoute] Guid id)
+        {
+            var user = await GetUserAsync();    
+            var profile = await _profileService.GetProfileResponseByIdAsync(id, user);
+            return SuccessResult(profile);
+        }
         [HttpPut("{id}")]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> UpdateProfileAsync([FromRoute] Guid id, [FromForm] UpdateProfileRequest request)

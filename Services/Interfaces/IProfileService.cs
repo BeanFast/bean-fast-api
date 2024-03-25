@@ -16,7 +16,7 @@ namespace Services.Interfaces
         Task UpdateProfileAsync(Guid id, UpdateProfileRequest request);
         Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
         Task<Profile> GetByIdAsync(Guid id);
-        Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id);
+        Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user);
         Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId);
     }
 }

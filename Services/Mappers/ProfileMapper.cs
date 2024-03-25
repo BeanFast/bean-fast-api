@@ -16,8 +16,11 @@ namespace Services.Mappers
             CreateMap<CreateProfileRequest, Profile>();
             CreateMap<CreateProfileRequest.BMIOfProfile, ProfileBodyMassIndex>();
             CreateMap<Profile, GetProfilesByCurrentCustomerResponse>();
-            CreateMap<Profile, GetProfileResponse>();
-            CreateMap<School, GetProfileResponse.SchoolOfProfile>();
+
+            CreateMap<Profile, GetProfileResponse>().ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.Wallets!.First())) ;
+            CreateMap<LoyaltyCard, GetProfileResponse.LoyaltyCardOfGetProfileResponse>();
+            CreateMap<Wallet, GetProfileResponse.WalletOfGetProfileResponse>() ;
+            CreateMap<School, GetProfileResponse.SchoolOfGetProfileResponse>();
             CreateMap<Kitchen, GetProfileResponse.KitchenOfSchool>();
             CreateMap<Menu, GetProfileResponse.MenuOfKitchen>();
             CreateMap<MenuDetail, GetProfileResponse.MenuDetailOfMenu>();
