@@ -27,7 +27,7 @@ namespace BeanFastApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetOrderActivitiesByExchangeGiftIdAsync([FromRoute] Guid exchangeGiftId)
         {
-            var user = await GetUser();
+            var user = await GetUserAsync();
             var result =  await _exchangeGiftService.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
             return SuccessResult(result);
         }

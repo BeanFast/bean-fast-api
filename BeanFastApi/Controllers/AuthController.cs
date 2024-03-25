@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Auth.Request;
+﻿using BeanFastApi.Validators;
+using DataTransferObjects.Models.Auth.Request;
 using DataTransferObjects.Models.Auth.Response;
 using DataTransferObjects.Models.SmsOtp;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,13 @@ public class AuthController : BaseController
     {
         await _userService.SendOtpAsync(phone);
         return SuccessResult("OK");
+    }
+    [HttpGet("current")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUserAsync()
+    {
+        var userId = GetUserId();
+        return SuccessResult(await _userService.GetCurrentUserAsync(userId));
     }
     [HttpPost("otp/verify")]
     //[EnableRateLimiting("otpRateLimit")]
