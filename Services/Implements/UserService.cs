@@ -76,10 +76,10 @@ namespace Services.Implements
 
             Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
             User user = await _repository.FirstOrDefaultAsync(filters: whereFilters, include: include) ??
-                        throw new InvalidCredentialsException();
+                        throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
             if (!PasswordUtil.VerifyPassword(loginRequest.Password, user.Password))
             {
-                throw new InvalidCredentialsException();
+                throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
             }
 
             if (user.Status == BaseEntityStatus.Deleted)
@@ -105,7 +105,7 @@ namespace Services.Implements
                 filters: filters
             );
             if (existedData is not null)
-                throw new DataExistedException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
             customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
             customer.Id = Guid.NewGuid();
             customer.Status = BaseEntityStatus.Active;
@@ -152,7 +152,7 @@ namespace Services.Implements
             }
             else
             {
-                throw new InvalidOtpException();
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.InvalidSmsOtp);
             }
             return verifyResult;
         }
@@ -178,7 +178,7 @@ namespace Services.Implements
             {
                 u => u.Email == request.Email || u.Phone == request.Phone,
             });
-            if (checkDupplicatedUserData is not null) throw new DataExistedException(MessageConstants.AuthorizationMessageConstrant.DupplicatedEmail);
+            if (checkDupplicatedUserData is not null) throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedEmail);
             user.AvatarPath = await _cloudStorageService.UploadFileAsync(userId, _appSettings.Firebase.FolderNames.User, request.Image);
             user.Status = UserStatus.Active;
             var userNumber = await _repository.CountAsync() + 1;
@@ -186,6 +186,31 @@ namespace Services.Implements
             user.Password = PasswordUtil.HashPassword(request.Password);
             await _repository.UpdateAsync(user);
             await _unitOfWork.CommitAsync();
+        }
+        public async Task<User> GetUserByIdIncludeWallet(Guid userId)
+        {
+            List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.Id == userId
+            };
+
+            var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters,
+                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets))
+                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            return user;
+        }
+        public async Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId)
+        {
+            var user = await GetUserByIdIncludeWallet(userId);
+            var mappedUser = _mapper.Map<GetCurrentUserResponse>(user);
+            //mappedUser.Balance = user.Wallets?.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))?.Balance;
+            if(user.Wallets != null && user.Wallets.Any())
+            {
+                mappedUser.Balance = user.Wallets.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!.Balance;
+            }
+            return mappedUser;
+
         }
     }
 }

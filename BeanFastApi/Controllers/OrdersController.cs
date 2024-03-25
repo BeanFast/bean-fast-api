@@ -4,6 +4,7 @@ using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Core.Response;
 using DataTransferObjects.Models.Order.Request;
 using DataTransferObjects.Models.Order.Response;
+using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -31,11 +32,18 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> GetAllOrders([FromQuery]OrderFilterRequest request)
         {
             object orders;
-            var user = await GetUser();
+            var user = await GetUserAsync();
             orders = await _orderService.GetAllAsync(request, user);
             return SuccessResult(orders);
         }
-
+        [HttpGet("{orderId}/orderActivities")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderActivitiesByOrderIdAsync([FromRoute] Guid orderId)
+        {
+            var user = await GetUserAsync();
+            var result = await _orderService.GetOrderActivitiesByOrderIdAsync(orderId, user);
+            return SuccessResult(result);
+        }
         //[HttpGet("status/{status}")]
         //[Authorize]
         //public async Task<IActionResult> GetOrdersByStatus(int status)
@@ -46,19 +54,25 @@ namespace BeanFastApi.Controllers
 
         [HttpPost]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+        public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderRequest request)
         {
-            var user = await GetUser();
+            var user = await GetUserAsync();
             await _orderService.CreateOrderAsync(user, request);
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
-
+        [HttpPost("{orderId}/orderActivities")]
+        public async Task<IActionResult> CreateOrderActivityAsync([FromRoute] Guid orderId,[FromForm] CreateOrderActivityRequest request)
+        {
+            request.OrderId = orderId;
+            await _orderService.CreateOrderActivityAsync(request);
+            return SuccessResult<object>(statusCode: HttpStatusCode.Created);
+        }
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
         {
             var order = await _orderService.GetByIdAsync(id);
-            var user = await GetUser();
+            var user = await GetUserAsync();
 
             if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
@@ -92,9 +106,9 @@ namespace BeanFastApi.Controllers
         //    return SuccessResult(orders);
         //}
 
-        [HttpPut("feedbacks/{orderId}")]
+        [HttpPut("{orderId}/feedbacks")]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> FeedbackOrder([FromRoute] Guid id, [FromBody] FeedbackOrderRequest request)
+        public async Task<IActionResult> FeedbackOrderAsync([FromRoute] Guid id, [FromBody] FeedbackOrderRequest request)
         {
             await _orderService.FeedbackOrderAsync(id, request);
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);

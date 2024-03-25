@@ -37,5 +37,9 @@ namespace Utilities.Utils
             // Calculate total seconds
             return hours * 3600 + minutes * 60 + seconds;
         }
+        public static DateTime GetCurrentVietNamTime()
+        {
+            return DateTime.UtcNow.AddHours(7);
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace BeanFastApi.Controllers
 
             return new ObjectResult(response) { StatusCode = (int)statusCode };
         }
-        protected async Task<User> GetUser()
+        protected async Task<User> GetUserAsync()
         {
             string? userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return await _userService.GetByIdAsync(Guid.Parse(userIdStr!));

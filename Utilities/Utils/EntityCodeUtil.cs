@@ -19,7 +19,7 @@ namespace Utilities.Utils
                 MinLength = 6,
             });
             var id = sqids.Encode(entityNumber).ToUpper();
-            return $"{entityPrefix}{DateTime.Now.ToString("yyyyMMdd").Substring(2)}{id}";
+            return $"{entityPrefix}{TimeUtil.GetCurrentVietNamTime().ToString("yyyyMMdd").Substring(2)}{id}";
         }
     }
 }

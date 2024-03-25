@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Utils;
 
 namespace Utilities.ValidationAttributes
 {
@@ -28,7 +29,7 @@ namespace Utilities.ValidationAttributes
             else
             {
                 _comparisonProperty = null;
-                _comparisionTime = DateTime.Now;
+                _comparisionTime = TimeUtil.GetCurrentVietNamTime();
             }
             _additionalHours = additionalHours;
         }

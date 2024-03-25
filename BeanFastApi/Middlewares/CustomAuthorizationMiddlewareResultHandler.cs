@@ -12,10 +12,6 @@ namespace BeanFastApi.Middlewares
         {
             if (!authorizeResult.Succeeded)
             {
-                Console.WriteLine(context.Request.Path);
-                policy.Requirements.ToList().ForEach(r => Console.WriteLine(r));
-                var response = context.Response;
-                object returnedData = new { };
                 
                 if (authorizeResult.Challenged)
                 {

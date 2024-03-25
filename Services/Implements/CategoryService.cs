@@ -66,7 +66,7 @@ namespace Services.Implements
                 });
             if (checkExistList.Count > 0)
             {
-                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
+                throw new InvalidRequestException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
             }
             var imagePath = await _cloudStorageService.UploadFileAsync(categoryEntity.Id, _appSettings.Firebase.FolderNames.Category, category.Image);
             categoryEntity.ImagePath = imagePath;
@@ -87,7 +87,7 @@ namespace Services.Implements
                 });
             if (checkExistList.Count > 0)
             {
-                throw new DataExistedException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
+                throw new InvalidRequestException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
             }
             await _cloudStorageService.DeleteFileAsync(id, _appSettings.Firebase.FolderNames.Category);
             var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Category, category.Image);

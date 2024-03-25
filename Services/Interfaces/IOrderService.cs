@@ -2,6 +2,8 @@
 using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Order.Request;
 using DataTransferObjects.Models.Order.Response;
+using DataTransferObjects.Models.OrderActivity.Request;
+using DataTransferObjects.Models.OrderActivity.Response;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using System;
 using System.Collections.Generic;
@@ -27,5 +29,7 @@ namespace Services.Interfaces
         Task UpdateOrderCancelStatusAsync(Guid foodId);
         Task FeedbackOrderAsync(Guid foodId, FeedbackOrderRequest request);
         Task DeleteAsync(Guid guid);
+        Task CreateOrderActivityAsync(CreateOrderActivityRequest request);
+        Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
     }
 }
