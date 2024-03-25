@@ -51,18 +51,33 @@ namespace Services.Implements
             _transactionService = transactionService;
             _walletService = walletService;
         }
-
-        public async Task<ICollection<GetOrderResponse>> GetAllAsync(string? userRole)
+        private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
-
+            List<Expression<Func<Order, bool>>> filters = new();
+            if (request.Status != null)
+            {
+                filters.Add(o => o.Status == request.Status);
+            }
+            return filters;
+        }
+        public async Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user)
+        {
+            var filters = GetFiltersFromOrderRequest(request);
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
 
-            if (RoleName.ADMIN.ToString().Equals(userRole))
+            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
             {
-                return await _repository.GetListAsync<GetOrderResponse>(include: include);
+                //filters.Add()
+            }else if(RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
+            {
+                filters.Add(o => o.Profile!.UserId == user.Id);
+            }
+            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
+            {
+                filters.Add(o => o.SessionDetail!.DelivererId == user.Id);   
             }
 
-            return await _repository.GetListAsync<GetOrderResponse>(BaseEntityStatus.Active, include: include);
+            return await _repository.GetListAsync<GetOrderResponse>(filters: filters, include: include);
 
         }
 
@@ -134,16 +149,22 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
-        public async Task CreateOrderAsync(Guid customerId, Guid menuDetailId, CreateOrderRequest request)
+        public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
+            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
+            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
+
+            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var transactionNumber = await _repository.CountAsync() + 1;
+            var orderNumber = await _repository.CountAsync() + 1;
+
             var orderId = Guid.NewGuid();
             var orderEntity = _mapper.Map<Order>(request);
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = DateTime.Now;
             orderEntity.Status = OrderStatus.Cooking;
-            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
-            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
-            var menuDetail = await _menuDetailService.GetByIdAsync(menuDetailId);
+            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
+
             if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
             {
                 throw new ClosedSessionException();
@@ -153,42 +174,37 @@ namespace Services.Implements
                 throw new InvalidSchoolException();
             }
 
-            var orderActivityNumber = await _repository.CountAsync() + 1;
-            var transactionNumber = await _repository.CountAsync() + 1;
-            var orderNumber = await _repository.CountAsync() + 1;
-            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
-
             var orderDetailEntityList = new List<OrderDetail>();
-            //var orderActivityEntityList = new List<OrderActivity>();
-            //var transactionEntityList = new List<Transaction>();
 
-            if (request.OrderDetails is not null && request.OrderDetails.Count > 0)
+            foreach (var orderDetailModel in request.OrderDetails!)
             {
-                foreach (var orderDetail in request.OrderDetails)
-                {
-                    var orderDetailEntity = new OrderDetail
-                    {
-                        OrderId = orderId,
-                        FoodId = menuDetail.FoodId,
-                        Price = menuDetail.Price,
-                        Status = OrderDetailStatus.Active,
-                    };
-                    orderDetailEntityList.Add(orderDetailEntity);
-                }
+                var orderDetailEntity = _mapper.Map<OrderDetail>(orderDetailModel);
+                var menuDetail = await _menuDetailService.GetByIdAsync(orderDetailModel.MenuDetailId);
+                orderDetailEntity.OrderId = orderId;
+                orderDetailEntity.FoodId = menuDetail.FoodId;
+                orderDetailEntity.Price = menuDetail.Price;
+                orderDetailEntity.Status = OrderDetailStatus.Active;
+                orderDetailEntityList.Add(orderDetailEntity);
             }
             orderEntity.OrderDetails?.Clear();
 
-            orderEntity.TotalPrice = orderDetailEntityList.Sum(od => od.Price);
+            var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
+            orderEntity.TotalPrice = totalPriceOfOrderDetail;
+
+            var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!;
+            if (wallet.Balance - totalPriceOfOrderDetail < 0)
+            {
+                throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
+            }
 
             orderEntity.OrderActivities = new List<OrderActivity>
             {
 
             new OrderActivity
                 {
-                    OrderId = orderId,
-                    ExchangeGiftId = null,
+                    Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.DefaultOrderCreatedActivityName,
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
                     Time = DateTime.Now,
                     Status = OrderActivityStatus.Active
                 }
@@ -200,50 +216,94 @@ namespace Services.Implements
                 {
                     OrderId = orderId,
                     ExchangeGiftId = null,
-                    WalletId = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!.Id,
+                    WalletId = wallet.Id,
                     Value = orderEntity.TotalPrice,
                     Time = DateTime.Now,
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
                     Status = TransactionStatus.Active
                 }
             };
+
+            wallet.Balance -= totalPriceOfOrderDetail;
             await _repository.InsertAsync(orderEntity);
-            //await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-            //await _orderActivityService.CreateOrderActivityListAsync(orderActivityEntityList);
-            //await _transactionService.CreateTransactionListAsync(transactionEntityList);
-            //await _unitOfWork.CommitAsync();
+            await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = DateTime.Now;
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateOrderCookingStatusAsync(Guid orderId)
-        {
-            var orderEntity = await GetByIdAsync(orderId);
-            orderEntity.Status = OrderStatus.Cooking;
-            await _repository.UpdateAsync(orderEntity);
-            await _unitOfWork.CommitAsync();
-        }
+        //public async Task UpdateOrderCookingStatusAsync(Guid orderId)
+        //{
+        //    var orderEntity = await GetByIdAsync(orderId);
+        //    orderEntity.Status = OrderStatus.Cooking;
+        //    await _repository.UpdateAsync(orderEntity);
+        //    await _unitOfWork.CommitAsync();
+        //}
 
         public async Task UpdateOrderDeliveryStatusAsync(Guid foodId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(foodId);
             orderEntity.Status = OrderStatus.Delivering;
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateOrderCancelStatusAsync(Guid orderId)
         {
+            var orderActivityNumber = await _repository.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = (int)OrderStatus.Cancelled;
+
+            orderEntity.OrderActivities = new List<OrderActivity>
+            {
+
+            new OrderActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                    Time = DateTime.Now,
+                    Status = OrderActivityStatus.Active
+                }
+            };
+
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }

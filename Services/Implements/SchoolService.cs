@@ -69,10 +69,15 @@ namespace Services.Implements
         public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            return await _repository.GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
+            var result =  await _repository.GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
                 filters: filters,
                 include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
             );
+            foreach (var item in result)
+            {
+                item.StudentCount = await CountStudentAsync(item.Id);
+            }
+            return result;
         }
 
         public async Task<School?> GetSchoolByAreaIdAndAddress(Guid areaId, string address)
@@ -172,7 +177,7 @@ namespace Services.Implements
         public async Task<int> CountStudentAsync(Guid schoolId)
         {
             var school = await GetByIdIncludeProfile(schoolId);
-            return school.Profiles.Count();
+            return school.Profiles!.Count();
         }
     }
 }

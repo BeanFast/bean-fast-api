@@ -26,29 +26,30 @@ namespace BeanFastApi.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        [Authorize]
+        [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
         [ProducesResponseType(typeof(SuccessApiResponse<IPaginable<GetOrderResponse>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders([FromQuery]OrderFilterRequest request)
         {
             object orders;
-            var userRole = GetUserRole();
-            orders = await _orderService.GetAllAsync(userRole);
+            var user = await GetUser();
+            orders = await _orderService.GetAllAsync(request, user);
             return SuccessResult(orders);
         }
 
-        [HttpGet("status/{status}")]
-        [Authorize]
-        public async Task<IActionResult> GetOrdersByStatus(int status)
-        {
-            var orders = await _orderService.GetOrdersByStatusAsync(status);
-            return SuccessResult(orders);
-        }
+        //[HttpGet("status/{status}")]
+        //[Authorize]
+        //public async Task<IActionResult> GetOrdersByStatus(int status)
+        //{
+        //    var orders = await _orderService.GetOrdersByStatusAsync(status);
+        //    return SuccessResult(orders);
+        //}
 
         [HttpPost]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreateOrder(Guid customerId, Guid menuDetailId, [FromBody] CreateOrderRequest request)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
-            await _orderService.CreateOrderAsync(customerId, menuDetailId, request);
+            var user = await GetUser();
+            await _orderService.CreateOrderAsync(user, request);
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
 
@@ -57,22 +58,20 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
         {
             var order = await _orderService.GetByIdAsync(id);
-            var userRole = GetUserRole();
+            var user = await GetUser();
 
-            if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Pending)
-            {
-                await _orderService.UpdateOrderCookingStatusAsync(id);
-            }
-            else if (userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
+            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderDeliveryStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.CUSTOMER.ToString()) && order.Status == OrderStatus.Pending
-                || userRole!.Equals(RoleName.MANAGER.ToString()) && order.Status == OrderStatus.Cooking)
+            else if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
+            {
+                await _orderService.UpdateOrderCancelStatusAsync(id);
+            }else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderCancelStatusAsync(id);
             }
-            else if (userRole!.Equals(RoleName.DELIVERER.ToString()) && order.Status == OrderStatus.Delivering)
+            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Delivering)
             {
                 await _orderService.UpdateOrderCompleteStatusAsync(id);
             }
@@ -84,14 +83,14 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
         }
 
-        [HttpGet("{profileId}")]
-        [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> GetOrdersByProfileId([FromRoute] Guid profileId)
-        {
-            var userId = GetUserId();
-            var orders = await _orderService.GetOrdersByProfileIdAsync(profileId, userId);
-            return SuccessResult(orders);
-        }
+        //[HttpGet("{customerId}")]
+        //[Authorize(RoleName.CUSTOMER)]
+        //public async Task<IActionResult> GetOrdersByProfileId([FromRoute] Guid customerId)
+        //{
+        //    var user  = await GetUser();
+        //    var orders = await _orderService.GetOrdersByCustomerIdAsync(user.Id);
+        //    return SuccessResult(orders);
+        //}
 
         [HttpPut("feedbacks/{orderId}")]
         [Authorize(RoleName.CUSTOMER)]

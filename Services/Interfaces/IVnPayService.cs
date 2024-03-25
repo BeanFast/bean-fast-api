@@ -12,7 +12,10 @@ namespace Services.Interfaces
 {
     public interface IVnPayService
     {
-        Task<string> CreatePaymentUrl(HttpContext context, VnPayRequest request);
-        Task<GetVnPayResponse> PaymentExecute(IQueryCollection collections);
+        //Task<bool> ProcessVnPayPayment(Guid customerId, VnPayRequest request);
+        //Task<bool> ConfirmVnPayPayment(GetVnPayResponse response);
+
+        string CreatePaymentUrl(HttpContext context, VnPayRequest model);
+        GetVnPayResponse PaymentExecute(IQueryCollection collections);
     }
 }

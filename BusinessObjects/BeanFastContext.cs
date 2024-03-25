@@ -38,6 +38,8 @@ namespace BusinessObjects
         public virtual DbSet<LoyaltyCard> LoyaltyCards { get; set; }
         public virtual DbSet<CardType> CardTypes { get; set; }
         public virtual DbSet<Area> Areas { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<NotificationDetail> NotificationDetails { get; set; }
 
         //public string GetConnectionString()
         //{
@@ -53,7 +55,7 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=104.43.111.0;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=20.11.68.170;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
                 //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfast;User ID=sa;Password=12345;TrustServerCertificate=True;");
 
                 //optionsBuilder.UseSqlServer(GetConnectionString());
@@ -254,12 +256,12 @@ namespace BusinessObjects
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.SessionId)
                     .HasConstraintName("FK_SessionDetail_Session")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Deliverer)
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.DelivererId)
                     .HasConstraintName("FK_SessionDetail_User")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
             modelBuilder.Entity<School>(entity =>
             {
@@ -466,6 +468,26 @@ namespace BusinessObjects
                     .HasMaxLength(100);
                 entity.Property(e => e.Ward)
                     .HasMaxLength(100);
+            });
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notification");
+                entity.HasKey(e => e.Id)
+                    .HasName("PK_Notification");
+               
+            });
+            modelBuilder.Entity<NotificationDetail>(entity =>
+            {
+                entity.ToTable("NotificationDetail");
+                entity.HasKey(e => e.Id).HasName("PK_NotificationDetail");
+                entity.HasOne(e => e.User)
+                    .WithMany(e => e.NotificationDetails)
+                    .HasForeignKey(e => e.UserId)
+                    .HasConstraintName("FK_NotificationDetail_User");
+                entity.HasOne(e => e.Notification)
+                    .WithMany(e => e.NotificationDetails)
+                    .HasForeignKey(e => e.NotificationId)   
+                    .HasConstraintName("FK_NotificationDetail_Notification");
             });
 
             #endregion

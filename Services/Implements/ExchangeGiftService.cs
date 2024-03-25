@@ -48,6 +48,7 @@ namespace Services.Implements
                 throw new InvalidSchoolException();
             }
             var exchangeGift = _mapper.Map<ExchangeGift>(request);
+            exchangeGift.Id = Guid.NewGuid();
             exchangeGift.Points = gift.Points;
             var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Points.ToString())!;
             if (wallet.Balance - gift.Points < 0)
@@ -60,17 +61,19 @@ namespace Services.Implements
             {
                 new Transaction
                 {
+                    Id = Guid.NewGuid(),
                     Value = -gift.Points,
                     Time = DateTime.Now,
                     WalletId = wallet.Id,
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.ExchangeGiftTransactionPrefix, await _transactionService.CountAsync() + 1),
-                    
+
                 }
             };
             exchangeGift.Activities = new List<OrderActivity>
             {
                 new OrderActivity
                 {
+                    Id = Guid.NewGuid(),
                     Name = MessageConstants.OrderActivityMessageConstrant.DefaultExchangeGiftCreatedActivityName,
                     Time = DateTime.Now,
                     ImagePath = null,
@@ -78,6 +81,9 @@ namespace Services.Implements
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, await _transactionService.CountAsync() + 1)
                 }
             };
+
+            wallet.Balance -= gift.Points;
+
             await _repository.InsertAsync(exchangeGift);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());

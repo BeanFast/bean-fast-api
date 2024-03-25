@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObjects.Migrations
 {
     [DbContext(typeof(BeanFastContext))]
-    [Migration("20240321091454_RemoveOtpValueInUser")]
-    partial class RemoveOtpValueInUser
+    [Migration("20240324095640_CreateDatabase")]
+    partial class CreateDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -474,6 +474,63 @@ namespace BusinessObjects.Migrations
                     b.ToTable("MenuDetail", (string)null);
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Notification");
+
+                    b.ToTable("Notification", (string)null);
+                });
+
+            modelBuilder.Entity("BusinessObjects.Models.NotificationDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ReadDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("SendDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id")
+                        .HasName("PK_NotificationDetail");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("NotificationDetail", (string)null);
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -920,6 +977,9 @@ namespace BusinessObjects.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("DeviceToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -1154,6 +1214,27 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.NotificationDetail", b =>
+                {
+                    b.HasOne("BusinessObjects.Models.Notification", "Notification")
+                        .WithMany("NotificationDetails")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_NotificationDetail_Notification");
+
+                    b.HasOne("BusinessObjects.Models.User", "User")
+                        .WithMany("NotificationDetails")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_NotificationDetail_User");
+
+                    b.Navigation("Notification");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Profile", "Profile")
@@ -1284,7 +1365,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.User", "Deliverer")
                         .WithMany("SessionDetails")
                         .HasForeignKey("DelivererId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_SessionDetail_User");
 
                     b.HasOne("BusinessObjects.Models.Location", "Location")
@@ -1297,7 +1378,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.Session", "Session")
                         .WithMany("SessionDetails")
                         .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_SessionDetail_Session");
 
@@ -1437,6 +1518,11 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Sessions");
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.Notification", b =>
+                {
+                    b.Navigation("NotificationDetails");
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.Order", b =>
                 {
                     b.Navigation("OrderActivities");
@@ -1486,6 +1572,8 @@ namespace BusinessObjects.Migrations
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
                 {
                     b.Navigation("CreatedMenus");
+
+                    b.Navigation("NotificationDetails");
 
                     b.Navigation("Profiles");
 

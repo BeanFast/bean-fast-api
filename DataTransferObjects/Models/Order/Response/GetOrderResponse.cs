@@ -1,4 +1,5 @@
 ﻿using DataTransferObjects.Models.Order.Request;
+using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.Profiles.Response;
 using System;
 using System.Collections.Generic;
@@ -19,5 +20,15 @@ namespace DataTransferObjects.Models.Order.Response
         public string? Feedback { get; set; }
 
         public GetProfileResponse? Profile { get; set; }
+        public IList<GetOrderActivityResponse> OrderActivities { get; set; }
+        public IList<OrderDetailOfGetOrderResponse> OrderDetails { get; set; }
+        public class OrderDetailOfGetOrderResponse
+        {
+            public Guid OrderId { get; set; }
+            public Guid FoodId { get; set; }
+            public int Quantity { get; set; }
+            public double Price { get; set; }
+            public string? Note { get; set; }
+        }
     }
 }

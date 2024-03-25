@@ -8,6 +8,8 @@ using static System.Net.Mime.MediaTypeNames;
 using Repositories.Interfaces;
 using BusinessObjects.Models;
 using BusinessObjects;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -48,7 +50,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "bean-fast-firebase-adminsdk.json");
+//Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALSJSON", GoogleCredential.FromFile("bean-fast-firebase-adminsdk.json"));
+//credential = GoogleCredential.FromFile(credentialPath);
 app.UseMiddleware<ExceptionHandlingMiddleWare>();
 //using (var scope = app.Services.CreateScope())
 //{

@@ -12,6 +12,14 @@ using Services.Interfaces;
 using DataTransferObjects.Models.VnPay.Request;
 using DataTransferObjects.Models.VnPay.Response;
 using Microsoft.Extensions.Configuration;
+using AutoMapper;
+using Azure.Core;
+using Newtonsoft.Json;
+using Repositories.Interfaces;
+using Utilities.Enums;
+using Utilities.Settings;
+using Microsoft.Extensions.Options;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
@@ -24,6 +32,72 @@ namespace Services.Implements
             _config = config;
         }
 
+        public string CreatePaymentUrl(HttpContext context, VnPayRequest model)
+        {
+            var tick = DateTime.Now.Ticks.ToString();
+
+            var vnpay = new VnPayLibrary();
+            vnpay.AddRequestData("vnp_Version", _config["VnPay:Version"]!);
+            vnpay.AddRequestData("vnp_Command", _config["VnPay:Command"]!);
+            vnpay.AddRequestData("vnp_TmnCode", _config["VnPay:TmnCode"]!);
+            vnpay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString()); //Số tiền thanh toán. Số tiền không mang các ký tự phân tách thập phân, phần nghìn, ký tự tiền tệ. Để gửi số tiền thanh toán là 100,000 VND (một trăm nghìn VNĐ) thì merchant cần nhân thêm 100 lần (khử phần thập phân), sau đó gửi sang VNPAY là: 10000000
+
+            vnpay.AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]!);
+            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
+            vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]!);
+
+            vnpay.AddRequestData("vnp_OrderInfo", "Nạp tiền vào ví:" + model.WalletId);
+            vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
+            vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:ReturnUrl"]!);
+
+            vnpay.AddRequestData("vnp_TxnRef", tick); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
+
+            var paymentUrl = vnpay.CreateRequestUrl(_config["VnPay:BaseUrl"]!, _config["VnPay:HashSecret"]!);
+
+            return paymentUrl;
+        }
+
+        public GetVnPayResponse PaymentExecute(IQueryCollection collections)
+        {
+            var vnpay = new VnPayLibrary();
+            foreach (var (key, value) in collections)
+            {
+                if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
+                {
+                    vnpay.AddResponseData(key, value.ToString());
+                }
+            }
+
+            var vnp_walletId = Convert.ToInt64(vnpay.GetResponseData("vnp_TxnRef"));
+            var vnp_TransactionId = Convert.ToInt64(vnpay.GetResponseData("vnp_TransactionNo"));
+            var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value;
+            var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
+            var vnp_OrderInfo = vnpay.GetResponseData("vnp_OrderInfo");
+
+            bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash!, _config["VnPay:HashSecret"]!);
+            if (!checkSignature)
+            {
+                return new GetVnPayResponse
+                {
+                    Success = false
+                };
+            }
+
+            return new GetVnPayResponse
+            {
+                Success = true,
+                PaymentMethod = "VnPay",
+                WalletDescription = vnp_OrderInfo,
+                WalletId = vnp_walletId.ToString(),
+                TransactionId = vnp_TransactionId.ToString(),
+                Token = vnp_SecureHash!,
+                VnPayResponseCode = vnp_ResponseCode
+            };
+        }
+    }
+    public class VnPayLibrary
+    {
         private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
 
@@ -48,6 +122,7 @@ namespace Services.Implements
             return _responseData.TryGetValue(key, out var retValue) ? retValue : string.Empty;
         }
 
+        #region Request
         public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
         {
             var data = new StringBuilder();
@@ -71,7 +146,9 @@ namespace Services.Implements
 
             return baseUrl;
         }
+        #endregion
 
+        #region Response process
         public bool ValidateSignature(string inputHash, string secretKey)
         {
             var rspRaw = GetResponseData();
@@ -105,71 +182,9 @@ namespace Services.Implements
 
             return data.ToString();
         }
-
-        public async Task<string> CreatePaymentUrl(HttpContext context, VnPayRequest model)
-        {
-            var tick = DateTime.Now.Ticks.ToString();
-
-            AddRequestData("vnp_Version", _config["VnPay:Version"]);
-            AddRequestData("vnp_Command", _config["VnPay:Command"]);
-            AddRequestData("vnp_TmnCode", _config["VnPay:TmnCode"]);
-            AddRequestData("vnp_Amount", (model.Amount * 100).ToString()); //Số tiền thanh toán. Số tiền không mang các ký tự phân tách thập phân, phần nghìn, ký tự tiền tệ. Để gửi số tiền thanh toán là 100,000 VND (một trăm nghìn VNĐ) thì merchant cần nhân thêm 100 lần (khử phần thập phân), sau đó gửi sang VNPAY là: 10000000
-
-            AddRequestData("vnp_CreateDate", model.CreatedDate.ToString("yyyyMMddHHmmss"));
-            AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);
-            AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
-            AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
-
-            AddRequestData("vnp_OrderInfo", "Thanh toán cho đơn hàng:" + model.OrderId);
-            AddRequestData("vnp_OrderType", "other"); //default value: other
-            AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackReturnUrl"]);
-
-            AddRequestData("vnp_TxnRef", tick); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
-
-            var paymentUrl = CreateRequestUrl(_config["VnPay:BaseUrl"], _config["VnPay:HashSecret"]);
-
-            return paymentUrl;
-        }
-
-        public async Task<GetVnPayResponse> PaymentExecute(IQueryCollection collections)
-        {
-            foreach (var (key, value) in collections)
-            {
-                if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
-                {
-                    AddResponseData(key, value.ToString());
-                }
-            }
-
-            var vnp_orderId = Convert.ToInt64(GetResponseData("vnp_TxnRef"));
-            var vnp_TransactionId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
-            var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value;
-            var vnp_ResponseCode = GetResponseData("vnp_ResponseCode");
-            var vnp_OrderInfo = GetResponseData("vnp_OrderInfo");
-
-            bool checkSignature = ValidateSignature(vnp_SecureHash, _config["VnPay:HashSecret"]);
-            if (!checkSignature)
-            {
-                return new GetVnPayResponse
-                {
-                    Success = false
-                };
-            }
-
-            return new GetVnPayResponse
-            {
-                Success = true,
-                PaymentMethod = "VnPay",
-                OrderDescription = vnp_OrderInfo,
-                OrderId = vnp_orderId.ToString(),
-                TransactionId = vnp_TransactionId.ToString(),
-                Token = vnp_SecureHash,
-                VnPayResponseCode = vnp_ResponseCode
-            };
-        }
+        #endregion
 
     }
-
     public class Utils
     {
         public static string HmacSHA512(string key, string inputData)
@@ -219,7 +234,6 @@ namespace Services.Implements
             return "127.0.0.1";
         }
     }
-
     public class VnPayCompare : IComparer<string>
     {
         public int Compare(string x, string y)
