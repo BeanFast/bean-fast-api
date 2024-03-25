@@ -94,6 +94,10 @@ namespace Services.Implements
                 {
                     p => p.UserId == customerId,
                 });
+            //foreach (var profile in profiles)
+            //{
+            //    profile.SchoolName = profile.Schoo
+            //}
             return profiles;
         }
 
