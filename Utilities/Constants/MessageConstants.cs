@@ -284,6 +284,7 @@ namespace Utilities.Constants
         }
         public class WalletMessageConstrant
         {
+            public static string WalletNotFound(Guid guid) => $"Ví với id: {guid} không tồn tại";
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
             public const string NotEnoughMoney = "Quý khách không có đủ tiền để thực hiện giao dịch này!";
         }
