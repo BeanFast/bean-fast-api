@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
@@ -116,10 +117,33 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
             return profile;
         }
+        
 
-        public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id)
+        public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user)
         {
-            return _mapper.Map<GetProfileResponse>(await GetByIdAsync(id));
+            List<Expression<Func<Profile, bool>>> filters = new()
+            {
+                (profile) => profile.Id == id
+            };
+            if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
+            {
+                filters.Add(p => p.UserId == user.Id);
+            }
+            
+            var profile = await _repository.FirstOrDefaultAsync<GetProfileResponse>(
+                status: BaseEntityStatus.Active,
+                filters: filters, 
+                include: queryable => queryable
+                    .Include(p => p.School!)
+                    .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
+                    .Include(p => p.Wallets!
+                            .Where(w => w.Status == BaseEntityStatus.Active 
+                                && WalletType.Points.ToString().Equals(w.Type)
+                             )
+                        )
+                )
+                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
         }
 
         public async Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId)

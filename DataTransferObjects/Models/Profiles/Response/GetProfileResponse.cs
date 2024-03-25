@@ -17,15 +17,17 @@ namespace DataTransferObjects.Models.Profiles.Response
         public string? Class { get; set; }
         public bool Gender { get; set; }
         public double? CurrentBMI { get; set; }
-
-        public class SchoolOfProfile
+        public SchoolOfGetProfileResponse School { get; set; } 
+        public WalletOfGetProfileResponse Wallet { get; set; }
+        public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }  
+        public class SchoolOfGetProfileResponse
         {
             public Guid Id { get; set; }
             public string Code { get; set; }
             public string Name { get; set; }
             public string Address { get; set; }
             public string ImagePath { get; set; }
-            public virtual KitchenOfSchool? Kitchen { get; set; }
+            //public virtual KitchenOfSchool? Kitchen { get; set; }
         }
 
         public class KitchenOfSchool
@@ -53,6 +55,20 @@ namespace DataTransferObjects.Models.Profiles.Response
             public Guid FoodId { get; set; }
             public string Code { get; set; }
             public double Price { get; set; }
+        }
+        public class WalletOfGetProfileResponse
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            public string Type { get; set; }
+            public double Balance { get; set; }
+        }
+        public class LoyaltyCardOfGetProfileResponse
+        {
+            public Guid Id { get; set; }
+            public string Title { get; set; }
+            public string QRCode { get; set; }
+            public string BackgroundImagePath { get; set; }
         }
     }
 }
