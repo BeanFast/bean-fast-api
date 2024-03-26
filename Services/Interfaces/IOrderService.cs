@@ -22,12 +22,13 @@ namespace Services.Interfaces
         //Task<ICollection<GetOrderResponse>> GetOrdersByCustomerIdAsync(Guid userId);
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
         Task<Order> GetByIdAsync(Guid id);
+        Task<ICollection<Order>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId);
         Task CreateOrderAsync(User user, CreateOrderRequest request);
-        //Task UpdateOrderCookingStatusAsync(Guid foodId);
-        Task UpdateOrderCompleteStatusAsync(Guid foodId);
-        Task UpdateOrderDeliveryStatusAsync(Guid foodId);
-        Task UpdateOrderCancelStatusAsync(Guid foodId);
-        Task FeedbackOrderAsync(Guid foodId, FeedbackOrderRequest request);
+        Task UpdateOrderStatusByQRCodeAsync(string qrCode, Guid delivererId);
+        Task UpdateOrderCompleteStatusAsync(Guid orderId);
+        Task UpdateOrderDeliveryStatusAsync(Guid orderId);
+        Task UpdateOrderCancelStatusAsync(Guid orderId);
+        Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request);
         Task DeleteAsync(Guid guid);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
