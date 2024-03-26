@@ -19,6 +19,8 @@ using Utilities.Constants;
 using Utilities.Utils;
 using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Services.Implements
 {
@@ -31,6 +33,7 @@ namespace Services.Implements
         private readonly IMenuDetailService _menuDetailService;
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
+        private readonly ILoyaltyCardService _loyaltyCardService;
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
            IProfileService profileService,
            ISessionDetailService sessionDetailService,
@@ -38,7 +41,8 @@ namespace Services.Implements
            IOrderActivityService orderActivityService,
            IMenuDetailService menuDetailService,
            ITransactionService transactionService,
-           IWalletService walletService) : base(unitOfWork, mapper, appSettings)
+           IWalletService walletService,
+           ILoyaltyCardService loyaltyCardService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -47,6 +51,7 @@ namespace Services.Implements
             _menuDetailService = menuDetailService;
             _transactionService = transactionService;
             _walletService = walletService;
+            _loyaltyCardService = loyaltyCardService;
         }
         private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
@@ -85,7 +90,10 @@ namespace Services.Implements
                 (order) => order.Id == id
             };
             var order = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!))
+                filters: filters, include: queryable => queryable.Include(o => o.Profile!)
+                .ThenInclude(p => p.Wallets)
+                .Include(o => o.SessionDetail!)
+                .Include(o => o.OrderActivities!))
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return order;
         }
@@ -146,6 +154,25 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
+        public async Task<ICollection<Order>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
+        {
+            List<Expression<Func<Order, bool>>> filters = new()
+            {
+                (order) => order.ProfileId == profileId
+                && order.SessionDetail!.DelivererId == delivererId
+                && order.Status == OrderStatus.Delivering
+            };
+            Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
+                (order) => order.Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!);
+
+            //var orders = await _repository.GetListAsync(filters: filters,
+            //    status: OrderStatus.Delivering, include: queryable => queryable
+            //    .Include(o => o.SessionDetail!)
+            //    .ThenInclude(sd => sd.Session!))
+            //    ?? throw new EntityNotFoundException("Không có order nào đang giao hết");
+            return await _repository.GetListAsync(include: include, filters: filters);
+        }
+
         public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
             var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
@@ -188,7 +215,7 @@ namespace Services.Implements
             var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
             orderEntity.TotalPrice = totalPriceOfOrderDetail;
 
-            var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Money.ToString())!;
+            var wallet = profile.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!;
             if (wallet.Balance - totalPriceOfOrderDetail < 0)
             {
                 throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
@@ -227,6 +254,31 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, Guid delivererId)
+        {
+            bool isUpdated = false;
+            var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
+            var profileId = loyaltyCard.ProfileId;
+            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
+            if(orderList.IsNullOrEmpty())
+            {
+                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
+            }   
+            var timeScanning = TimeUtil.GetCurrentVietNamTime();
+            foreach (var order in orderList)
+            {
+                if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
+                {
+                    await UpdateOrderCompleteStatusAsync(order.Id);
+                    isUpdated = true;
+                }
+                if(!isUpdated)
+                {
+                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryClosed);
+                }
+            }
+        }
+
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
         {
             var orderActivityNumber = await _repository.CountAsync() + 1;
@@ -234,41 +286,37 @@ namespace Services.Implements
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
-
-            orderEntity.OrderActivities = new List<OrderActivity>
+            
+            orderEntity.OrderActivities!.Add(new OrderActivity
             {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active
+            });
 
-            new OrderActivity
-                {
-                    Id = Guid.NewGuid(),
-                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-                    Time = TimeUtil.GetCurrentVietNamTime(),
-                    Status = OrderActivityStatus.Active
-                }
-            };
+            var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+            wallet.Balance += orderEntity.RewardPoints;
 
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
-        public async Task UpdateOrderDeliveryStatusAsync(Guid foodId)
+        public async Task UpdateOrderDeliveryStatusAsync(Guid orderId)
         {
             var orderActivityNumber = await _repository.CountAsync() + 1;
-            var orderEntity = await GetByIdAsync(foodId);
+            var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Delivering;
 
-            orderEntity.OrderActivities = new List<OrderActivity>
+            orderEntity.OrderActivities!.Add(new OrderActivity
             {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active
+            });
 
-            new OrderActivity
-                {
-                    Id = Guid.NewGuid(),
-                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
-                    Time = TimeUtil.GetCurrentVietNamTime(),
-                    Status = OrderActivityStatus.Active
-                }
-            };
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
@@ -279,18 +327,14 @@ namespace Services.Implements
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = (int)OrderStatus.Cancelled;
 
-            orderEntity.OrderActivities = new List<OrderActivity>
+            orderEntity.OrderActivities!.Add(new OrderActivity
             {
-
-            new OrderActivity
-                {
-                    Id = Guid.NewGuid(),
-                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-                    Time = TimeUtil.GetCurrentVietNamTime(),
-                    Status = OrderActivityStatus.Active
-                }
-            };
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active
+            });
 
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
