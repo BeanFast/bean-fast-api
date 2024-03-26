@@ -50,6 +50,12 @@ namespace Services.Implements
         {
             return _mapper.Map<GetOrderActivityResponse>(await GetByIdAsync(id));
         }
+        public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity)
+        {
+            orderActivity.OrderId = order.Id;
+            await _repository.InsertAsync(orderActivity);
+            await _unitOfWork.CommitAsync();
+        }
         public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
         {
             var orderActivity = _mapper.Map<OrderActivity>(request);

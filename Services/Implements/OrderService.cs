@@ -287,18 +287,22 @@ namespace Services.Implements
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
             
-            orderEntity.OrderActivities!.Add(new OrderActivity
+            
+
+            var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+            wallet.Balance += orderEntity.RewardPoints;
+
+            await _repository.UpdateAsync(orderEntity);
+            await _unitOfWork.CommitAsync();
+            var newOrderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                 Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
-            });
-
-            var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
-            wallet.Balance += orderEntity.RewardPoints;
-
+            };
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
