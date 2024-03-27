@@ -17,6 +17,7 @@ namespace DataTransferObjects.Models.Profiles.Response
         public string? Class { get; set; }
         public bool Gender { get; set; }
         public double? CurrentBMI { get; set; }
+        public string BMIStatus { get; set; }
         public SchoolOfGetProfileResponse School { get; set; } 
         public WalletOfGetProfileResponse Wallet { get; set; }
         public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }  

@@ -45,7 +45,7 @@ namespace Services.Implements
             var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
             if (sessionDetail.Session!.OrderEndTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
             {
-                throw new (MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
+                throw new(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
             }
             if (sessionDetail.Location!.SchoolId != profile.SchoolId)
             {
@@ -59,6 +59,7 @@ namespace Services.Implements
             {
                 throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughPoints);
             }
+            wallet.Balance -= gift.Points;
             exchangeGift.PaymentDate = TimeUtil.GetCurrentVietNamTime();
             exchangeGift.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.ExchangeGiftCodeConstraint.ExchangeGiftPrefix, await _repository.CountAsync());
             exchangeGift.Transactions = new List<Transaction>
@@ -68,7 +69,7 @@ namespace Services.Implements
                     Id = Guid.NewGuid(),
                     Value = -gift.Points,
                     Time = TimeUtil.GetCurrentVietNamTime(),
-            WalletId = wallet.Id,
+                    WalletId = wallet.Id,
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.ExchangeGiftTransactionPrefix, await _transactionService.CountAsync() + 1),
 
                 }
@@ -85,9 +86,6 @@ namespace Services.Implements
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, await _transactionService.CountAsync() + 1)
                 }
             };
-
-            wallet.Balance -= gift.Points;
-
             await _repository.InsertAsync(exchangeGift);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());
@@ -100,7 +98,7 @@ namespace Services.Implements
         public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
         {
             request.OrderId = null;
-            if(request.ExchangeGiftId == null)
+            if (request.ExchangeGiftId == null)
             {
                 throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftIdRequired);
             }
