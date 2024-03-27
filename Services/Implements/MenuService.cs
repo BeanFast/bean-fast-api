@@ -69,7 +69,7 @@ public class MenuService : BaseService<Menu>, IMenuService
             filters.Add(
                 f => f.Sessions!
                 .Where(s =>
-                    s.OrderStartTime.Date.CompareTo(filterRequest.OrderStartTime.Value.Date) == 0
+                    s.OrderStartTime.CompareTo(filterRequest.OrderStartTime.Value) == 0
                     && s.Status == BaseEntityStatus.Active).Any());
         }
         if (RoleName.ADMIN.ToString().Equals(userRole))
