@@ -220,11 +220,11 @@ namespace Services.Implements
             {
                 throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
             }
-
+            wallet.Balance -= totalPriceOfOrderDetail;
             orderEntity.OrderActivities = new List<OrderActivity>
             {
 
-            new OrderActivity
+                new OrderActivity
                 {
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
@@ -248,7 +248,6 @@ namespace Services.Implements
                 }
             };
 
-            wallet.Balance -= totalPriceOfOrderDetail;
             await _repository.InsertAsync(orderEntity);
             await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
             await _unitOfWork.CommitAsync();

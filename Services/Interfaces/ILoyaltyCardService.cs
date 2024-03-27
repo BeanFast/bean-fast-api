@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.LoyaltyCard.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Services.Interfaces
     {
         Task<bool> CheckLoyaltyCardWithQRCode(string qrCode);
         Task<LoyaltyCard> GetLoyaltyCardByQRCode(string qrCode);
+
+        Task CreateLoyaltyCard(CreateLoyaltyCardRequest request);
     }
 }

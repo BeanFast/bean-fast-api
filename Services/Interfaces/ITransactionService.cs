@@ -1,5 +1,6 @@
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Transaction.Request;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace Services.Interfaces
     {
         Task CreateTransactionAsync(Transaction transaction);
         Task CreateTransactionListAsync(List<Transaction> transactions);
+        string CreateVnPayPaymentRequest(User user, int amount, HttpContext context);
     }
 }

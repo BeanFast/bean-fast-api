@@ -14,7 +14,9 @@ public class MenuMapper : Profile
         CreateMap<Food, GetMenuResponse.MenuDetailOfGetMenuResponse.FoodOfMenuDetail>();
         CreateMap<Category, GetMenuResponse.MenuDetailOfGetMenuResponse.FoodOfMenuDetail.CategoryOfFood>();
         //CreateMap<Kitchen, GetMenuResponse.GetMenuKitchenResponse>();
-        
+        CreateMap<Session, GetMenuResponse.SessionOfGetMenuResponse>();
+        CreateMap<SessionDetail, GetMenuResponse.SessionOfGetMenuResponse.SessionDetailOfSession>();
+        CreateMap<Location, GetMenuResponse.SessionOfGetMenuResponse.SessionDetailOfSession.LocationOfSessionDetail>();
 
         CreateMap<CreateMenuRequest, Menu>();
         CreateMap<CreateMenuRequest.MenuDetailOfCreateMenuRequest, MenuDetail>();

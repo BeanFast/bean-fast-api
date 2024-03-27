@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BeanFastApi.Extensions;
+using BusinessObjects.Models;
 using DataTransferObjects.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

@@ -41,5 +41,20 @@ namespace Utilities.Utils
         {
             return DateTime.UtcNow.AddHours(7);
         }
+        public static double GetAgeRoundedToHalfYear(DateTime birthDate)
+        {
+            DateTime today = DateTime.Today;
+            int years = today.Year - birthDate.Year;
+
+            if (birthDate.Date > today.AddYears(-years))
+            {
+                years--;
+            }
+
+            double ageWithDecimal = years + (today - birthDate.AddYears(years)).TotalDays / 365.25;
+            double roundedAge = Math.Floor(ageWithDecimal * 2) / 2;
+
+            return roundedAge;
+        }
     }
 }

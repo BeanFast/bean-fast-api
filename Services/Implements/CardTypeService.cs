@@ -70,5 +70,6 @@ namespace Services.Implements
             await _repository.DeleteAsync(cardType);
             await _unitOfWork.CommitAsync();
         }
+
     }
 }

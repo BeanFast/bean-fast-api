@@ -10,7 +10,7 @@ public class GetMenuResponse
     public DateTime? CreateDate { get; set; }
     public DateTime? UpdateDate { get; set; }
     public ICollection<MenuDetailOfGetMenuResponse> MenuDetails { get; set; }
-
+    public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }
 
     public class MenuDetailOfGetMenuResponse
     {
@@ -28,6 +28,29 @@ public class GetMenuResponse
             public class CategoryOfFood
             {
                 public string Name { get; set; }
+            }
+        }
+    }
+
+    public class SessionOfGetMenuResponse
+    {
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public DateTime OrderStartTime { get; set; }
+        public DateTime OrderEndTime { get; set; }
+        public DateTime DeliveryStartTime { get; set; }
+        public DateTime DeliveryEndTime { get; set; }
+        public ICollection<SessionDetailOfSession> SessionDetails { get; set; }
+        public class SessionDetailOfSession
+        {
+            public LocationOfSessionDetail Location { get; set; }
+            public class LocationOfSessionDetail
+            {
+                public Guid SchoolId { get; set; }
+                public string Code { get; set; }
+                public string Name { get; set; }
+                public string Description { get; set; }
+                public string ImagePath { get; set; }
             }
         }
     }

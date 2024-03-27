@@ -103,5 +103,9 @@ namespace Utilities.Constants
         {
             public static string ExchangeGiftPrefix = "Eg";
         }
+        public class LoyaltyCardCodeConstraint
+        {
+            public static string LoyaltyCardPrefix = "Lc";
+        }
     }
 }

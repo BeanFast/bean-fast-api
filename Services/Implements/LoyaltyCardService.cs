@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.LoyaltyCard.Request;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
@@ -15,13 +16,20 @@ using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
     public class LoyaltyCardService : BaseService<LoyaltyCard>, ILoyaltyCardService
     {
-        public LoyaltyCardService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IProfileService _profileService;
+        private readonly ICardTypeService _cardTypeService;
+        private readonly ICloudStorageService _cloudStorageService;
+        public LoyaltyCardService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IProfileService profileService, ICardTypeService cardTypeService, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
         {
+            _profileService = profileService;
+            _cardTypeService = cardTypeService;
+            _cloudStorageService = cloudStorageService;
         }
         public async Task<bool> CheckLoyaltyCardWithQRCode(string qrCode)
         {
@@ -42,6 +50,22 @@ namespace Services.Implements
             }
 
             return false;
+        }
+
+        public async Task CreateLoyaltyCard(CreateLoyaltyCardRequest request)
+        {
+            var loyaltyCard = _mapper.Map<LoyaltyCard>(request);
+            await _profileService.GetByIdAsync(loyaltyCard.Id);
+            await _cardTypeService.GetByIdAsync(loyaltyCard.CardTypeId);
+            loyaltyCard.QRCode = Guid.NewGuid().ToString();
+            loyaltyCard.Status = BaseEntityStatus.Active;
+            loyaltyCard.Id = Guid.NewGuid();
+            loyaltyCard.BackgroundImagePath = await _cloudStorageService.UploadFileAsync(loyaltyCard.Id, _appSettings.Firebase.FolderNames.LoyaltyCard, request.Image);
+            var entityNumber = await _repository.CountAsync();
+            loyaltyCard.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.LoyaltyCardCodeConstraint.LoyaltyCardPrefix, entityNumber);
+           
+            await _repository.InsertAsync(loyaltyCard);
+            await _unitOfWork.CommitAsync();
         }
 
         public Task<LoyaltyCard> GetLoyaltyCardByQRCode(string qrCode)
