@@ -138,7 +138,9 @@ public class MenuService : BaseService<Menu>, IMenuService
         {
             menuPage = await _repository.GetPageAsync<GetMenuResponse>(
                 paginationRequest: request,
-                include: i => i.Include(menu => menu.Kitchen!)
+                include: i => i.Include(menu => menu.Kitchen!).Include(m => m.Sessions!)
+                    .ThenInclude(s => s.SessionDetails!)
+                    .ThenInclude(sd => sd.Location!)
             );
         }
         return menuPage;
