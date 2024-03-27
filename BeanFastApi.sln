@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositorie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{98BD46B1-882B-485D-9450-E18322FA4F6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{7E1D6AAD-E438-4FC8-8E09-6D94B4AE4214}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{7E1D6AAD-E438-4FC8-8E09-6D94B4AE4214}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

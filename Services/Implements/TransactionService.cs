@@ -2,6 +2,8 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Transaction.Request;
+using DataTransferObjects.Models.VnPay.Request;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Enums;
 using Utilities.Settings;
 using Utilities.Statuses;
 
@@ -18,8 +21,10 @@ namespace Services.Implements
 
     public class TransactionService : BaseService<Transaction>, ITransactionService
     {
-        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IVnPayService _vnPayService;
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService) : base(unitOfWork, mapper, appSettings)
         {
+            _vnPayService = vnPayService;
         }
         public async Task CreateTransactionAsync(Transaction transaction)
         {
@@ -40,6 +45,24 @@ namespace Services.Implements
             {
                 await CreateTransactionAsync(transaction);
             }
+        }
+
+        public string CreateVnPayPaymentRequest(User user, int amount, HttpContext context)
+        {
+            var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
+            var vnPayEntity = new VnPayRequest
+            {
+                WalletId = wallet!.Id,
+                Description = "Nap tien",
+                Amount = amount,
+                CreatedDate = DateTime.Now,
+                FullName = user.FullName!,
+            };
+            return _vnPayService.CreatePaymentUrl(context, vnPayEntity);
+        }
+        public Task CreateMoneyTransactionAsync()
+        {
+
         }
     }
 }

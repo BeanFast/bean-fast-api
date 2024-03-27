@@ -32,6 +32,7 @@ namespace Utilities.Settings
         public string Profile { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public string OrderActivity { get; set; } = string.Empty;
+        public string LoyaltyCard { get; set; } = string.Empty;
     }
 
 }
