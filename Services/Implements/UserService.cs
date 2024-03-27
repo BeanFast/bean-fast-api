@@ -46,7 +46,7 @@ namespace Services.Implements
 
             var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters,
-                include: queryable => queryable.Include(u => u.Role!))
+                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
             return user;
         }

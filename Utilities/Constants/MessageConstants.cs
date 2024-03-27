@@ -185,6 +185,7 @@ namespace Utilities.Constants
         {
             public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
             public const string DuplicateLocationInSession = "Địa điểm đã tồn tại trong buổi này";
+            public const string SessionDeliveryClosed = "Thời gian giao hàng đã đóng, không thể thực hiện thao tác này";
 
 
         }
@@ -205,6 +206,13 @@ namespace Utilities.Constants
             public const string LocationNameLength = "Tên địa điểm phải từ {2} đến {1} ký tự";
             public const string LocationDescriptionRequired = "Mô tả địa điểm là bắt buộc";
 
+        }
+
+        public class LoyaltyCardMessageConstrant
+        {
+            public static string LoyaltyCardNotFound(Guid guid) => $"Thẻ thành viên với id: {guid} không tồn tại";
+            public const string QRCodeNotFound = "Không tìm thấy mã QR";
+            public const string InvalidLoyaltyCard = "Thẻ thành viên không hợp lệ";
         }
         public class CardTypeMessageConstrant
         {
@@ -251,6 +259,7 @@ namespace Utilities.Constants
             public const string OrderCreateDateInvalid = "Ngày tạo đơn hàng không hợp lệ";
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
             public const string OrderIdRequired= "Order id là bắt buộc";
+            public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
         }
 
         public class OrderActivityMessageConstrant
@@ -284,6 +293,7 @@ namespace Utilities.Constants
         }
         public class WalletMessageConstrant
         {
+            public static string WalletNotFound(Guid guid) => $"Ví với id: {guid} không tồn tại";
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
             public const string NotEnoughMoney = "Quý khách không có đủ tiền để thực hiện giao dịch này!";
         }

@@ -97,6 +97,8 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
         }
 
+
+
         //[HttpGet("{customerId}")]
         //[Authorize(RoleName.CUSTOMER)]
         //public async Task<IActionResult> GetOrdersByProfileId([FromRoute] Guid customerId)
@@ -105,6 +107,16 @@ namespace BeanFastApi.Controllers
         //    var orders = await _orderService.GetOrdersByCustomerIdAsync(user.Id);
         //    return SuccessResult(orders);
         //}
+
+        [HttpPut("updateOrderStatusByQRCode")]
+        [Authorize(RoleName.DELIVERER)]
+        public async Task<IActionResult> UpdateOrderStatusByQRCode([FromQuery] string qrCode)
+        {
+            var user = await GetUserAsync();
+            var delivererId = user.Id;
+            await _orderService.UpdateOrderStatusByQRCodeAsync(qrCode, delivererId);
+            return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        }
 
         [HttpPut("{orderId}/feedbacks")]
         [Authorize(RoleName.CUSTOMER)]

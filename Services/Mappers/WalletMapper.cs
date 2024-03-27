@@ -13,6 +13,7 @@ namespace Services.Mappers
         public WalletMapper()
         {
             CreateMap<Wallet, GetWalletByCurrentCustomerAndProfileResponse>();
+            CreateMap<Wallet, GetWalletTypeMoneyByCustomerId>();
         }
     }
 }
