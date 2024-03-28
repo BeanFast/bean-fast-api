@@ -10,7 +10,7 @@ public class GetMenuResponse
     public DateTime? CreateDate { get; set; }
     public DateTime? UpdateDate { get; set; }
     public ICollection<MenuDetailOfGetMenuResponse> MenuDetails { get; set; }
-    public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }
+    //public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }
 
     public class MenuDetailOfGetMenuResponse
     {
