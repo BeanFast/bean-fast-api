@@ -46,7 +46,7 @@ namespace Services.Implements
             //});
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
 
-            foreach (var sessionDetail in sessionEntity.SessionDetails)
+            foreach (var sessionDetail in sessionEntity.SessionDetails!)
             {
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
                 {
@@ -120,6 +120,10 @@ namespace Services.Implements
             if (request.SchoolId != null && request.SchoolId != Guid.Empty)
             {
                 filters.Add(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == request.SchoolId && sd.Status == BaseEntityStatus.Active).Any());
+            }
+            if(request.OrderStartTime != null)
+            {
+                filters.Add(s => s.OrderStartTime.Date.Equals(request.OrderStartTime.Value.Date));
             }
             //if(request.DeliveryEndTime)
             return filters;
