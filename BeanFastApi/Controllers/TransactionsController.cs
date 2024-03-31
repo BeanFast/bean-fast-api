@@ -30,6 +30,13 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> VnpayIpnEntry([FromQuery] Dictionary<string, string> queryParams)
         {
             queryParams.Select(i => $"{i.Key}: {i.Value}").ToList().ForEach(Console.WriteLine);
+            var param = queryParams.FirstOrDefault(i => i.Key.Equals("vnp_OrderInfo"));
+            if (param.Value != null)
+            {
+                var walletId = param.Value.Split(":")[1];
+                //await _transactionService.UpdateTransactionStatus(walletId);
+                Console.WriteLine(walletId);
+            }
             await Console.Out.WriteLineAsync("12312323");
             return SuccessResult<object>(null);
         }
