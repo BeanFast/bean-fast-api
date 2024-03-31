@@ -53,6 +53,7 @@ namespace Services.Implements
 
         public string CreateVnPayPaymentRequest(User user, int amount, HttpContext context)
         {
+            Console.WriteLine(amount);
             var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
             var vnPayEntity = new VnPayRequest
             {
