@@ -29,6 +29,7 @@ namespace BeanFastApi.Controllers
         [HttpGet("ipn")]
         public async Task<IActionResult> VnpayIpnEntry([FromQuery] Dictionary<string, string> queryParams)
         {
+            queryParams.Select(i => $"{i.Key}: {i.Value}").ToList().ForEach(Console.WriteLine);
             await Console.Out.WriteLineAsync("12312323");
             return SuccessResult<object>(null);
         }
