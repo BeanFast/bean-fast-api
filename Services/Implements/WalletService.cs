@@ -25,6 +25,17 @@ namespace Services.Implements
         {
         }
 
+        public Task<Wallet> GetByIdAsync(Guid walletId)
+        {
+            var filters = new List<Expression<Func<Wallet, bool>>>
+            {
+                p => p.Id == walletId
+            };
+            var result = _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters)
+                ?? throw new EntityNotFoundException(MessageConstants.WalletMessageConstrant.WalletNotFound(walletId));
+            return result!;
+        }
+
         public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId)
         {
             List<Expression<Func<Wallet, bool>>> filters = new()
@@ -46,6 +57,12 @@ namespace Services.Implements
             };
             var wallet = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active, filters: filters);
             return _mapper.Map<GetWalletTypeMoneyByCustomerId>(wallet);
+        }
+
+        public async Task UpdateAsync(Wallet wallet)
+        {
+            await _repository.UpdateAsync(wallet);
+            await _unitOfWork.CommitAsync();
         }
     }
 }

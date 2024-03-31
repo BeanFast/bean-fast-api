@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Wallet.Response;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Wallet.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Services.Interfaces
     {
         Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId);
         Task<GetWalletTypeMoneyByCustomerId> GetWalletTypeMoneyByCustomerIdAsync(Guid customerId);
+        Task<Wallet> GetByIdAsync(Guid customerId);
+        Task UpdateAsync(Wallet wallet);
     }
 }

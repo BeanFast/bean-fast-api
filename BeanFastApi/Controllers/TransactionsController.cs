@@ -34,7 +34,8 @@ namespace BeanFastApi.Controllers
             if (param.Value != null)
             {
                 var walletId = param.Value.Split(":")[1];
-                //await _transactionService.UpdateTransactionStatus(walletId);
+                var amount = queryParams.FirstOrDefault(i => i.Key.Equals("vnp_Amount")).Value;
+                await _transactionService.CreateTopUpTransactionAsync(walletId, amount);
                 Console.WriteLine(walletId);
             }
             await Console.Out.WriteLineAsync("12312323");

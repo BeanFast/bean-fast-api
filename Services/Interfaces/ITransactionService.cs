@@ -14,5 +14,6 @@ namespace Services.Interfaces
         Task CreateTransactionAsync(Transaction transaction);
         Task CreateTransactionListAsync(List<Transaction> transactions);
         string CreateVnPayPaymentRequest(User user, int amount, HttpContext context);
+        Task CreateTopUpTransactionAsync(string walletId, string amount);
     }
 }
