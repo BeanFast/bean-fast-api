@@ -40,6 +40,7 @@ namespace BusinessObjects
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<NotificationDetail> NotificationDetails { get; set; }
+        public virtual DbSet<Game> Games { get; set; }
 
         //public string GetConnectionString()
         //{
@@ -371,6 +372,9 @@ namespace BusinessObjects
                     .WithMany(e => e.Transactions)
                     .HasForeignKey(e => e.WalletId)
                     .HasConstraintName("FK_Transaction_Wallet");
+                entity.HasOne(e => e.Game)
+                    .WithMany(e => e.Transactions)
+                    .HasConstraintName("FK_Transaction_Game");
             });
             modelBuilder.Entity<Gift>(entity =>
             {
@@ -403,7 +407,7 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.GiftId)
                     .HasConstraintName("FK_ExchangeGift_Gift")
                     .OnDelete(DeleteBehavior.NoAction);
-                
+
             });
             modelBuilder.Entity<OrderActivity>(entity =>
             {
@@ -443,7 +447,7 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.CardTypeId)
                     .HasConstraintName("FK_LoyaltyCard_CardType")
                     .OnDelete(DeleteBehavior.NoAction);
-                
+
             });
             modelBuilder.Entity<CardType>(entity =>
             {
@@ -474,7 +478,7 @@ namespace BusinessObjects
                 entity.ToTable("Notification");
                 entity.HasKey(e => e.Id)
                     .HasName("PK_Notification");
-               
+
             });
             modelBuilder.Entity<NotificationDetail>(entity =>
             {
@@ -486,10 +490,22 @@ namespace BusinessObjects
                     .HasConstraintName("FK_NotificationDetail_User");
                 entity.HasOne(e => e.Notification)
                     .WithMany(e => e.NotificationDetails)
-                    .HasForeignKey(e => e.NotificationId)   
+                    .HasForeignKey(e => e.NotificationId)
                     .HasConstraintName("FK_NotificationDetail_Notification");
             });
+            modelBuilder.Entity<Game>(entity =>
+            {
+                entity.ToTable("Game");
+                entity.HasKey(e => e.Id)
+                    .HasName("PK_Game");
+                entity.Property(e => e.Code)
+                    .HasMaxLength(100);
+                entity.Property(e => e.Name)
+                    .HasMaxLength(200);
+                entity.Property(e => e.Description)
+                    .HasMaxLength(500);
 
+            });
             #endregion
 
             OnModelCreatingPartial(modelBuilder);
