@@ -14,10 +14,12 @@ public class GetMenuResponse
 
     public class MenuDetailOfGetMenuResponse
     {
+        public Guid Id { get; set; }
         public double Price { get; set; }
         public virtual FoodOfMenuDetail Food { get; set; }
         public class FoodOfMenuDetail
         {
+            public Guid Id { get; set; }
             public string Code { get; set; }
             public string Name { get; set; }
             public double Price { get; set; }
