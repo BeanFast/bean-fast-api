@@ -165,5 +165,16 @@ namespace Services.Implements
         {
             throw new NotImplementedException();
         }
+
+        public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id)
+        {
+            List<Expression<Func<Session, bool>>> filters = new()
+            {
+                (session) => session.Id == id && session.Status == BaseEntityStatus.Active
+            };
+            var result = await _repository.FirstOrDefaultAsync<GetSessionForDeliveryResponse>(filters: filters)
+                 ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
+            return result!;
+        }
     }
 }
