@@ -17,6 +17,12 @@ namespace BeanFastApi.Controllers
             var result = await _sessionService.GetAllAsync(GetUserRole(), request);
             return SuccessResult(result);
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdASync([FromRoute] Guid id)
+        {
+            var result = await _sessionService.GetSessionForDeliveryResponseByIdAsync(id);
+            return SuccessResult(result);
+        }
         [HttpPost]
         public async Task<IActionResult> CreateSessionAsync([FromBody] CreateSessionRequest request)
         {
