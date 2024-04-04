@@ -18,9 +18,9 @@ namespace BeanFastApi.Controllers
             return SuccessResult(result);
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdASync([FromRoute] Guid id)
+        public async Task<IActionResult> GetByIdASync([FromRoute] Guid id, [FromQuery] SessionFilterRequest request)
         {
-            var result = await _sessionService.GetSessionForDeliveryResponseByIdAsync(id);
+            var result = await _sessionService.GetSessionForDeliveryResponseByIdAsync(id, request, GetUserRole());
             return SuccessResult(result);
         }
         [HttpPost]

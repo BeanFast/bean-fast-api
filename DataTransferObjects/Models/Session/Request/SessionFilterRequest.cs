@@ -14,6 +14,7 @@ namespace DataTransferObjects.Models.Session.Request
         public DateTime? OrderEndTime { get; set; }
         public DateTime? DeliveryStartTime { get; set; }
         public DateTime? DeliveryEndTime { get; set; }
+        public DateTime? DeliveryTime { get; set; }
         public bool Orderable { get; set; }
         public bool Expired { get; set; }
         public bool Incomming { get; set; }
