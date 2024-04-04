@@ -197,4 +197,9 @@ public class MenuService : BaseService<Menu>, IMenuService
         //menuEntity.
 
     }
+
+    public async Task DeleteMenuAsync(Guid id)
+    {
+        throw new InvalidRequestException("Not implemented yet");
+    }
 }
