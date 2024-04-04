@@ -131,7 +131,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         return menu;
     }
 
-    public async Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string userRole, MenuFilterRequest menuFilterRequest)
+    public async Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest)
     {
         IPaginable<GetMenuResponse>? menuPage = null;
         if (userRole == RoleName.ADMIN.ToString())
@@ -143,10 +143,10 @@ public class MenuService : BaseService<Menu>, IMenuService
                     .ThenInclude(sd => sd.Location!)
             );
         }
-        return menuPage;
+        return menuPage!;
     }
 
-    public async Task<ICollection<GetMenuResponse>> GetAllAsync(string userRole, MenuFilterRequest menuFilterRequest)
+    public async Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest)
     {
         var filters = getFilterFromFilterRequest(userRole, menuFilterRequest);
         Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include =

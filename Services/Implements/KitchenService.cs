@@ -136,4 +136,26 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         await _repository.UpdateAsync(kitchen);
         await _unitOfWork.CommitAsync();
     }
+
+    public async Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest)
+    {
+        var filters = GetKitchenFilterFromFilterRequest(filterRequest);
+        ICollection<GetKitchenResponse> kitchens = default!;
+        if (RoleName.ADMIN.ToString().Equals(userRole))
+        {
+            kitchens = await _repository.GetListAsync<GetKitchenResponse>(
+                filters: filters);
+        }
+        else
+        {
+            kitchens = await _repository.GetListAsync<GetKitchenResponse>(
+                status: BaseEntityStatus.Active,
+                filters: filters);
+        }
+        foreach (var item in kitchens)
+        {
+            item.SchoolCount = await CountSchoolByKitchenIdAsync(item.Id);
+        }
+        return kitchens;
+    }
 }
