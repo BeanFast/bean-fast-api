@@ -129,6 +129,10 @@ namespace Services.Implements
             {
                 filters.Add(s => s.OrderStartTime.Date <= request.OrderTime.Value.Date && s.OrderEndTime.Date >= request.OrderTime.Value.Date);
             }
+            if(request.DeliveryTime != null)
+            {
+                filters.Add(s => s.DeliveryStartTime.Date <= request.DeliveryTime.Value.Date && s.DeliveryEndTime.Date >= request.DeliveryTime.Value.Date);
+            }
             //if(request.DeliveryEndTime)
             return filters;
         }
@@ -170,12 +174,10 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id)
+        public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)
         {
-            List<Expression<Func<Session, bool>>> filters = new()
-            {
-                (session) => session.Id == id && session.Status == BaseEntityStatus.Active
-            };
+            var filters = getFiltersFromSessionFilterRequest(request, userRole!);
+            filters.Add((session) => session.Id == id && session.Status == BaseEntityStatus.Active);
             var result = await _repository.FirstOrDefaultAsync<GetSessionForDeliveryResponse>(filters: filters)
                  ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
             return result!;
