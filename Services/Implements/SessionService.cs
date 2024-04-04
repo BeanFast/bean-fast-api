@@ -39,11 +39,6 @@ namespace Services.Implements
             sessionEntity.Status = BaseEntityStatus.Active;
             sessionEntity.Id = Guid.NewGuid();
             HashSet<Guid> uniqueLocationIds = new();
-
-            //sessionEntity.SessionDetails!.ToList().ForEach(async s =>
-            //{
-
-            //});
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
 
             foreach (var sessionDetail in sessionEntity.SessionDetails!)

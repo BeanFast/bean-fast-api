@@ -23,6 +23,7 @@ namespace DataTransferObjects.Models.Session.Response
             public LocationOfSessionDetail Location { get; set; }
             public class LocationOfSessionDetail
             {
+                public Guid Id { get; set; }
                 public string Name { get; set; }
                 public Guid SchoolId { get; set; }
             }
