@@ -17,6 +17,7 @@ namespace Services.Interfaces
         Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest);
         Task<School> GetSchoolByIdAsync(int status, Guid id);
         Task<School> GetSchoolByIdAsync(Guid id);
+        Task<GetSchoolIncludeAreaAndLocationResponse> GetSchoolIncludeAreaAndLocationResponseByIdAsync(Guid id);
         Task DeleteSchoolAsync(Guid id);
         Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request);
         Task<int> CountStudentAsync(Guid schoolId);
