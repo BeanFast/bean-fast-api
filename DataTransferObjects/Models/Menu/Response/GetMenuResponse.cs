@@ -3,19 +3,21 @@
 public class GetMenuResponse
 {
     public Guid Id { get; set; }
-    public Guid KitchenId { get; set; }
+    
     public Guid? CreaterId { get; set; }
     public Guid? UpdaterId { get; set; }
     public string Code { get; set; }
     public DateTime? CreateDate { get; set; }
     public DateTime? UpdateDate { get; set; }
     public ICollection<MenuDetailOfGetMenuResponse> MenuDetails { get; set; }
+    public KitchenOfGetMenuResponse Kitchen { get; set; }
     //public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }
 
     public class MenuDetailOfGetMenuResponse
     {
         public Guid Id { get; set; }
         public double Price { get; set; }
+
         public virtual FoodOfMenuDetail Food { get; set; }
         public class FoodOfMenuDetail
         {
@@ -55,5 +57,11 @@ public class GetMenuResponse
                 public string ImagePath { get; set; }
             }
         }
+    }
+
+    public class KitchenOfGetMenuResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }

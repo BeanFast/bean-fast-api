@@ -181,7 +181,8 @@ namespace Services.Implements
 
         public async Task<GetSchoolIncludeAreaAndLocationResponse> GetSchoolIncludeAreaAndLocationResponseByIdAsync(Guid id)
         {
-            var school = await _repository.FirstOrDefaultAsync<GetSchoolIncludeAreaAndLocationResponse>(status: BaseEntityStatus.Active, 
+            var school = await _repository.FirstOrDefaultAsync<GetSchoolIncludeAreaAndLocationResponse>(
+                status: BaseEntityStatus.Active, 
                 filters: new()
                     {
                         s => s.Id == id
