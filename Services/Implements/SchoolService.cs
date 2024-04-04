@@ -56,7 +56,6 @@ namespace Services.Implements
         {
             var filters = GetSchoolFilterFromFilterRequest(filterRequest);
             var page = await _repository.GetPageAsync<GetSchoolIncludeAreaAndLocationResponse>(
-
                     filters: filters,
                     paginationRequest: paginationRequest,
                     include: s => s.Include(s => s.Area).Include(s => s.Locations!)
@@ -178,6 +177,17 @@ namespace Services.Implements
         {
             var school = await GetByIdIncludeProfile(schoolId);
             return school.Profiles!.Count();
+        }
+
+        public async Task<GetSchoolIncludeAreaAndLocationResponse> GetSchoolIncludeAreaAndLocationResponseByIdAsync(Guid id)
+        {
+            var school = await _repository.FirstOrDefaultAsync<GetSchoolIncludeAreaAndLocationResponse>(status: BaseEntityStatus.Active, 
+                filters: new()
+                    {
+                        s => s.Id == id
+                    }, 
+                include: i => i.Include(s => s.Area).Include(s => s.Locations!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
+            return school!;
         }
     }
 }
