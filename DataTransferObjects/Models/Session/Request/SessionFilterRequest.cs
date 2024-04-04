@@ -10,6 +10,7 @@ namespace DataTransferObjects.Models.Session.Request
     {
         public Guid? MenuId { get; set; } = Guid.Empty;
         public DateTime? OrderStartTime { get; set; }
+        public DateTime? OrderTime { get; set; }
         public DateTime? OrderEndTime { get; set; }
         public DateTime? DeliveryStartTime { get; set; }
         public DateTime? DeliveryEndTime { get; set; }

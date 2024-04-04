@@ -125,6 +125,10 @@ namespace Services.Implements
             {
                 filters.Add(s => s.OrderStartTime.Date.Equals(request.OrderStartTime.Value.Date));
             }
+            if(request.OrderTime != null)
+            {
+                filters.Add(s => s.OrderStartTime.Date <= request.OrderTime.Value.Date && s.OrderEndTime.Date >= request.OrderTime.Value.Date);
+            }
             //if(request.DeliveryEndTime)
             return filters;
         }

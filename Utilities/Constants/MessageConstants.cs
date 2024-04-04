@@ -103,8 +103,8 @@ namespace Utilities.Constants
         {
             public static string AreaNotFound(Guid guid) => $"Khu vực với id: {guid} không tồn tại";
 
-            public const string AreaCodeRequird = "Mã khu vực là bắt buộc";
-            public const string AreaCodeLength = "Mã khu vực phải từ {2} đến {1} ký tự";
+            //public const string AreaCodeRequird = "Mã khu vực là bắt buộc";
+            //public const string AreaCodeLength = "Mã khu vực phải từ {2} đến {1} ký tự";
             public const string AreaCityRequired = "Thành phố là bắt buộc";
             public const string AreaCityLength = "Tên thành phố phải từ {2} đến {1} ký tự";
             public const string AreaDistrictRequired = "Quận/Huyện là bắt buộc";
