@@ -117,6 +117,7 @@ namespace Utilities.Constants
         public class MenuMessageConstrant
         {
             public static string MenuNotFound(Guid guid) => $"Thực đơn với id: {guid} không tồn tại";
+            public const string MenuAlreadyOnSell = $"Thực đơn này đang được mở bán, không thể xóa";
         }
 
         public class MenuDetailMessageConstrant
