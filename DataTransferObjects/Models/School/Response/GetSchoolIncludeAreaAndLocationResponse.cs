@@ -20,6 +20,7 @@ namespace DataTransferObjects.Models.School.Response
         public ICollection<LocationOfGetSchoolResponse> Locations { get; set; }
         public class AreaOfGetSchoolResponse
         {
+            public Guid Id { get; set; }
             public string Code { get; set; }
             public string City { get; set; }
             public string District { get; set; }
@@ -27,6 +28,7 @@ namespace DataTransferObjects.Models.School.Response
         }
         public class LocationOfGetSchoolResponse
         {
+            public Guid Id { get; set; }
             public string Code { get; set; }
             public string Name { get; set; }
             public string Description { get; set; }

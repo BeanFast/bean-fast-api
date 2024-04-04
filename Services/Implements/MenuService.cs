@@ -200,6 +200,25 @@ public class MenuService : BaseService<Menu>, IMenuService
 
     public async Task DeleteMenuAsync(Guid id)
     {
-        throw new InvalidRequestException("Not implemented yet");
+        var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
+        List<Expression<Func<Menu, bool>>> filters = new()
+        {
+            m => m.Id == id
+        };
+
+        var menu = await _repository.FirstOrDefaultAsync(
+            BaseEntityStatus.Active,
+            filters,
+            include: i => i.Include(m => m.Sessions!.Where(
+                s => currentVietnamTime >= s.OrderStartTime && currentVietnamTime <= s.OrderEndTime
+                && s.Status == BaseEntityStatus.Active
+                ))
+            ) ?? throw new InvalidRequestException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
+        if (menu.Sessions!.Any())
+        {
+            throw new InvalidRequestException(MessageConstants.MenuMessageConstrant.MenuAlreadyOnSell);
+        }
+        await _repository.DeleteAsync(menu);
+        await _unitOfWork.CommitAsync();
     }
 }
