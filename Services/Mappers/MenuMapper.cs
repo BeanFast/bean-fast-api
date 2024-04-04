@@ -10,6 +10,7 @@ public class MenuMapper : Profile
     public MenuMapper()
     {
         CreateMap<Menu, GetMenuResponse>();
+        CreateMap<Kitchen, GetMenuResponse.KitchenOfGetMenuResponse>();
         CreateMap<MenuDetail, GetMenuResponse.MenuDetailOfGetMenuResponse>();
         CreateMap<Food, GetMenuResponse.MenuDetailOfGetMenuResponse.FoodOfMenuDetail>();
         CreateMap<Category, GetMenuResponse.MenuDetailOfGetMenuResponse.FoodOfMenuDetail.CategoryOfFood>();
