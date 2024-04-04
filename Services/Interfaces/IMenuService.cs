@@ -12,4 +12,5 @@ public interface IMenuService : IBaseService
 
     Task<Menu> GetByIdAsync(Guid id);
     Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId);
+    Task DeleteMenuAsync(Guid id);
 }
