@@ -203,11 +203,11 @@ public class MenuService : BaseService<Menu>, IMenuService
         var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
         List<Expression<Func<Menu, bool>>> filters = new()
         {
-            m => m.Id == id
+            m => m.Id == id,
+            m => m.Status == BaseEntityStatus.Active
         };
 
         var menu = await _repository.FirstOrDefaultAsync(
-            BaseEntityStatus.Active,
             filters,
             include: i => i.Include(m => m.Sessions!.Where(
                 s => currentVietnamTime >= s.OrderStartTime && currentVietnamTime <= s.OrderEndTime
