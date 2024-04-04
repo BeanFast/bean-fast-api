@@ -22,4 +22,5 @@ public interface IKitchenService : IBaseService
 
     public Task DeleteKitchenAsync(Guid id);
     Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId);
+    Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest);
 }
