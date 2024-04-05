@@ -73,13 +73,14 @@ namespace Services.Implements
             if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
             {
                 //filters.Add()
-            }else if(RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
+            }
+            else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
             {
                 filters.Add(o => o.Profile!.UserId == user.Id);
             }
             else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
             {
-                filters.Add(o => o.SessionDetail!.DelivererId == user.Id);   
+                filters.Add(o => o.SessionDetail!.DelivererId == user.Id);
             }
 
             return await _repository.GetListAsync<GetOrderResponse>(filters: filters, include: include);
@@ -104,7 +105,19 @@ namespace Services.Implements
 
         public async Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id)
         {
-            return _mapper.Map<GetOrderResponse>(await GetByIdAsync(id));
+            Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
+                (o) => o.Include(o => o.Profile!)
+                .Include(o => o.SessionDetail!)
+                .ThenInclude(sd => sd.Session!);
+            List<Expression<Func<Order, bool>>> filters = new()
+            {
+                (order) => order.Id == id,
+                //(order) => order.Status == BaseEntityStatus.Active
+            };
+            var result = await _repository.FirstOrDefaultAsync<GetOrderResponse>(
+                filters: filters, include: include)
+                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
+            return result!;
         }
 
         public async Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request)
@@ -273,7 +286,7 @@ namespace Services.Implements
             {
                 if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
                 {
-                    
+
                     validOrders.Add(order);
                 }
             }
@@ -316,8 +329,8 @@ namespace Services.Implements
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
-            
-            
+
+
 
             var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
             wallet.Balance += orderEntity.RewardPoints;
@@ -404,7 +417,7 @@ namespace Services.Implements
         public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
         {
             request.ExchangeGiftId = null;
-            if(request.OrderId == null || request.OrderId == Guid.Empty)
+            if (request.OrderId == null || request.OrderId == Guid.Empty)
             {
                 throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderIdRequired);
             }
