@@ -74,8 +74,8 @@ namespace Services.Implements
 
             var sessionDetails = await _repository.GetListAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable
-                .Include(sd => sd.Deliverer!)
-                .Include(sd => sd.Location!)
+                .Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
+                .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
                 .Include(sd => sd.Session!));
 
             return _mapper.Map<ICollection<GetSessionDetailResponse>>(sessionDetails);
