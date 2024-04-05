@@ -26,12 +26,13 @@ namespace Services.Implements
     {
 
         private readonly ISchoolService _schoolService;
-
+        private readonly IWalletService _wallletService;
         private readonly ICloudStorageService _cloudStorageService;
-        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService, IWalletService wallletService) : base(unitOfWork, mapper, appSettings)
         {
             _schoolService = schoolService;
             _cloudStorageService = cloudStorageService;
+            _wallletService = wallletService;
         }
 
         public async Task CreateProfileAsync(CreateProfileRequest request, Guid userId)
@@ -52,10 +53,18 @@ namespace Services.Implements
             profileEntity.Id = profileId;
             profileEntity.Status = Utilities.Statuses.BaseEntityStatus.Active;
             profileEntity.CurrentBMI = currentBMI.Weight / (currentBMI.Height * currentBMI.Height);
-
+            
+            var pointsWallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                ProfileId = profileId,
+                Name = profileEntity.FullName,
+                UserId = userId,
+            };
             await _repository.InsertAsync(profileEntity);
             await _unitOfWork.GetRepository<ProfileBodyMassIndex>().InsertAsync(currentBMI);
             await _unitOfWork.CommitAsync();
+            await _wallletService.CreateWalletAsync(WalletType.Points, pointsWallet);
         }
         public async Task<Profile> GetProfileByIdAsync(int status, Guid id)
         {

@@ -16,6 +16,7 @@ using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements
 {
@@ -23,6 +24,28 @@ namespace Services.Implements
     {
         public WalletService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
+        }
+
+        public async Task CreateWalletAsync(WalletType type, Wallet wallet)
+        {
+            wallet.Balance = 0;
+            wallet.Status = BaseEntityStatus.Active;
+            string walletPrefix = "";
+            if (type.Equals(WalletType.Money))
+            {
+                wallet.Type = WalletType.Money.ToString();
+                wallet.Name = "Ví tiền của " + wallet.Name;
+                walletPrefix = EntityCodeConstrant.WalletCodeConstraint.MoneyWalletPrefix;
+            }
+            else
+            {
+                wallet.Type = WalletType.Points.ToString();
+                wallet.Name = "Ví điểm của " + wallet.Name;
+                walletPrefix = EntityCodeConstrant.WalletCodeConstraint.PointWalletPrefix;
+            }
+            wallet.Code = EntityCodeUtil.GenerateEntityCode(walletPrefix, await _repository.CountAsync() + 1);
+            await _repository.InsertAsync(wallet);
+            await _unitOfWork.CommitAsync();
         }
 
         public Task<Wallet> GetByIdAsync(Guid walletId)

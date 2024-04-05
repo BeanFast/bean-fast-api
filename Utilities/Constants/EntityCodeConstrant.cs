@@ -107,5 +107,11 @@ namespace Utilities.Constants
         {
             public static string LoyaltyCardPrefix = "Lc";
         }
+        public class WalletCodeConstraint
+        {
+            public static string WalletPrefix = "W";
+            public static string MoneyWalletPrefix = WalletPrefix + "M";
+            public static string PointWalletPrefix = WalletPrefix + "P";
+        }
     }
 }

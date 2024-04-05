@@ -33,6 +33,7 @@ namespace Utilities.Settings
         public string Location { get; set; } = string.Empty;
         public string OrderActivity { get; set; } = string.Empty;
         public string LoyaltyCard { get; set; } = string.Empty;
+        public string QRCode { get; set; } = string.Empty;
     }
 
 }
