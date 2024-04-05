@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client.Extensions.Msal;
 using Services.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime;
@@ -61,6 +62,18 @@ namespace Services.Implements
             {
                 await Console.Out.WriteLineAsync(ex.Message);
             }
+        }
+
+        public async Task<string> UploadFileAsync(Guid id, string folderName, byte[] bytes, string contentType)
+        {
+            FirebaseSettings firebaseSetting = _appSettings.Firebase;
+            Stream stream = new MemoryStream(bytes);
+
+            await _storageClient.UploadObjectAsync(firebaseSetting.StorageBucket, $"{folderName}/{id}", contentType, stream);
+            var baseURL = firebaseSetting.BaseUrl;
+            var filePath = $"{folderName}%2F{id}";
+            var url = $"{baseURL}/{firebaseSetting.StorageBucket}/o/{filePath}?alt=media";
+            return url;
         }
     }
 }

@@ -14,10 +14,10 @@ namespace Utilities.Utils
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.H);
             var qrCode = new PngByteQRCode(qrCodeData);
             byte[] qrBytes = qrCode.GetGraphic(20);
-            using (FileStream fs = new FileStream("qrcode.png", FileMode.Create))
-            {
-                fs.Write(qrBytes, 0, qrBytes.Length);
-            }
+            //using (FileStream fs = new FileStream("qrcode.png", FileMode.Create))
+            //{
+            //    fs.Write(qrBytes, 0, qrBytes.Length);
+            //}
             return qrCode.GetGraphic(20);
         }
     }

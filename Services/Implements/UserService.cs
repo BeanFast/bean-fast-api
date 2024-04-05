@@ -28,13 +28,15 @@ namespace Services.Implements
         private readonly IRoleService _roleService;
         private readonly ISmsOtpService _smsOtpService;
 
+        private readonly IWalletService _walletService;
         public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
-            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService) : base(
+            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService, IWalletService walletService) : base(
             unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _roleService = roleService;
             _smsOtpService = smsOtpService;
+            _walletService = walletService;
         }
 
         public async Task<User> GetByIdAsync(Guid userId)
@@ -109,16 +111,20 @@ namespace Services.Implements
             customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
             customer.Id = Guid.NewGuid();
             customer.Status = BaseEntityStatus.Active;
-            var avatarPath = await _cloudStorageService.UploadFileAsync(customer.Id,
-                _appSettings.Firebase.FolderNames.User, registerRequest.Image);
-            customer.AvatarPath = avatarPath;
+            customer.AvatarPath = UserConstrants.DefaultAvatar;
             customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Status = UserStatus.NotVerified;
             var customerNumber = await _repository.CountAsync() + 1;
             customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
-
+            var moneyWallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                Name = customer.FullName!,
+                UserId = customer.Id,
+            };
             await _repository.InsertAsync(customer);
             await _unitOfWork.CommitAsync();
+            await _walletService.CreateWalletAsync(WalletType.Money, moneyWallet);
             return new RegisterResponse();
         }
 
