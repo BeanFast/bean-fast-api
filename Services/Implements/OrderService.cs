@@ -166,7 +166,7 @@ namespace Services.Implements
                 && order.Status == OrderStatus.Delivering
             };
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
-                (order) => order.Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!);
+                (order) => order.Include(o => o.OrderDetails!).Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!);
 
             //var orders = await _repository.GetListAsync(filters: filters,
             //    status: OrderStatus.Delivering, include: queryable => queryable
