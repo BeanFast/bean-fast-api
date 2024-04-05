@@ -28,11 +28,19 @@ namespace BeanFastApi.Controllers
         // GET: api/Orders
         [HttpGet]
         [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
-        public async Task<IActionResult> GetAllOrders([FromQuery]OrderFilterRequest request)
+        public async Task<IActionResult> GetAllOrdersAsync([FromQuery]OrderFilterRequest request)
         {
             object orders;
             var user = await GetUserAsync();
             orders = await _orderService.GetAllAsync(request, user);
+            return SuccessResult(orders);
+        }
+        [HttpGet("{id}")]
+        [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
+        public async Task<IActionResult> GetOrderByIdAsync([FromRoute] Guid id)
+        {
+            object orders;
+            orders = await _orderService.GetOderResponseByIdAsync(id);
             return SuccessResult(orders);
         }
 
