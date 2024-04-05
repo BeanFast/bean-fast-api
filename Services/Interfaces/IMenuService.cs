@@ -11,6 +11,7 @@ public interface IMenuService : IBaseService
     Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest);
 
     Task<Menu> GetByIdAsync(Guid id);
+    Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id);
     Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId);
     Task DeleteMenuAsync(Guid id);
 }
