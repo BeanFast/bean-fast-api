@@ -15,8 +15,7 @@ namespace DataTransferObjects.Models.Auth.Request
         //public string Phone { get; set; }
         public string Password { get; set; }
         public string Phone { get; set; }
-        [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
-        public IFormFile Image { get; set; }
+
         //public string AvatarPath { get; set; }
     }
 }
