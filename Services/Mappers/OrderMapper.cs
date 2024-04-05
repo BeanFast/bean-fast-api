@@ -18,6 +18,8 @@ namespace Services.Mappers
             CreateMap<CreateOrderRequest, Order>();
             CreateMap<CreateOrderRequest.OrderDetailOfCreateOrderRequest, OrderDetail>();
             CreateMap<SessionDetail, GetOrderResponse.SessionDetailOfOrderResponse>();
+            CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
+            CreateMap<Session, GetOrderResponse.SessionDetailOfOrderResponse.GetSessionOfSessionDetail>();
         }
     }
 }

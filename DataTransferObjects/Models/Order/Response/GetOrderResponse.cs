@@ -23,7 +23,7 @@ namespace DataTransferObjects.Models.Order.Response
         public int RewardPoints { get; set; }
         public int Status { get; set; }
         public string? Feedback { get; set; }
-        public GetProfileResponse? Profile { get; set; }
+        public ProfileOfOrderRessponse? Profile { get; set; }
         public SessionDetailOfOrderResponse? SessionDetail { get; set; }
         public IList<GetOrderActivityResponse> OrderActivities { get; set; }
         public IList<OrderDetailOfGetOrderResponse> OrderDetails { get; set; }
@@ -39,10 +39,27 @@ namespace DataTransferObjects.Models.Order.Response
         public class SessionDetailOfOrderResponse
         {
             public string? Code { get; set; }
+            public GetSessionOfSessionDetail? Session { get; set; }
 
-            public GetLocationIncludeSchoolResponse? Location { get; set; }
-            public GetSessionForDeliveryResponse? Session { get; set; }
-            public GetDelivererResponse? Deliverer { get; set; }
+            public class GetSessionOfSessionDetail
+            {
+                public Guid Id { get; set; }
+                public string Code { get; set; }
+                public DateTime OrderStartTime { get; set; }
+                public DateTime OrderEndTime { get; set; }
+                public DateTime DeliveryStartTime { get; set; }
+                public DateTime DeliveryEndTime { get; set; }
+            }
+        }
+
+        public class ProfileOfOrderRessponse
+        {
+            public string FullName { get; set; }
+            public string? NickName { get; set; }
+            public string AvatarPath { get; set; }
+            public DateTime Dob { get; set; }
+            public string? Class { get; set; }
+            public bool Gender { get; set; }
         }
     }
 }
