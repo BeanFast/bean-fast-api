@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DataTransferObjects.Models.Location.Request;
 using DataTransferObjects.Models.Location.Response;
+using DataTransferObjects.Models.School.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Services.Mappers
             CreateMap<Location, GetLocationResponse>();
             CreateMap<CreateLocationRequest, Location>();
             CreateMap<UpdateLocationRequest, Location>();
+            CreateMap<School, GetSchoolResponse>();
         }
     }
 }
