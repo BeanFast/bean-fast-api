@@ -108,7 +108,7 @@ namespace BeanFastApi.Controllers
         //    return SuccessResult(orders);
         //}
 
-        [HttpGet("GetValidOrdersByQRCode")]
+        [HttpGet("getOrderByQrCode")]
         [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> GetValidOrdersByQRCode([FromQuery] string qrCode)
         {
@@ -118,7 +118,7 @@ namespace BeanFastApi.Controllers
             return SuccessResult(orders);
         }
 
-        [HttpPut("updateOrderStatusByQRCode")]
+        [HttpPut("updateOrderStatusByQrCode")]
         [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> UpdateOrderStatusByQRCode([FromQuery] string qrCode)
         {
