@@ -103,18 +103,22 @@ namespace Services.Implements
             return order;
         }
 
-        public async Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id)
+        public async Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id)
         {
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
                 (o) => o.Include(o => o.Profile!)
                 .Include(o => o.SessionDetail!)
-                .ThenInclude(sd => sd.Session!);
+                .ThenInclude(sd => sd.Session!)
+                .Include(o => o.SessionDetail!)
+                .ThenInclude(sd => sd.Location!)
+                .ThenInclude(l => l.School!)
+                .ThenInclude(school => school.Area!);
             List<Expression<Func<Order, bool>>> filters = new()
             {
                 (order) => order.Id == id,
                 //(order) => order.Status == BaseEntityStatus.Active
             };
-            var result = await _repository.FirstOrDefaultAsync<GetOrderResponse>(
+            var result = await _repository.FirstOrDefaultAsync<GetOrderByIdResponse>(
                 filters: filters, include: include)
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return result!;

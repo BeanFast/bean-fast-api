@@ -39,7 +39,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
         public async Task<IActionResult> GetOrderByIdAsync([FromRoute] Guid id)
         {
-            GetOrderResponse order;
+            GetOrderByIdResponse order;
             order = await _orderService.GetOderResponseByIdAsync(id);
             return SuccessResult(order);
         }
