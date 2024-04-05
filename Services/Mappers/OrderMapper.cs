@@ -15,11 +15,21 @@ namespace Services.Mappers
         {
             CreateMap<Order, GetOrderResponse>();
             CreateMap<OrderDetail, GetOrderResponse.OrderDetailOfGetOrderResponse>();
-            CreateMap<CreateOrderRequest, Order>();
-            CreateMap<CreateOrderRequest.OrderDetailOfCreateOrderRequest, OrderDetail>();
             CreateMap<SessionDetail, GetOrderResponse.SessionDetailOfOrderResponse>();
             CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
             CreateMap<Session, GetOrderResponse.SessionDetailOfOrderResponse.GetSessionOfSessionDetail>();
+
+            CreateMap<Order, GetOrderByIdResponse>();
+            CreateMap<OrderDetail, GetOrderByIdResponse.OrderDetailOfGetOrderResponse>();
+            CreateMap<SessionDetail, GetOrderByIdResponse.SessionDetailOfOrderResponse>();
+            CreateMap<Profile, GetOrderByIdResponse.ProfileOfOrderRessponse>();
+            CreateMap<Session, GetOrderByIdResponse.SessionDetailOfOrderResponse.GetSessionOfSessionDetail>();
+            CreateMap<Location, GetOrderByIdResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail>();
+            CreateMap<School, GetOrderByIdResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail.SchoolOfLocation>();
+            CreateMap<Area, GetOrderByIdResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail.SchoolOfLocation.AreaOfLocation>();
+            CreateMap<CreateOrderRequest, Order>();
+            CreateMap<CreateOrderRequest.OrderDetailOfCreateOrderRequest, OrderDetail>();
+            
         }
     }
 }

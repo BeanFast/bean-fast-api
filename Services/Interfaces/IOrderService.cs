@@ -18,7 +18,7 @@ namespace Services.Interfaces
     {
         Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user);
         Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request);
-        Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
+        Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id);
         //Task<ICollection<GetOrderResponse>> GetOrdersByCustomerIdAsync(Guid userId);
         Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId);
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
