@@ -10,7 +10,7 @@ namespace DataTransferObjects.Models.Menu.Request
         public Guid? SchoolId { get; set; }
         public Guid? CreaterId { get; set; }
         public Guid? UpdaterId { get; set; }
-        [StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCodeLength)]
+        [StringLength(100, MinimumLength = 4, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCodeLength)]
         public string? Code { get; set; }
         public DateTime? OrderStartTime { get; set; }
         [DataType(DataType.DateTime, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCreateDateInvalid)]
