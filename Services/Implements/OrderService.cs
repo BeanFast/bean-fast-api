@@ -21,6 +21,9 @@ using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Collections.Generic;
 
 namespace Services.Implements
 {
@@ -154,11 +157,11 @@ namespace Services.Implements
             return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
-        public async Task<ICollection<Order>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
+        public async Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
         {
             List<Expression<Func<Order, bool>>> filters = new()
             {
-                (order) => order.ProfileId == profileId
+                (order) => order.ProfileId! == profileId
                 && order.SessionDetail!.DelivererId == delivererId
                 && order.Status == OrderStatus.Delivering
             };
@@ -170,7 +173,8 @@ namespace Services.Implements
             //    .Include(o => o.SessionDetail!)
             //    .ThenInclude(sd => sd.Session!))
             //    ?? throw new EntityNotFoundException("Không có order nào đang giao hết");
-            return await _repository.GetListAsync(include: include, filters: filters);
+            var orders = await _repository.GetListAsync(include: include, filters: filters);
+            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
         }
 
         public async Task CreateOrderAsync(User user, CreateOrderRequest request)
@@ -253,16 +257,42 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
+        {
+            var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
+            var profileId = loyaltyCard.ProfileId;
+            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
+            if (orderList.IsNullOrEmpty())
+            {
+                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
+            }
+            var timeScanning = TimeUtil.GetCurrentVietNamTime();
+            var validOrders = new List<GetOrderResponse>();
+            foreach (var order in orderList)
+            {
+                if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
+                {
+                    
+                    validOrders.Add(order);
+                }
+            }
+            if (validOrders.Count == 0)
+            {
+                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NotFoundOrders);
+            }
+            return validOrders;
+        }
+
         public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, Guid delivererId)
         {
             bool isUpdated = false;
             var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
             var profileId = loyaltyCard.ProfileId;
             var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
-            if(orderList.IsNullOrEmpty())
+            if (orderList.IsNullOrEmpty())
             {
                 throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
-            }   
+            }
             var timeScanning = TimeUtil.GetCurrentVietNamTime();
             foreach (var order in orderList)
             {
@@ -271,7 +301,7 @@ namespace Services.Implements
                     await UpdateOrderCompleteStatusAsync(order.Id);
                     isUpdated = true;
                 }
-                if(!isUpdated)
+                if (!isUpdated)
                 {
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryClosed);
                 }
