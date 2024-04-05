@@ -126,8 +126,8 @@ public class MenuService : BaseService<Menu>, IMenuService
         var menu = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
             filters: filters, include: queryable => queryable
             .Include(m => m.Kitchen!)
-            .Include(m => m.MenuDetails!))
-            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
+            .Include(m => m.MenuDetails!)
+            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id)));
         return menu;
     }
 
@@ -220,5 +220,19 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
         await _repository.DeleteAsync(menu);
         await _unitOfWork.CommitAsync();
+    }
+
+    public async Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id)
+    {
+        List<Expression<Func<Menu, bool>>> filters = new()
+            {
+                (menu) => menu.Id == id
+            };
+        var menu = await _repository.FirstOrDefaultAsync<GetMenuResponse>(status: BaseEntityStatus.Active,
+            filters: filters, include: queryable => queryable
+            .Include(m => m.Kitchen!)
+            .Include(m => m.MenuDetails!).ThenInclude(md => md.Food!))
+            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
+        return menu;
     }
 }

@@ -38,6 +38,12 @@ public class MenusController : BaseController
         return SuccessResult(menus);
         //return Problem()
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetMenuByIdAsync([FromRoute] Guid id)
+    {
+        var menu = await _menuService.GetGetMenuResponseByIdAsync(id);
+        return SuccessResult(menu);
+    }
     [HttpPost]
     [Authorize(Utilities.Enums.RoleName.MANAGER)]
     public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuRequest request)
