@@ -96,6 +96,7 @@ namespace Services.Implements
                 filters: filters, include: queryable => queryable.Include(o => o.Profile!)
                 .ThenInclude(p => p.Wallets)
                 .Include(o => o.SessionDetail!)
+                .Include(o => o.OrderDetails!)
                 .Include(o => o.OrderActivities!))
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return order;
