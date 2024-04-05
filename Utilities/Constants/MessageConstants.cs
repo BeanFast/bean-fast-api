@@ -261,6 +261,7 @@ namespace Utilities.Constants
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
             public const string OrderIdRequired= "Order id là bắt buộc";
             public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
+            public const string NotFoundOrders = "Không có đơn hàng nào cần giao trong khoảng thời gian này";
         }
 
         public class OrderActivityMessageConstrant

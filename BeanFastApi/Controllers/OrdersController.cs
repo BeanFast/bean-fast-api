@@ -28,7 +28,6 @@ namespace BeanFastApi.Controllers
         // GET: api/Orders
         [HttpGet]
         [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
-        [ProducesResponseType(typeof(SuccessApiResponse<IPaginable<GetOrderResponse>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllOrders([FromQuery]OrderFilterRequest request)
         {
             object orders;
@@ -36,6 +35,7 @@ namespace BeanFastApi.Controllers
             orders = await _orderService.GetAllAsync(request, user);
             return SuccessResult(orders);
         }
+
         [HttpGet("{orderId}/orderActivities")]
         [Authorize]
         public async Task<IActionResult> GetOrderActivitiesByOrderIdAsync([FromRoute] Guid orderId)
@@ -107,6 +107,16 @@ namespace BeanFastApi.Controllers
         //    var orders = await _orderService.GetOrdersByCustomerIdAsync(user.Id);
         //    return SuccessResult(orders);
         //}
+
+        [HttpGet("GetValidOrdersByQRCode")]
+        [Authorize(RoleName.DELIVERER)]
+        public async Task<IActionResult> GetValidOrdersByQRCode([FromQuery] string qrCode)
+        {
+            var user = await GetUserAsync();
+            var delivererId = user.Id;
+            var orders = await _orderService.GetValidOrderResponsesByQRCodeAsync(qrCode, delivererId);
+            return SuccessResult(orders);
+        }
 
         [HttpPut("updateOrderStatusByQRCode")]
         [Authorize(RoleName.DELIVERER)]
