@@ -75,7 +75,7 @@ namespace Services.Implements
             var transaction = new Transaction
             {
                 WalletId = walletIdGuid,
-                Value = amountDouble,
+                Value = amountDouble / 100,
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1)
             };
