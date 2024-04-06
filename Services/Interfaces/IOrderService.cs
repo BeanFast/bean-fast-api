@@ -29,6 +29,7 @@ namespace Services.Interfaces
         Task UpdateOrderCompleteStatusAsync(Guid orderId);
         Task UpdateOrderDeliveryStatusAsync(Guid orderId);
         Task UpdateOrderCancelStatusAsync(Guid orderId);
+        Task UpdateOrderCancelStatusForCustomerAsync(Guid orderId);
         Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request);
         Task DeleteAsync(Guid guid);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request);

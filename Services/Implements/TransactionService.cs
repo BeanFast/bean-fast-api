@@ -71,11 +71,11 @@ namespace Services.Implements
         {
             var walletIdGuid = Guid.Parse(walletId);
             var wallet = await _walletService.GetByIdAsync(walletIdGuid);
-            var amountDouble = double.Parse(amount);
+            var amountDouble = double.Parse(amount) / 100;
             var transaction = new Transaction
             {
                 WalletId = walletIdGuid,
-                Value = amountDouble / 100,
+                Value = amountDouble,
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1)
             };
