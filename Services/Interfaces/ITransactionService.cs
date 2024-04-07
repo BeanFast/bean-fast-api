@@ -1,5 +1,7 @@
 using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Transaction.Request;
+using DataTransferObjects.Models.Transaction.Response;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -15,5 +17,6 @@ namespace Services.Interfaces
         Task CreateTransactionListAsync(List<Transaction> transactions);
         string CreateVnPayPaymentRequest(User user, int amount, HttpContext context);
         Task CreateTopUpTransactionAsync(string walletId, string amount);
+        Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, User user);
     }
 }

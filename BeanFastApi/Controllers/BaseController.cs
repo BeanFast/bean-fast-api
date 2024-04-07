@@ -3,10 +3,12 @@ using BusinessObjects.Models;
 using DataTransferObjects.Core.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Services.Interfaces;
 using System.Net;
 using System.Security.Claims;
 using Utilities.Constants;
+using Utilities.Exceptions;
 using Utilities.Settings;
 
 namespace BeanFastApi.Controllers
@@ -36,6 +38,7 @@ namespace BeanFastApi.Controllers
         protected async Task<User> GetUserAsync()
         {
             string? userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr.IsNullOrEmpty()) throw new NotLoggedInOrInvalidTokenException();
             return await _userService.GetByIdAsync(Guid.Parse(userIdStr!));
             //string? 
         }

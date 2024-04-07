@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Notification.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Notification.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace Services.Interfaces
     public interface INotificationService : IBaseService 
     {
         Task SendNotificationAsync(CreateNotificationRequest request);
+
+        Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user);
     }
 }
