@@ -7,6 +7,7 @@ using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -58,7 +59,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task SendNotificationAsync(CreateNotificationRequest request)
+        public async Task<BatchResponse> SendNotificationAsync(CreateNotificationRequest request)
         {
             List<string> deviceTokens = new();
             var notification = _mapper.Map<BusinessObjects.Models.Notification>(request);
@@ -91,7 +92,7 @@ namespace Services.Implements
                 Tokens = deviceTokens
             };
             var app = FirebaseApp.DefaultInstance;
-            
+
             if (app == null)
             {
                 GoogleCredential credential;
@@ -106,10 +107,10 @@ namespace Services.Implements
             }
             FirebaseMessaging messaging = FirebaseMessaging.GetMessaging(app);
             var response = await messaging.SendMulticastAsync(message);
-            await Console.Out.WriteLineAsync(response.ToString());
-
+            
             //await _repository.InsertAsync(notification);
             //await _unitOfWork.CommitAsync();
+            return response;
         }
     }
 }

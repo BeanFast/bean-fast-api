@@ -22,8 +22,8 @@ namespace BeanFastApi.Controllers
         [HttpPost]
         public async Task<IActionResult> SendNotificationsAsync([FromBody] CreateNotificationRequest request)
         {
-            await _notificationService.SendNotificationAsync(request);
-            return SuccessResult(new { });
+            var response = await _notificationService.SendNotificationAsync(request);
+            return SuccessResult(response);
         }
     }
 }
