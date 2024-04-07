@@ -31,20 +31,20 @@ namespace Services.Implements
         public async Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user)
         {
             List<Guid> notFoundNotificationIds = new List<Guid>();
-            foreach(var notificationId in request.NotificationIds)
+            foreach (var notificationId in request.NotificationIds)
             {
 
                 var notification = await _repository.FirstOrDefaultAsync(filters: new()
                 {
                     n => n.Id == notificationId && n.Status == BaseEntityStatus.Active
                 }, include: i => i.Include(n => n.NotificationDetails.Where(nd => nd.Status == NotificationDetailStatus.Unread && nd.UserId == user.Id)));
-                if(notification == null)
+                if (notification == null)
                 {
                     notFoundNotificationIds.Add(notificationId);
                 }
                 else
                 {
-                    if(notification.NotificationDetails.Any())
+                    if (notification.NotificationDetails.Any())
                     {
                         foreach (var nd in notification.NotificationDetails)
                         {
@@ -70,7 +70,7 @@ namespace Services.Implements
                 notificationDetail.SendDate = DateTime.UtcNow;
                 notificationDetail.Status = NotificationDetailStatus.Unread;
                 notificationDetail.Id = Guid.NewGuid();
-                if(user.DeviceToken != null)
+                if (user.DeviceToken != null)
                 {
                     deviceTokens.Add(user.DeviceToken);
                 }
@@ -91,7 +91,8 @@ namespace Services.Implements
                 Tokens = deviceTokens
             };
             var app = FirebaseApp.DefaultInstance;
-            if (FirebaseApp.DefaultInstance == null)
+            
+            if (app == null)
             {
                 GoogleCredential credential;
                 var credentialJsonFileName = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS");
@@ -104,12 +105,11 @@ namespace Services.Implements
                 });
             }
             FirebaseMessaging messaging = FirebaseMessaging.GetMessaging(app);
+            var response = await messaging.SendMulticastAsync(message);
+            await Console.Out.WriteLineAsync(response.ToString());
 
-            //var response = await messaging.SendMulticastAsync(message);
-            //await Console.Out.WriteLineAsync(response.ToString());
-
-            await _repository.InsertAsync(notification);
-            await _unitOfWork.CommitAsync();
+            //await _repository.InsertAsync(notification);
+            //await _unitOfWork.CommitAsync();
         }
     }
 }
