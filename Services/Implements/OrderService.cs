@@ -391,6 +391,28 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task UpdateOrderCancelStatusForCustomerAsync(Guid orderId)
+        {
+            var validTime = TimeUtil.GetCurrentVietNamTime();
+            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var orderEntity = await GetByIdAsync(orderId);
+            if (validTime >= orderEntity.SessionDetail!.Session!.OrderStartTime && validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
+            {
+                orderEntity.Status = (int)OrderStatus.Cancelled;
+            }
+            orderEntity.OrderActivities!.Add(new OrderActivity
+            {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active
+            });
+
+            await _repository.UpdateAsync(orderEntity);
+            await _unitOfWork.CommitAsync();
+        }
+
         public async Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request)
         {
             var orderEntity = await GetByIdAsync(orderId);

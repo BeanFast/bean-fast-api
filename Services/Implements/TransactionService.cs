@@ -73,7 +73,7 @@ namespace Services.Implements
         {
             var walletIdGuid = Guid.Parse(walletId);
             var wallet = await _walletService.GetByIdAsync(walletIdGuid);
-            var amountDouble = double.Parse(amount);
+            var amountDouble = double.Parse(amount) / 100;
             var transaction = new Transaction
             {
                 WalletId = walletIdGuid,
