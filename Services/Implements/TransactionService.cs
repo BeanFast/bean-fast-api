@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Transaction.Request;
+using DataTransferObjects.Models.Transaction.Response;
 using DataTransferObjects.Models.VnPay.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -83,6 +85,11 @@ namespace Services.Implements
             wallet.Balance += amountDouble;
             await _walletService.UpdateAsync(wallet);
             //await _unitOfWork.CommitAsync();
+        }
+
+        public Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, Task<User> task)
+        {
+            
         }
     }
 }
