@@ -303,5 +303,9 @@ namespace Utilities.Constants
         {
             public const string ExchangeGiftIdRequired = "ExchangeGiftId là bắt buộc";
         }
+        public class TransactionMessageConstrant
+        {
+            //public const string Profile
+        }
     }
 }

@@ -17,6 +17,6 @@ namespace Services.Interfaces
         Task CreateTransactionListAsync(List<Transaction> transactions);
         string CreateVnPayPaymentRequest(User user, int amount, HttpContext context);
         Task CreateTopUpTransactionAsync(string walletId, string amount);
-        Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, Task<User> task);
+        Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, User user);
     }
 }

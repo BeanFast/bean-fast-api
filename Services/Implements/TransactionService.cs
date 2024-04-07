@@ -5,6 +5,7 @@ using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Transaction.Request;
 using DataTransferObjects.Models.Transaction.Response;
 using DataTransferObjects.Models.VnPay.Request;
+using Google.Apis.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
@@ -12,10 +13,12 @@ using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Enums;
+using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
@@ -27,10 +30,15 @@ namespace Services.Implements
     {
         private readonly IVnPayService _vnPayService;
         private readonly IWalletService _walletService;
-        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService) : base(unitOfWork, mapper, appSettings)
+        private readonly IProfileService _profileService;
+
+
+
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService) : base(unitOfWork, mapper, appSettings)
         {
             _vnPayService = vnPayService;
             _walletService = walletService;
+            _profileService = profileService;
         }
         public async Task CreateTransactionAsync(Transaction transaction)
         {
@@ -41,6 +49,7 @@ namespace Services.Implements
 
             transaction.Status = OrderActivityStatus.Active;
             transaction.Id = Guid.NewGuid();
+            transaction.Time = TimeUtil.GetCurrentVietNamTime();    
             await _repository.InsertAsync(transaction);
             await _unitOfWork.CommitAsync();
         }
@@ -87,9 +96,21 @@ namespace Services.Implements
             //await _unitOfWork.CommitAsync();
         }
 
-        public Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, Task<User> task)
+        public async Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, User user)
         {
-            
+            var profile = await _profileService.GetByIdAsync(profileId);
+            if (profile.UserId != user.Id)
+            {
+                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
+            }
+            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
+            {
+
+                t => (t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null) ? t.Wallet!.UserId == user.Id : t.Wallet!.User!.Profiles!.Any(p => p.Id == profileId && p.Status == BaseEntityStatus
+                .Active),
+            };
+            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(paginationRequest, filters);
+            return transactionPage;
         }
     }
 }

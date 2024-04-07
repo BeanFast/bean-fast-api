@@ -176,7 +176,8 @@ namespace BeanFastApi.Extensions
                 typeof(GiftMapper),
                 typeof(WalletMapper),
                 typeof(ExchangeGiftMapper),
-                typeof(NotificationMapper)
+                typeof(NotificationMapper),
+                typeof(TransactionMapper)
                 ); // Add multiple mappers by passing the assembly containing the mapper profiles
             return services;
         }

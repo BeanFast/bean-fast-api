@@ -263,7 +263,7 @@ namespace Services.Implements
                     OrderId = orderId,
                     ExchangeGiftId = null,
                     WalletId = wallet.Id,
-                    Value = orderEntity.TotalPrice,
+                    Value = -orderEntity.TotalPrice,
                     Time = TimeUtil.GetCurrentVietNamTime(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
                     Status = TransactionStatus.Active

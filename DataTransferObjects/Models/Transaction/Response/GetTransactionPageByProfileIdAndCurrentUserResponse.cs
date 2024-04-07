@@ -8,11 +8,11 @@ namespace DataTransferObjects.Models.Transaction.Response
 {
     public class GetTransactionPageByProfileIdAndCurrentUserResponse
     {
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
-        public Guid ExchangeGiftId { get; set; }
-        public Guid GameId { get; set; }
-        public Guid WalletId { get; set; }
+        public Guid? Id { get; set; }
+        public Guid? OrderId { get; set; }
+        public Guid? ExchangeGiftId { get; set; }
+        public Guid? GameId { get; set; }
+        public Guid? WalletId { get; set; }
         public string Code { get; set; }
         public DateTime Time { get; set; }
         public double Value { get; set; }

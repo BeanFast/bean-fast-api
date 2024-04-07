@@ -1,11 +1,11 @@
-﻿using DataTransferObjects.Models.Transaction.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Transaction.Request;
 using DataTransferObjects.Models.Transaction.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Transactions;
 
 namespace Services.Mappers
 {
@@ -15,6 +15,7 @@ namespace Services.Mappers
         {
             CreateMap<CreateTransactionRequest, Transaction>();
             CreateMap<Transaction, GetTransactionResponse>();
+            CreateMap<Transaction, GetTransactionPageByProfileIdAndCurrentUserResponse>();
         }
     }
 }

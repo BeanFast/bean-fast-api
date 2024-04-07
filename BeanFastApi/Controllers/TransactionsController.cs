@@ -43,11 +43,12 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(null);
         }
         [HttpGet("profiles/{profileId}")]
-        [Authorize(RoleName.CUSTOMER) ]
+        [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> GetCurrentProfileTransaction([FromRoute] Guid profileId, [FromQuery] PaginationRequest paginationRequest)
         {
-            object transactions = default;
-            await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, GetUserAsync());
+            object? transactions = default;
+            transactions = await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, await GetUserAsync());
+            return SuccessResult(transactions);
         }
     }
 }
