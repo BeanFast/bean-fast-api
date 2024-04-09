@@ -10,5 +10,7 @@ namespace Services.Interfaces
     public interface IMenuDetailService : IBaseService
     {
         Task<MenuDetail> GetByIdAsync(Guid id);
+        Task HardDeleteAsync(List<MenuDetail> menuDetails);
+        Task InsertRangeAsync(List<MenuDetail> menuDetails);
     }
 }

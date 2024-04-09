@@ -22,7 +22,7 @@ namespace Services.Implements
         public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
-        
+
 
         public async Task<MenuDetail> GetByIdAsync(Guid id)
         {
@@ -33,6 +33,24 @@ namespace Services.Implements
             var menuDetail = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active, filters: filters)
                 ?? throw new EntityNotFoundException(MessageConstants.MenuDetailMessageConstrant.MenuDetailNotFound(id));
             return menuDetail;
+        }
+
+        public async Task HardDeleteAsync(List<MenuDetail> menuDetails)
+        {
+            foreach (var item in menuDetails)
+            {
+                await _repository.HardDeleteAsync(item);
+            }
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task InsertRangeAsync(List<MenuDetail> menuDetails)
+        {
+            menuDetails.ForEach(async md =>
+            {
+                await _repository.InsertAsync(md);
+            });
+            await _unitOfWork.CommitAsync();
         }
     }
 }
