@@ -6,6 +6,7 @@ using DataTransferObjects.Models.Session.Response;
 using DataTransferObjects.Models.User.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -169,8 +170,11 @@ namespace Services.Implements
                 s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
                 s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > s.DeliveryStartTime),
             });
-            
-            await Console.Out.WriteLineAsync(sessions.ToString());
+
+            if (!sessions.IsNullOrEmpty())
+            {
+                var busyDelivererIds = sessions.Select(s => s.SessionDetails!.Select(s => s.Id)).ToList();
+            }
             return null;
 
         }

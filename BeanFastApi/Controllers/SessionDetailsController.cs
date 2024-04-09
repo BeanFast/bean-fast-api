@@ -27,7 +27,7 @@ namespace BeanFastApi.Controllers
             var sessionDetails = await _sessionDetailService.GetSessionDetailByDelivererIdAsync(userId);
             return SuccessResult(sessionDetails);
         }
-        [HttpGet("deliverySchedule")]
+        [HttpGet("deliverySchedule/incoming")]
         [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> GetIncommingDeliveringSessionDetailsAsync()
         {
