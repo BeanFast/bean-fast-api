@@ -18,8 +18,12 @@ namespace Utilities.Utils
             {
                 MinLength = 6,
             });
-            var id = sqids.Encode(entityNumber).ToUpper();
-            return $"{entityPrefix}{TimeUtil.GetCurrentVietNamTime().ToString("yyyyMMdd").Substring(2)}{id}";
+            var timeStampCode = sqids.Encode(DateTime.UtcNow.Ticks).ToUpper();
+            var entityNumberCode = sqids.Encode(entityNumber).ToUpper();
+            var code = entityNumberCode;
+            Console.WriteLine(timeStampCode);
+            Console.WriteLine(entityNumberCode);
+            return $"{entityPrefix}{TimeUtil.GetCurrentVietNamTime().ToString("yyyyMMdd").Substring(2)}{code}";
         }
     }
 }

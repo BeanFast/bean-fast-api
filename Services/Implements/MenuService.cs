@@ -236,8 +236,43 @@ public class MenuService : BaseService<Menu>, IMenuService
         return menu;
     }
 
-    public async Task UpdateMenuAsync(UpdateMenuRequest request, Guid guid)
+    public async Task UpdateMenuAsync(UpdateMenuRequest request, Guid guid, User updater)
     {
         await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, request.KitchenId);
+        var menuEntity = await GetByIdAsync(guid);
+        var menuDetails = new List<MenuDetail>();
+        var menuDetailNumber = await _menuDetailService.CountAsync();
+        menuEntity.UpdateDate = TimeUtil.GetCurrentVietNamTime();
+        menuEntity.Updater = updater;
+        foreach (var item in request.MenuDetails)
+        {
+            await _foodService.GetByIdAsync(item.FoodId);
+            menuDetails.Add(new MenuDetail()
+            {
+                Id = Guid.NewGuid(),
+                MenuId = guid,
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuDetailCodeConstrant.MenuDetailPrefix, menuDetailNumber++),
+                Status = BaseEntityStatus.Active,
+                FoodId = item.FoodId,
+                Price = item.Price,
+            }) ;
+        }
+        menuEntity.MenuDetails = new List<MenuDetail>();
+        using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        {
+            try
+            {
+                await _menuDetailService.InsertRangeAsync(menuDetails);
+                await _repository.UpdateAsync(menuEntity);
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }
