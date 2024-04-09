@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
+using DataTransferObjects.Models.User.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Services.Interfaces
         Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id);
         Task<Session> GetByIdAsync(Guid id);
         Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole);
+        Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionId);
         Task CreateSessionAsync(CreateSessionRequest request);
         Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request);
         Task DeleteAsync(Guid guid);

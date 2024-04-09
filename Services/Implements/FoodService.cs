@@ -126,7 +126,7 @@ namespace Services.Implements
             };
 
             var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!).Include(f => f.MenuDetails!).ThenInclude(md => md.Food!))
+                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!).Include(f => f.MenuDetails!).ThenInclude(md => md.Menu!))
                 ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
@@ -237,17 +237,19 @@ namespace Services.Implements
             if(food.Combos != null && food.Combos.Any())
             {
                 var comboCodes = food.Combos.Select(c => c.Code).ToList();
-                message = $"Món ăn này hiện tại đang nằm trong {(comboCodes.Count == 1 ? "" : "các ")} combo: {string.Join(", ", comboCodes)}, vui lòng xóa chúng trong các combo này";
-
-                await Console.Out.WriteLineAsync(message);
+                message = $"Món ăn này hiện tại đang nằm trong {(comboCodes.Count == 1 ? "" : "các ")} combo: {string.Join(", ", comboCodes)}, vui lòng xóa chúng trong các combo này.";
 
             }
             if(food.MenuDetails != null && food.MenuDetails.Any())
             {
                 //var menuDetailsCode = food.MenuDetails.
+                var menudDetailCodes = food.MenuDetails.Select(md => md.Menu!.Code).Distinct().ToList();
+                message += "\n";
+                message += $"Món ăn này hiện tại đang nằm trong {(menudDetailCodes.Count == 1 ? "" : "các ")} menu: {string.Join(", ", menudDetailCodes)}, vui lòng xóa chúng trong các menu này.";
             }
+            if(message != string.Empty) { throw new InvalidRequestException(message); }
             await _repository.DeleteAsync(food);
-            //await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
 
     }

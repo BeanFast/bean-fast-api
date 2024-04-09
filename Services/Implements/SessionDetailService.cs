@@ -58,18 +58,12 @@ namespace Services.Implements
             return _mapper.Map<GetSessionDetailResponse>(await GetByIdAsync(id));
         }
 
-        public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid delivererId, Guid userId)
+        public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid userId)
         {
-            var delivere = await _userService.GetByIdAsync(userId);
-
-            if (delivere.Id != delivererId)
-            {
-                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.NotAllowed);
-            }
-
+           
             List<Expression<Func<SessionDetail, bool>>> filters = new()
             {
-                (sessionDetail) => sessionDetail.DelivererId == delivererId
+                (sessionDetail) => sessionDetail.DelivererId == userId
             };
 
             var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(status: BaseEntityStatus.Active,
