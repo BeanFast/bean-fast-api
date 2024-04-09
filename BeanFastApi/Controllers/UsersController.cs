@@ -12,6 +12,14 @@ namespace BeanFastApi.Controllers
         {
 
         }
+        [HttpGet("deliverers")]
+        [Authorize(Utilities.Enums.RoleName.MANAGER)]
+        public async Task<IActionResult> GetAllAvailableDeliverer()
+        {
+            var deliverers = await _userService.GetAvailableDeliverersAsync();
+            return SuccessResult(deliverers);
+        }
+        
         [HttpPut]
         [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
         public async Task<IActionResult> UpdateCustomer([FromForm] UpdateCustomerRequest request)
@@ -19,6 +27,7 @@ namespace BeanFastApi.Controllers
             await _userService.UpdateCustomerAsync(request, await GetUserAsync());
             return SuccessResult<object>(new object());
         }
+        
         [HttpPost]
         [Authorize(Utilities.Enums.RoleName.ADMIN)]
         public async Task<IActionResult> CreateUser([FromForm] CreateUserRequest request)
