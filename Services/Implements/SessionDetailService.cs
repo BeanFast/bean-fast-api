@@ -5,6 +5,7 @@ using DataTransferObjects.Models.SessionDetail.Request;
 using DataTransferObjects.Models.SessionDetail.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -15,6 +16,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
@@ -57,36 +59,46 @@ namespace Services.Implements
         {
             return _mapper.Map<GetSessionDetailResponse>(await GetByIdAsync(id));
         }
-
-        public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid userId)
+        public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailsAsync(User user, GetSessionDetailFilterRequest filterReqeuest)
         {
-           
-            List<Expression<Func<SessionDetail, bool>>> filters = new()
+            if (RoleName.MANAGER.ToString() == user.Role!.EnglishName)
             {
-                (sessionDetail) => sessionDetail.DelivererId == userId
-            };
-
-            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable
-                .Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
-                .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
-                .Include(sd => sd.Session!));
-
-            return sessionDetails;
+                //    if (!filterReqeuest.Status.IsNullOrEmpty() && filterReqeuest.Status!.ToLower() == "incoming")
+                //{
+                //if (RoleName.MANAGER.ToString() == user.Role!.EnglishName) throw new InvalidRoleException();
+                return await GetIncommingDeliveringSessionDetailsAsync(user);
+            }
+            else
+            {
+                return await GetSessionDetailByDelivererIdAsync(user);
+            }
         }
-        public async Task<ICollection<GetIncommingDeliveringSessionDetails>> GetIncommingDeliveringSessionDetailsAsync(User user)
+        public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(User user)
         {
-            //if (user.Id != delivererId)
-            //{
-            //    throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.NotAllowed);
-            //}
 
             List<Expression<Func<SessionDetail, bool>>> filters = new()
             {
                 (sessionDetail) => sessionDetail.DelivererId == user.Id,
+                (sessionDetail) => sessionDetail.Status == BaseEntityStatus.Active,
+            };
+
+            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
+                filters: filters
+                //, include: queryable => queryable
+                //.Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
+                //.Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
+                //.Include(sd => sd.Session!)
+                );
+
+            return sessionDetails;
+        }
+        public async Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user)
+        {
+            List<Expression<Func<SessionDetail, bool>>> filters = new()
+            {
                 (sessionDetail) => sessionDetail.Session!.DeliveryStartTime > TimeUtil.GetCurrentVietNamTime()
             };
-            var sessionDetails = await _repository.GetListAsync<GetIncommingDeliveringSessionDetails>(status: BaseEntityStatus.Active,
+            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(status: BaseEntityStatus.Active,
                 filters: filters);
             return sessionDetails;
         }
@@ -115,6 +127,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-       
+
     }
 }

@@ -14,9 +14,11 @@ namespace Services.Interfaces
     {
         Task<SessionDetail> GetByIdAsync(Guid id);
         Task<GetSessionDetailResponse> GetSessionDetailResponseByIdAsync(Guid id);
-        Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(Guid userId);
+        Task<ICollection<GetSessionDetailResponse>> GetSessionDetailsAsync(User user, GetSessionDetailFilterRequest filterReqeuest);
+        Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(User user);
+        Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user);
+
         Task CreateSessionDetailAsync(CreateSessionDetailRequest createSessionDetail);
         Task UpdateSessionDetailByIdAsync(Guid id, UpdateSessionDetailRequest updateSessionDetail);
-        Task<ICollection<GetIncommingDeliveringSessionDetails>> GetIncommingDeliveringSessionDetailsAsync(User user);
     }
 }

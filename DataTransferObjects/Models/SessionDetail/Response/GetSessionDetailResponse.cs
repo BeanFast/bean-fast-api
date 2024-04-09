@@ -19,7 +19,7 @@ namespace DataTransferObjects.Models.SessionDetail.Response
         public LocationOfSessionDetail? Location { get; set; }
         public SessionOfSessionDetail? Session { get; set; }
         public ICollection<OrderOfSessionDetail>? Orders { get; set; }
-
+        public GetDelivererResponse? Deliverer { get; set; }
         public class LocationOfSessionDetail
         {
             public Guid Id { get; set; }
