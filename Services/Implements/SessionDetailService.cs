@@ -111,13 +111,11 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetail)
+        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest)
         {
             var sessionDetailEntity = await GetByIdAsync(sessionDetailId);
-
-            sessionDetailEntity.SessionId = updateSessionDetail.SessionId;
-            sessionDetailEntity.LocationId = updateSessionDetail.LocationId;
-            sessionDetailEntity.DelivererId = updateSessionDetail.DelivererId;
+            await _userService.GetByIdAsync(updateSessionDetailRequest.DelivererId);
+            sessionDetailEntity.DelivererId = updateSessionDetailRequest.DelivererId;
 
             await _repository.UpdateAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();

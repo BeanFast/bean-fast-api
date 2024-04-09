@@ -12,8 +12,6 @@ namespace DataTransferObjects.Models.SessionDetail.Request
         [RequiredGuid]
         public Guid LocationId { get; set; }
         [RequiredGuid]
-        public Guid SessionId { get; set; }
-        [RequiredGuid]
         public Guid DelivererId { get; set; }
     }
 }
