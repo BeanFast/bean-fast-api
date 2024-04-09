@@ -10,7 +10,7 @@ namespace Services.Interfaces
     public interface IUserService : IBaseService
     {
         Task<User> GetByIdAsync(Guid userId);
-        Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync();
+        Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync(Guid sessionId);
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
         Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest);
         Task SendOtpAsync(string phone);

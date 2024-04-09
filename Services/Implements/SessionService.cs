@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
+using DataTransferObjects.Models.User.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
@@ -26,11 +27,12 @@ namespace Services.Implements
 
         private readonly ILocationService _locationService;
         private readonly ISessionDetailService _sessionDetailService;
-
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService) : base(unitOfWork, mapper, appSettings)
+        private readonly IUserService _userService;
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService) : base(unitOfWork, mapper, appSettings)
         {
             _locationService = locationService;
             _sessionDetailService = sessionDetailService;
+            _userService = userService;
         }
 
         public async Task CreateSessionAsync(CreateSessionRequest request)
@@ -51,7 +53,7 @@ namespace Services.Implements
                 {
                     await _locationService.GetByIdAsync(sessionDetail.LocationId);
                     sessionDetail.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
-                    sessionDetail.Status = BaseEntityStatus.Active; 
+                    sessionDetail.Status = BaseEntityStatus.Active;
                     sessionDetailNumber++;
                     uniqueLocationIds.Add(sessionDetail.Id);
                 }
@@ -83,7 +85,7 @@ namespace Services.Implements
             //    return filter;
             //};
             //filters.Add(orFilter);
-            var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();  
+            var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
                 if (request.Expired)
@@ -116,15 +118,15 @@ namespace Services.Implements
             {
                 filters.Add(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == request.SchoolId && sd.Status == BaseEntityStatus.Active).Any());
             }
-            if(request.OrderStartTime != null)
+            if (request.OrderStartTime != null)
             {
                 filters.Add(s => s.OrderStartTime.Date.Equals(request.OrderStartTime.Value.Date));
             }
-            if(request.OrderTime != null)
+            if (request.OrderTime != null)
             {
                 filters.Add(s => s.OrderStartTime.Date <= request.OrderTime.Value.Date && s.OrderEndTime.Date >= request.OrderTime.Value.Date);
             }
-            if(request.DeliveryTime != null)
+            if (request.DeliveryTime != null)
             {
                 filters.Add(s => s.DeliveryStartTime.Date <= request.DeliveryTime.Value.Date && s.DeliveryEndTime.Date >= request.DeliveryTime.Value.Date);
             }
@@ -159,6 +161,19 @@ namespace Services.Implements
         //    await _repository.InsertAsync(session);
         //    await _unitOfWork.CommitAsync();
         //}
+        public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionId)
+        {
+            var session = await GetByIdAsync(sessionId);
+            var sessions = await _repository.GetListAsync(filters: new()
+            {
+                s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
+                s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > s.DeliveryStartTime),
+            });
+            
+            await Console.Out.WriteLineAsync(sessions.ToString());
+            return null;
+
+        }
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)
         {
             throw new NotImplementedException();

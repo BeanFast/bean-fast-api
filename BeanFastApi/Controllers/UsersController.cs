@@ -12,11 +12,11 @@ namespace BeanFastApi.Controllers
         {
 
         }
-        [HttpGet("deliverers")]
+        [HttpGet("deliverers/{sessionId}")]
         [Authorize(Utilities.Enums.RoleName.MANAGER)]
-        public async Task<IActionResult> GetAllAvailableDeliverer()
+        public async Task<IActionResult> GetAllAvailableDelivererBySessionId([FromRoute] Guid sessionId)
         {
-            var deliverers = await _userService.GetAvailableDeliverersAsync();
+            var deliverers = await _userService.GetAvailableDeliverersAsync(sessionId);
             return SuccessResult(deliverers);
         }
         

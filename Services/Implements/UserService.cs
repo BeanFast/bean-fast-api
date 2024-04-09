@@ -54,12 +54,13 @@ namespace Services.Implements
             return user;
         }
 
-        public async Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync()
+        public async Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync(Guid sessionId)
         {
             List<Expression<Func<User, bool>>> filters = new()
             {
                 (user) => RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName),
-                (user) => user.SessionDetails != null && user.SessionDetails.Count == 0,
+                (user) => user.SessionDetails != null && user.SessionDetails.Where(sd => sd.SessionId == sessionId).Any(),
+                //(user) => user.SessionDetails != null && user.SessionDetails.Count == 0,
 
             };
             var users = await _repository.GetListAsync<GetDelivererResponse>(filters: filters);
