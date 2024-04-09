@@ -18,6 +18,7 @@ using Utilities.Statuses;
 using DataTransferObjects.Models.User.Response;
 using DataTransferObjects.Models.SmsOtp;
 using DataTransferObjects.Models.User.Request;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Services.Implements
 {
@@ -88,7 +89,13 @@ namespace Services.Implements
             {
                 throw new BannedAccountException();
             }
-
+            if (!loginRequest.DeviceToken.IsNullOrEmpty())
+            {
+                user.DeviceToken = loginRequest.DeviceToken;
+                await _repository.UpdateAsync(user);
+                await _unitOfWork.CommitAsync();
+            }
+            
             return new LoginResponse
             {
                 AccessToken = JwtUtil.GenerateToken(user)

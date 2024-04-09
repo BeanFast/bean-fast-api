@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataTransferObjects.Models.ExchangeGift
+namespace DataTransferObjects.Models.ExchangeGift.Request
 {
-    public class ExchangeGiftRequest
+    public class CreateExchangeGiftRequest
     {
         public Guid GiftId { get; set; }
         public Guid ProfileId { get; set; }
         public Guid SessionDetailId { get; set; }
-
 
     }
 }

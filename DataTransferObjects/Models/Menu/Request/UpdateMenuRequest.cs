@@ -9,19 +9,14 @@ using Utilities.ValidationAttributes;
 
 namespace DataTransferObjects.Models.Menu.Request
 {
-    public class CreateMenuRequest
+    public class UpdateMenuRequest
     {
         [RequiredGuid]
         public Guid KitchenId { get; set; }
-        //[Required(ErrorMessage = MessageConstants.MenuMessageContrant.MenuCodeRequired)]
-        //[StringLength(100, MinimumLength = 10, ErrorMessage = MessageConstants.MenuMessageContrant.MenuCodeLength)]
-        //public string Code { get; set; }
-        
         [RequiredListLength(max: 20)]
-        public List<MenuDetailOfCreateMenuRequest> MenuDetails { get; set; }
-        //[Range(1, 20)]
-        
-        public class MenuDetailOfCreateMenuRequest
+        public List<MenuDetailOfUpdateMenuRequest> MenuDetails { get; set; }
+
+        public class MenuDetailOfUpdateMenuRequest
         {
             [RequiredGuid]
             public Guid FoodId { get; set; }
@@ -29,6 +24,5 @@ namespace DataTransferObjects.Models.Menu.Request
             [Range(1000, 500000, ErrorMessage = MessageConstants.FoodMessageConstrant.FoodPriceRange)]
             public double Price { get; set; }
         }
-       
     }
 }

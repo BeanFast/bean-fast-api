@@ -51,6 +51,13 @@ public class MenusController : BaseController
         await _menuService.CreateMenuAsync(request, GetUserId());
         return SuccessResult<object>();
     }
+    [HttpPut("{id}")]
+    [Authorize(Utilities.Enums.RoleName.MANAGER)]
+    public async Task<IActionResult> UpdateMenuAsync([FromBody] UpdateMenuRequest request)
+    {
+        await _menuService.UpdateMenuAsync(request, GetUserId());
+        return SuccessResult<object>();
+    }
     [HttpDelete("{id}")]
     [Authorize(Utilities.Enums.RoleName.MANAGER)]
     public async Task<IActionResult> DeleteMenuAsync([FromRoute] Guid id)

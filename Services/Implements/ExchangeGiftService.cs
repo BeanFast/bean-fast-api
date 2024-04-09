@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
-using DataTransferObjects.Models.ExchangeGift;
+using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.OrderActivity.Request;
 using DataTransferObjects.Models.OrderActivity.Response;
 using Microsoft.Extensions.Options;
@@ -38,7 +38,7 @@ namespace Services.Implements
             _orderActivityService = orderActivityService;
         }
 
-        public async Task CreateExchangeGiftAsync(ExchangeGiftRequest request, Guid customerId)
+        public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, Guid customerId)
         {
             var gift = await _giftService.GetGiftByIdAsync(request.GiftId);
             var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);

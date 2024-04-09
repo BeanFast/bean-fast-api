@@ -209,6 +209,7 @@ namespace Services.Implements
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.Status = OrderStatus.Cooking;
+            
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
             if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))

@@ -72,15 +72,30 @@ namespace Services.Implements
                 (sessionDetail) => sessionDetail.DelivererId == delivererId
             };
 
-            var sessionDetails = await _repository.GetListAsync(status: BaseEntityStatus.Active,
+            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable
                 .Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
                 .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
                 .Include(sd => sd.Session!));
 
-            return _mapper.Map<ICollection<GetSessionDetailResponse>>(sessionDetails);
+            return sessionDetails;
         }
+        public async Task<ICollection<GetIncommingDeliveringSessionDetails>> GetIncommingDeliveringSessionDetailsAsync(User user)
+        {
+            //if (user.Id != delivererId)
+            //{
+            //    throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.NotAllowed);
+            //}
 
+            List<Expression<Func<SessionDetail, bool>>> filters = new()
+            {
+                (sessionDetail) => sessionDetail.DelivererId == user.Id,
+                (sessionDetail) => sessionDetail.Session!.DeliveryStartTime > TimeUtil.GetCurrentVietNamTime()
+            };
+            var sessionDetails = await _repository.GetListAsync<GetIncommingDeliveringSessionDetails>(status: BaseEntityStatus.Active,
+                filters: filters);
+            return sessionDetails;
+        }
         public async Task CreateSessionDetailAsync(CreateSessionDetailRequest request)
         {
             var sessionDetailId = Guid.NewGuid();
@@ -107,5 +122,7 @@ namespace Services.Implements
             await _repository.UpdateAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();
         }
+
+       
     }
 }

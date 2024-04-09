@@ -19,12 +19,20 @@ namespace BeanFastApi.Controllers
         }
 
         // Get delivery schedule by delivererId
-        [HttpGet("deliveryschedule/{delivererId}")]
+        [HttpGet("deliverySchedule/{delivererId}")]
         [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> ViewDeliveryScheduleAsync([FromRoute] Guid delivererId)
         {
             var userId = GetUserId();
             var sessionDetails = await _sessionDetailService.GetSessionDetailByDelivererIdAsync(delivererId, userId);
+            return SuccessResult(sessionDetails);
+        }
+        [HttpGet("deliverySchedule")]
+        [Authorize(RoleName.DELIVERER)]
+        public async Task<IActionResult> GetIncommingDeliveringSessionDetailsAsync()
+        {
+            var user = await GetUserAsync();
+            var sessionDetails = await _sessionDetailService.GetIncommingDeliveringSessionDetailsAsync(user);
             return SuccessResult(sessionDetails);
         }
 

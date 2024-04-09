@@ -18,6 +18,7 @@ using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
+using static Azure.Core.HttpHeader;
 
 namespace Services.Implements
 {
@@ -117,7 +118,18 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
+        public async Task<Food> GetByIdForUpdateActionAsync(Guid id)
+        {
+            List<Expression<Func<Food, bool>>> filters = new()
+            {
+                (food) => food.Id == id,
+            };
 
+            var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!).Include(f => f.MenuDetails!).ThenInclude(md => md.Food!))
+                ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
+            return food;
+        }
         public async Task<Food> GetByIdAsync(Guid id, string roleName)
         {
             Food? food = null;
@@ -219,9 +231,23 @@ namespace Services.Implements
 
         public async Task DeleteAsync(Guid guid)
         {
-            var food = await GetByIdAsync(guid);
+            var food = await GetByIdForUpdateActionAsync(guid);
+            // check food is existed in other combos
+            var message = string.Empty; 
+            if(food.Combos != null && food.Combos.Any())
+            {
+                var comboCodes = food.Combos.Select(c => c.Code).ToList();
+                message = $"Món ăn này hiện tại đang nằm trong {(comboCodes.Count == 1 ? "" : "các ")} combo: {string.Join(", ", comboCodes)}, vui lòng xóa chúng trong các combo này";
+
+                await Console.Out.WriteLineAsync(message);
+
+            }
+            if(food.MenuDetails != null && food.MenuDetails.Any())
+            {
+                //var menuDetailsCode = food.MenuDetails.
+            }
             await _repository.DeleteAsync(food);
-            await _unitOfWork.CommitAsync();
+            //await _unitOfWork.CommitAsync();
         }
 
     }

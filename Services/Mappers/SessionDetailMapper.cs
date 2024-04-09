@@ -23,6 +23,14 @@ namespace Services.Mappers
             CreateMap<Location, GetSessionDetailResponse.LocationOfSessionDetail>();
             CreateMap<School, GetSessionDetailResponse.LocationOfSessionDetail.SchoolOfLocation>();
             CreateMap<Area, GetSessionDetailResponse.LocationOfSessionDetail.SchoolOfLocation.AreaOfSchool>();
+
+
+            CreateMap<SessionDetail, GetIncommingDeliveringSessionDetails>();
+            CreateMap<Order, GetIncommingDeliveringSessionDetails.OrderOfSessionDetail>();
+            CreateMap<OrderDetail, GetIncommingDeliveringSessionDetails.OrderOfSessionDetail.OrderDetailOfOrder>();
+            CreateMap<Location, GetIncommingDeliveringSessionDetails.LocationOfSessionDetail>();
+            CreateMap<School, GetIncommingDeliveringSessionDetails.LocationOfSessionDetail.SchoolOfLocation>();
+            CreateMap<Area, GetIncommingDeliveringSessionDetails.LocationOfSessionDetail.SchoolOfLocation.AreaOfSchool>();
         }
     }
 }

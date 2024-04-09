@@ -159,7 +159,7 @@ public class MenuService : BaseService<Menu>, IMenuService
     }
     public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId)
     {
-        await _kitchenService.GetByIdAsync(MenuStatus.Active, createMenuRequest.KitchenId);
+        await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, createMenuRequest.KitchenId);
         var menuId = Guid.NewGuid();
         var menuEntity = _mapper.Map<Menu>(createMenuRequest);
         menuEntity.CreaterId = createrId;
@@ -234,5 +234,10 @@ public class MenuService : BaseService<Menu>, IMenuService
             .Include(m => m.MenuDetails!).ThenInclude(md => md.Food!))
             ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
         return menu;
+    }
+
+    public async Task UpdateMenuAsync(UpdateMenuRequest request, Guid guid)
+    {
+        await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, request.KitchenId);
     }
 }
