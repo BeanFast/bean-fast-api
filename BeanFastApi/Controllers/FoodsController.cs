@@ -44,7 +44,7 @@ public class FoodsController : BaseController
 
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(Food), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
     {
         GetFoodResponse food = await _foodService.GetFoodResponseByIdAsync(id);
         return SuccessResult(food);
@@ -52,7 +52,7 @@ public class FoodsController : BaseController
 
     [HttpPost]
     [Authorize(RoleName.MANAGER)]
-    public async Task<IActionResult> CreateFood([FromForm] CreateFoodRequest request)
+    public async Task<IActionResult> CreateFoodAsync([FromForm] CreateFoodRequest request)
     {
         await _foodService.CreateFoodAsync(request);
         return SuccessResult<object>(statusCode: HttpStatusCode.Created);
@@ -60,7 +60,7 @@ public class FoodsController : BaseController
 
     [HttpPut("{id}")]
     [Authorize(RoleName.MANAGER)]
-    public async Task<IActionResult> UpdateFood([FromRoute] Guid id, [FromForm] UpdateFoodRequest request)
+    public async Task<IActionResult> UpdateFoodAsync([FromRoute] Guid id, [FromForm] UpdateFoodRequest request)
     {
         await _foodService.UpdateFoodAsync(id, request);
         return SuccessResult<object>(statusCode: HttpStatusCode.OK);
@@ -68,7 +68,7 @@ public class FoodsController : BaseController
 
     [HttpDelete("{id}")]
     [Authorize(RoleName.MANAGER)]
-    public async Task<IActionResult> DeleteFood([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteFoodAsync([FromRoute] Guid id)
     {
         await _foodService.DeleteAsync(id);
         return SuccessResult<object>(statusCode: HttpStatusCode.OK);
