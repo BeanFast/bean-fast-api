@@ -101,8 +101,6 @@ namespace Services.Implements
                 {
                     filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
                 }
-
-
             }
             else
             {
@@ -147,7 +145,8 @@ namespace Services.Implements
                 (session) => session.Id == id
             };
             var session = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters)
+                filters: filters,
+                include: i => i.Include(s => s.SessionDetails!))
                 ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
             return session;
         }
@@ -165,17 +164,25 @@ namespace Services.Implements
         public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionId)
         {
             var session = await GetByIdAsync(sessionId);
+            ICollection<GetDelivererResponse> list = new List<GetDelivererResponse>();
             var sessions = await _repository.GetListAsync(filters: new()
             {
                 s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
                 s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > s.DeliveryStartTime),
-            });
+            }, include: i => i.Include(s => s.SessionDetails!));
 
             if (!sessions.IsNullOrEmpty())
             {
-                var busyDelivererIds = sessions.Select(s => s.SessionDetails!.Select(s => s.Id)).ToList();
+                var busyDelivererIds = sessions
+                    .SelectMany(s => s.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value))
+                    .ToList();
+                // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
+                var existedBusyDelivererIdList = session.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value).ToList();
+                busyDelivererIds.AddRange(existedBusyDelivererIdList);
+                list = await _userService.GetDeliverersExcludeAsync(busyDelivererIds);
             }
-            return null;
+            
+            return list;
 
         }
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)

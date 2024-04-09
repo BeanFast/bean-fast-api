@@ -19,6 +19,7 @@ using DataTransferObjects.Models.User.Response;
 using DataTransferObjects.Models.SmsOtp;
 using DataTransferObjects.Models.User.Request;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 
 namespace Services.Implements
 {
@@ -54,12 +55,12 @@ namespace Services.Implements
             return user;
         }
 
-        public async Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync(Guid sessionId)
+        public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
         {
             List<Expression<Func<User, bool>>> filters = new()
             {
                 (user) => RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName),
-                (user) => user.SessionDetails != null && user.SessionDetails.Where(sd => sd.SessionId == sessionId).Any(),
+                (user) => !excludeDelivererIds.Contains(user.Id),
                 //(user) => user.SessionDetails != null && user.SessionDetails.Count == 0,
 
             };
@@ -103,7 +104,7 @@ namespace Services.Implements
                 await _repository.UpdateAsync(user);
                 await _unitOfWork.CommitAsync();
             }
-            
+
             return new LoginResponse
             {
                 AccessToken = JwtUtil.GenerateToken(user)
@@ -226,7 +227,7 @@ namespace Services.Implements
             var user = await GetUserByIdIncludeWallet(userId);
             var mappedUser = _mapper.Map<GetCurrentUserResponse>(user);
             //mappedUser.Balance = user.Wallets?.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))?.Balance;
-            if(user.Wallets != null && user.Wallets.Any())
+            if (user.Wallets != null && user.Wallets.Any())
             {
                 mappedUser.Balance = user.Wallets.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!.Balance;
             }
