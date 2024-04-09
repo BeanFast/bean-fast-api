@@ -1,5 +1,5 @@
 ﻿using BusinessObjects.Models;
-using DataTransferObjects.Models.ExchangeGift;
+using DataTransferObjects.Models.ExchangeGift.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Services.Mappers
     {
         public ExchangeGiftMapper()
         {
-            CreateMap<ExchangeGiftRequest, ExchangeGift>();
+            CreateMap<CreateExchangeGiftRequest, ExchangeGift>();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using BeanFastApi.Validators;
-using DataTransferObjects.Models.ExchangeGift;
+using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -18,7 +18,7 @@ namespace BeanFastApi.Controllers
 
         [HttpPost]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreateExchangeGiftAsync([FromBody] ExchangeGiftRequest request)
+        public async Task<IActionResult> CreateExchangeGiftAsync([FromBody] CreateExchangeGiftRequest request)
         {
             await _exchangeGiftService.CreateExchangeGiftAsync(request, GetUserId());
             return SuccessResult<object>();

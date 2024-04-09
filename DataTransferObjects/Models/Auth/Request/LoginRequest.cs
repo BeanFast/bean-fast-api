@@ -14,5 +14,7 @@ namespace DataTransferObjects.Models.Auth.Response
         [RegularExpression(RegexConstants.EmailRegex, ErrorMessage = MessageConstants.LoginMessageConstrant.InvalidEmail)]
         //[CustomEmailAddress]
         public string? Email { get; set; }
+
+        public string? DeviceToken {  get; set; }   
     }
 }
