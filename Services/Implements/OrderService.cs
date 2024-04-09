@@ -65,6 +65,7 @@ namespace Services.Implements
             }
             return filters;
         }
+
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user)
         {
             var filters = GetFiltersFromOrderRequest(request);
@@ -167,8 +168,7 @@ namespace Services.Implements
             List<Expression<Func<Order, bool>>> filters = new()
             {
                 (order) => order.Status == status
-            };
-
+            }; 
             var orders = await _repository.GetListAsync(filters: filters,
                 include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
 
@@ -200,8 +200,8 @@ namespace Services.Implements
             var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
             var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
 
-            var orderActivityNumber = await _repository.CountAsync() + 1;
-            var transactionNumber = await _repository.CountAsync() + 1;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            var transactionNumber = await _transactionService.CountAsync() + 1;
             var orderNumber = await _repository.CountAsync() + 1;
 
             var orderId = Guid.NewGuid();
@@ -209,7 +209,7 @@ namespace Services.Implements
             orderEntity.Id = orderId;
             orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.Status = OrderStatus.Cooking;
-            
+
             orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
             if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
@@ -326,22 +326,20 @@ namespace Services.Implements
                 }
             }
         }
-
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
         {
-            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var startTime = DateTime.Now; // Get the current time before executing the code
+
+
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            var transactionNumber = await _transactionService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
-
-
-
             var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
             wallet.Balance += orderEntity.RewardPoints;
-
-            await _repository.UpdateAsync(orderEntity);
-            await _unitOfWork.CommitAsync();
+            
             var newOrderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
@@ -350,13 +348,54 @@ namespace Services.Implements
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
+            var newTransaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
+                WalletId = wallet.Id,
+                Value = orderEntity.RewardPoints,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = TransactionStatus.Active,
+                OrderId = orderEntity.Id,
+            };
+
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+            await _transactionService.CreateTransactionAsync(newTransaction);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
+            var endTime = DateTime.Now;
+            var delay = endTime - startTime;
+            Console.WriteLine($"Delay: {delay.TotalMilliseconds} milliseconds");
         }
+
+        //public async Task UpdateOrderDeliveringFromCompleteStatusAsync(Guid orderId)
+        //{
+        //    var orderActivityNumber = await _repository.CountAsync() + 1;
+        //    var orderEntity = await GetByIdAsync(orderId);
+        //    orderEntity.Status = OrderStatus.Delivering;
+        //    orderEntity.DeliveryDate = null;
+        //    orderEntity.RewardPoints = 0;
+        //    var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+        //    wallet.Balance += orderEntity.RewardPoints;
+        //    await _repository.UpdateAsync(orderEntity);
+        //    await _unitOfWork.CommitAsync();
+        //    var newOrderActivity = new OrderActivity
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+        //        Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+        //        Time = TimeUtil.GetCurrentVietNamTime(),
+        //        Status = OrderActivityStatus.Active
+        //    };
+        //    await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+        //    await _repository.UpdateAsync(orderEntity);
+        //    await _unitOfWork.CommitAsync();
+        //}
+
+
         public async Task UpdateOrderDeliveryStatusAsync(Guid orderId)
         {
-            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Delivering;
 
@@ -364,7 +403,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             });
@@ -375,7 +414,7 @@ namespace Services.Implements
 
         public async Task UpdateOrderCancelStatusAsync(Guid orderId)
         {
-            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = (int)OrderStatus.Cancelled;
 
@@ -383,7 +422,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             });
@@ -395,7 +434,7 @@ namespace Services.Implements
         public async Task UpdateOrderCancelStatusForCustomerAsync(Guid orderId)
         {
             var validTime = TimeUtil.GetCurrentVietNamTime();
-            var orderActivityNumber = await _repository.CountAsync() + 1;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
             if (validTime >= orderEntity.SessionDetail!.Session!.OrderStartTime && validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
             {
@@ -405,13 +444,43 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             });
 
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task UpdateOrderStatusAfterDeliveryTimeEndedAsync()
+        {
+            bool isUpdated = false;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            var realTime = TimeUtil.GetCurrentVietNamTime();
+            var listOrderWithDeliveringStatus = await _repository.GetListAsync(status: OrderStatus.Delivering);
+            foreach (var order in listOrderWithDeliveringStatus)
+            {
+                if (realTime > order.SessionDetail!.Session!.DeliveryEndTime)
+                {
+                    await UpdateOrderCancelStatusAsync(order.Id);
+                    isUpdated = true;
+
+                    order.OrderActivities!.Add(new OrderActivity
+                    {
+                        Id = Guid.NewGuid(),
+                        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                        Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+                        Time = TimeUtil.GetCurrentVietNamTime(),
+                        Status = OrderActivityStatus.Active
+                    });
+                }
+
+                if (!isUpdated)
+                {
+                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
+                }
+            }
         }
 
         public async Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request)
