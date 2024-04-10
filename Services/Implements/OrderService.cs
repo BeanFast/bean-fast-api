@@ -264,7 +264,7 @@ namespace Services.Implements
                     OrderId = orderId,
                     ExchangeGiftId = null,
                     WalletId = wallet.Id,
-                    Value = -orderEntity.TotalPrice,
+                    Value = - orderEntity.TotalPrice,
                     Time = TimeUtil.GetCurrentVietNamTime(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
                     Status = TransactionStatus.Active
@@ -368,29 +368,27 @@ namespace Services.Implements
             Console.WriteLine($"Delay: {delay.TotalMilliseconds} milliseconds");
         }
 
-        //public async Task UpdateOrderDeliveringFromCompleteStatusAsync(Guid orderId)
-        //{
-        //    var orderActivityNumber = await _repository.CountAsync() + 1;
-        //    var orderEntity = await GetByIdAsync(orderId);
-        //    orderEntity.Status = OrderStatus.Delivering;
-        //    orderEntity.DeliveryDate = null;
-        //    orderEntity.RewardPoints = 0;
-        //    var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
-        //    wallet.Balance += orderEntity.RewardPoints;
-        //    await _repository.UpdateAsync(orderEntity);
-        //    await _unitOfWork.CommitAsync();
-        //    var newOrderActivity = new OrderActivity
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-        //        Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-        //        Time = TimeUtil.GetCurrentVietNamTime(),
-        //        Status = OrderActivityStatus.Active
-        //    };
-        //    await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
-        //    await _repository.UpdateAsync(orderEntity);
-        //    await _unitOfWork.CommitAsync();
-        //}
+        public async Task UpdateOrderDeliveringFromCompleteStatusAsync(Guid orderId)
+        {
+            //var orderActivityNumber = await _repository.CountAsync() + 1;
+            //var orderEntity = await GetByIdAsync(orderId);
+            //orderEntity.Status = OrderStatus.Delivering;
+            //orderEntity.DeliveryDate = null;
+            //orderEntity.RewardPoints = 0;
+            //var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+            //wallet.Balance += orderEntity.RewardPoints;
+            //var newOrderActivity = new OrderActivity
+            //{   
+            //    Id = Guid.NewGuid(),
+            //    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+            //    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+            //    Time = TimeUtil.GetCurrentVietNamTime(),
+            //    Status = OrderActivityStatus.Active
+            //};
+            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+            //await _repository.UpdateAsync(orderEntity);
+            //await _unitOfWork.CommitAsync();
+        }
 
 
         public async Task UpdateOrderDeliveryStatusAsync(Guid orderId)

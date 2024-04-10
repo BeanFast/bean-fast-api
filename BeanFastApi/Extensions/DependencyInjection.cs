@@ -136,6 +136,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ILoyaltyCardService, LoyaltyCardService>();
             services.AddScoped<IVnPayService, VnPayService>();
+            services.AddScoped<IGameService, GameService>();
             return services;
         }
         public static IServiceCollection AddRateLimiting(this IServiceCollection services)
@@ -177,8 +178,9 @@ namespace BeanFastApi.Extensions
                 typeof(WalletMapper),
                 typeof(ExchangeGiftMapper),
                 typeof(NotificationMapper),
-                typeof(TransactionMapper)
-                ); // Add multiple mappers by passing the assembly containing the mapper profiles
+                typeof(TransactionMapper),
+                typeof(GameMapper)
+                ); 
             return services;
         }
         public static IServiceCollection AddAppSettingsBinding(this IServiceCollection services, IConfiguration configuration)

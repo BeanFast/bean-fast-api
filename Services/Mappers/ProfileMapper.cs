@@ -17,6 +17,7 @@ namespace Services.Mappers
             CreateMap<CreateProfileRequest, Profile>();
             CreateMap<CreateProfileRequest.BMIOfProfile, ProfileBodyMassIndex>();
             CreateMap<Profile, GetProfilesByCurrentCustomerResponse>();
+            CreateMap<School, GetProfilesByCurrentCustomerResponse.SchoolOfGetProfilesByCurrentCustomerResponse>();
 
             CreateMap<Profile, GetProfileResponse>()
                 .ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.Wallets!.First()));

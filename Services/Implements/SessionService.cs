@@ -192,7 +192,11 @@ namespace Services.Implements
 
         public async Task DeleteAsync(Guid guid)
         {
-            throw new NotImplementedException();
+            //var session = _repository.FirstOrDefaultAsync(filters: new()
+            //{
+            //    session => session.Id == guid,
+            //    session => session.Status == BaseEntityStatus.Active
+            //}, )
         }
 
         public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)

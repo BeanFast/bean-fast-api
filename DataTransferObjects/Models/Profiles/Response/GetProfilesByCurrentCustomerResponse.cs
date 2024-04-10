@@ -16,6 +16,12 @@ namespace DataTransferObjects.Models.Profiles.Response
         public string? Class { get; set; }
         public bool Gender { get; set; }
         public double CurrentBMI { get; set; }
-        public string SchoolName { get; set; }  
+        public SchoolOfGetProfilesByCurrentCustomerResponse School { get; set; }
+        public class SchoolOfGetProfilesByCurrentCustomerResponse
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+            //public virtual KitchenOfSchool? Kitchen { get; set; }
+        }
     }
 }
