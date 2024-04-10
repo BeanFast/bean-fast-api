@@ -4,7 +4,7 @@ public class GetMenuResponse
 {
     public Guid Id { get; set; }
     
-    public Guid? CreaterId { get; set; }
+    public Guid? CreatorId { get; set; }
     public Guid? UpdaterId { get; set; }
     public string Code { get; set; }
     public DateTime? CreateDate { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class CardType : BaseEntity
+    public class CardType : BaseAuditableEntity
     {
         public string Code { get; set; }
         public string Name { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class LoyaltyCard : BaseEntity
+    public class LoyaltyCard : BaseAuditableEntity
     {
         public Guid ProfileId { get; set; }
         public Guid CardTypeId { get; set; }

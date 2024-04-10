@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Order : BaseEntity
+    public class Order : BaseAuditableEntity
     {
         public Guid SessionDetailId { get; set; }
         public Guid ProfileId { get; set; }

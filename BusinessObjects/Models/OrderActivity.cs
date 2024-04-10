@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class OrderActivity : BaseEntity
+    public class OrderActivity : BaseAuditableEntity
     {
         public Guid? OrderId { get; set; }
         public Guid? ExchangeGiftId { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Combo : BaseEntity
+    public class Combo : BaseAuditableEntity
     {
         public Guid MasterFoodId { get; set; }
         public Guid FoodId { get; set; }

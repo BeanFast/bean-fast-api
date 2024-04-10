@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BusinessObjects.Models
 {
-    public class Game : BaseEntity
+    public class Game : BaseAuditableEntity
     {
         public string Name { get; set; }
         public string Description { get; set; }

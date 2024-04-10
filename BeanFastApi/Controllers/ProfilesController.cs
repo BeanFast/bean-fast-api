@@ -54,5 +54,6 @@ namespace BeanFastApi.Controllers
             await _profileService.DeleteProfileAsync(id);
             return SuccessResult<object>();
         }
+
     }
 }

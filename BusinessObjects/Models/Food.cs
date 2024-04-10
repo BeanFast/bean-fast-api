@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Food : BaseEntity
+    public class Food : BaseAuditableEntity
     {
         public Guid CategoryId { get; set; }
         public string Code { get; set; }

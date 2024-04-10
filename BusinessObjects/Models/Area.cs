@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Area : BaseEntity
+    public class Area : BaseAuditableEntity
     {
         public string Code { get; set; }
         public string City { get; set; }

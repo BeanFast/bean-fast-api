@@ -2,7 +2,7 @@
 
 namespace BusinessObjects.Models
 {
-    public class Category : BaseEntity
+    public class Category : BaseAuditableEntity
     {
         public string Code { get; set; }
         public string Name { get; set; }

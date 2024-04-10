@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Session : BaseEntity
+    public class Session : BaseAuditableEntity
     {
         public Guid MenuId { get; set; }
         public string Code { get; set; }
