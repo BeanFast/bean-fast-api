@@ -7,11 +7,13 @@ using DataTransferObjects.Models.Order.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.Implements;
 using Services.Interfaces;
 using System.Net;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
+using Utilities.Utils;
 
 namespace BeanFastApi.Controllers
 {
@@ -28,7 +30,7 @@ namespace BeanFastApi.Controllers
         // GET: api/Orders
         [HttpGet]
         [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
-        public async Task<IActionResult> GetAllOrdersAsync([FromQuery]OrderFilterRequest request)
+        public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderFilterRequest request)
         {
             object orders;
             var user = await GetUserAsync();
@@ -69,7 +71,7 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
         [HttpPost("{orderId}/orderActivities")]
-        public async Task<IActionResult> CreateOrderActivityAsync([FromRoute] Guid orderId,[FromForm] CreateOrderActivityRequest request)
+        public async Task<IActionResult> CreateOrderActivityAsync([FromRoute] Guid orderId, [FromForm] CreateOrderActivityRequest request)
         {
             request.OrderId = orderId;
             await _orderService.CreateOrderActivityAsync(request);
@@ -79,6 +81,7 @@ namespace BeanFastApi.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
         {
+            var realTime = TimeUtil.GetCurrentVietNamTime();
             var order = await _orderService.GetByIdAsync(id);
             var user = await GetUserAsync();
 
@@ -89,13 +92,19 @@ namespace BeanFastApi.Controllers
             else if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderCancelStatusAsync(id);
-            }else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
+            }
+            else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
             {
                 await _orderService.UpdateOrderCancelStatusAsync(id);
             }
-            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Delivering)
+            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
             {
-                await _orderService.UpdateOrderCompleteStatusAsync(id);
+                if (order.Status == OrderStatus.Delivering)
+                    await _orderService.UpdateOrderCompleteStatusAsync(id);
+                //else if (order.Status == OrderStatus.Completed)
+            }else if (order.Status == OrderStatus.Delivering && realTime > order.SessionDetail!.Session!.DeliveryEndTime)
+            {
+                await _orderService.UpdateOrderStatusAfterDeliveryTimeEndedAsync();
             }
             else
             {

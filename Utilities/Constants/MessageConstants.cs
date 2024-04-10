@@ -187,6 +187,7 @@ namespace Utilities.Constants
             public static string SessionNotFound(Guid guid) => $"Buổi với id: {guid} không tồn tại";
             public const string DuplicateLocationInSession = "Địa điểm đã tồn tại trong buổi này";
             public const string SessionDeliveryClosed = "Thời gian giao hàng đã đóng, không thể thực hiện thao tác này";
+            public const string SessionDeliveryStillAvailable = "Đơn hàng vẫn còn nằm trong thời hạn giao, không thể thực hiện thao tác này";
 
 
         }

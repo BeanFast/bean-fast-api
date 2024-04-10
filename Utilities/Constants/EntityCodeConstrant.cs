@@ -113,5 +113,11 @@ namespace Utilities.Constants
             public static string MoneyWalletPrefix = WalletPrefix + "M";
             public static string PointWalletPrefix = WalletPrefix + "P";
         }
+
+        public class GameCodeConstraint
+        {
+            public static string GamePrefix = "GAME";
+
+        }
     }
 }
