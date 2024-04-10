@@ -27,6 +27,10 @@ namespace Utilities.Constants
         {
             public static string CategoryPrefix = "C";
         }
+        public class KitchenCodeConstrant
+        {
+            public static string KitchenPrefix = "K";
+        }
 
         public class AreaCodeConstrant
         {

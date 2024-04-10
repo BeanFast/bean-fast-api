@@ -16,6 +16,7 @@ using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Services.Implements;
 
@@ -93,6 +94,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image);
         kitchenEntity.ImagePath = imageUrl;
         kitchenEntity.Status = BaseEntityStatus.Active;
+        kitchenEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.KitchenCodeConstrant.KitchenPrefix, await _repository.CountAsync());
         await _areaService.GetAreaByIdAsync(request.AreaId);
         //kitchenEntity.Area = areaEntity;
         await _repository.InsertAsync(kitchenEntity);

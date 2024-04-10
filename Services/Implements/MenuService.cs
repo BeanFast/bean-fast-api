@@ -46,7 +46,7 @@ public class MenuService : BaseService<Menu>, IMenuService
 
         if (filterRequest.CreaterId != Guid.Empty && filterRequest.CreaterId != null)
         {
-            filters.Add(f => f.CreaterId == filterRequest.CreaterId);
+            filters.Add(f => f.CreatorId == filterRequest.CreaterId);
         }
 
         if (filterRequest.CreateDate != null)
@@ -162,7 +162,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, createMenuRequest.KitchenId);
         var menuId = Guid.NewGuid();
         var menuEntity = _mapper.Map<Menu>(createMenuRequest);
-        menuEntity.CreaterId = createrId;
+        menuEntity.CreatorId = createrId;
         menuEntity.UpdaterId = createrId;
         menuEntity.CreateDate = DateTime.UtcNow;
         menuEntity.UpdateDate = DateTime.UtcNow;

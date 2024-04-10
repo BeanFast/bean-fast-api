@@ -192,11 +192,18 @@ namespace Services.Implements
 
         public async Task DeleteAsync(Guid guid)
         {
-            //var session = _repository.FirstOrDefaultAsync(filters: new()
-            //{
-            //    session => session.Id == guid,
-            //    session => session.Status == BaseEntityStatus.Active
-            //}, )
+            var session = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                session => session.Id == guid,
+                session => session.Status == BaseEntityStatus.Active
+            }, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+            if(session == null) throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionNotFound(guid));
+            var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
+
+            if (session.DeliveryStartTime >= currentVietNamTime && session.DeliveryEndTime <= currentVietNamTime)
+                throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
+
+
         }
 
         public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)

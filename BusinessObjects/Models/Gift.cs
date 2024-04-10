@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Gift : BaseEntity
+    public class Gift : BaseAuditableEntity
     {
         public string Code { get; set; }
         public string Name { get; set; }

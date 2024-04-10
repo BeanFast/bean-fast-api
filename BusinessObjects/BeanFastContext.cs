@@ -87,6 +87,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.RoleId)
                     .HasConstraintName("FK_User_Role")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedUsers).HasConstraintName("FK_User_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedUsers).HasConstraintName("FK_User_User_UpdaterId");
             });
             modelBuilder.Entity<Role>(entity =>
             {
@@ -144,6 +146,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.CategoryId)
                     .HasConstraintName("FK_Food_Category")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedFoods).HasConstraintName("FK_Food_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedFoods).HasConstraintName("FK_Food_User_UpdaterId");
             });
             modelBuilder.Entity<Combo>(entity =>
             {
@@ -162,6 +166,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.FoodId)
                     .HasConstraintName("FK_Combo_Food")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedCombos).HasConstraintName("FK_Combo_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedCombos).HasConstraintName("FK_Combo_User_UpdaterId");
             });
             modelBuilder.Entity<Category>(entity =>
             {
@@ -174,6 +180,8 @@ namespace BusinessObjects
                     .HasName("PK_Category");
                 entity.Property(e => e.Name)
                     .HasMaxLength(200);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedCategories).HasConstraintName("FK_Category_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedCategories).HasConstraintName("FK_Category_User_UpdaterId");
             });
             modelBuilder.Entity<Kitchen>(entity =>
             {
@@ -191,6 +199,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.AreaId)
                     .HasConstraintName("FK_Kitchen_Area")
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedKitchens).HasConstraintName("FK_Kitchen_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedKitchens).HasConstraintName("FK_Kitchen_User_UpdaterId");
             });
             modelBuilder.Entity<Menu>(entity =>
             {
@@ -203,15 +213,15 @@ namespace BusinessObjects
                     .WithMany(e => e.Menus)
                     .HasForeignKey(e => e.KitchenId)
                     .HasConstraintName("FK_Menu_Kitchen");
-                entity.HasOne(e => e.Creater)
+                entity.HasOne(e => e.Creator)
                     .WithMany(e => e.CreatedMenus)
-                    .HasForeignKey(e => e.CreaterId)
-                    .HasConstraintName("FK_Menu_User_Creater")
+                    .HasForeignKey(e => e.CreatorId)
+                    .HasConstraintName("FK_Menu_User_CreatorId")
                     .OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(e => e.Updater)
                     .WithMany(e => e.UpdatedMenus)
                     .HasForeignKey(e => e.UpdaterId)
-                    .HasConstraintName("FK_Menu_User_Updater")
+                    .HasConstraintName("FK_Menu_User_UpdaterId")
                     .OnDelete(DeleteBehavior.SetNull);
             });
             modelBuilder.Entity<MenuDetail>(entity =>
@@ -241,6 +251,8 @@ namespace BusinessObjects
                     .WithMany(e => e.Sessions)
                     .HasForeignKey(e => e.MenuId)
                     .HasConstraintName("FK_Session_Menu");
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedSessions).HasConstraintName("FK_Session_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedSessions).HasConstraintName("FK_Session_User_UpdaterId");
             });
             modelBuilder.Entity<SessionDetail>(entity =>
             {
@@ -285,6 +297,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.KitchenId)
                     .HasConstraintName("FK_School_Kitchen")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedSchools).HasConstraintName("FK_School_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedSchools).HasConstraintName("FK_School_User_UpdaterId");
             });
             modelBuilder.Entity<Location>(entity =>
             {
@@ -300,6 +314,8 @@ namespace BusinessObjects
                     .WithMany(e => e.Locations)
                     .HasForeignKey(e => e.SchoolId)
                     .HasConstraintName("FK_Location_School");
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedLocations).HasConstraintName("FK_Location_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedLocations).HasConstraintName("FK_Location_User_UpdaterId");
             });
             modelBuilder.Entity<Order>(entity =>
             {
@@ -317,6 +333,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.ProfileId)
                     .HasConstraintName("FK_Order_Profile")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedOrders).HasConstraintName("FK_Order_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedOrders).HasConstraintName("FK_Order_User_UpdaterId");
             });
             modelBuilder.Entity<OrderDetail>(entity =>
             {
@@ -385,6 +403,8 @@ namespace BusinessObjects
                     .HasMaxLength(100);
                 entity.Property(e => e.Name)
                     .HasMaxLength(200);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedGifts).HasConstraintName("FK_Gift_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedGifts).HasConstraintName("FK_Gift_User_UpdaterId");
             });
             modelBuilder.Entity<ExchangeGift>(entity =>
             {
@@ -407,6 +427,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.GiftId)
                     .HasConstraintName("FK_ExchangeGift_Gift")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedExchangeGifts).HasConstraintName("FK_ExchangeGift_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedExchangeGifts).HasConstraintName("FK_ExchangeGift_User_UpdaterId");
 
             });
             modelBuilder.Entity<OrderActivity>(entity =>
@@ -426,7 +448,9 @@ namespace BusinessObjects
                     .WithMany(e => e.Activities)
                     .HasForeignKey(e => e.ExchangeGiftId)
                     .HasConstraintName("FK_OrderActivity_ExchangeGift")
-                    .OnDelete(DeleteBehavior.NoAction); ;
+                    .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedOrderActivities).HasConstraintName("FK_OrderActivity_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedOrderActivities).HasConstraintName("FK_OrderActivity_User_UpdaterId");
             });
             modelBuilder.Entity<LoyaltyCard>(entity =>
             {
@@ -447,6 +471,8 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.CardTypeId)
                     .HasConstraintName("FK_LoyaltyCard_CardType")
                     .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedLoyaltyCards).HasConstraintName("FK_LoyaltyCard_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedLoyaltyCards).HasConstraintName("FK_LoyaltyCard_User_UpdaterId");
 
             });
             modelBuilder.Entity<CardType>(entity =>
@@ -458,6 +484,8 @@ namespace BusinessObjects
                     .HasMaxLength(100);
                 entity.Property(e => e.Name)
                     .HasMaxLength(200);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedCardTypes).HasConstraintName("FK_CardType_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedCardTypes).HasConstraintName("FK_CardType_User_UpdaterId");
             });
             modelBuilder.Entity<Area>(entity =>
             {
@@ -472,6 +500,8 @@ namespace BusinessObjects
                     .HasMaxLength(100);
                 entity.Property(e => e.Ward)
                     .HasMaxLength(100);
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedAreas).HasConstraintName("FK_Area_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedAreas).HasConstraintName("FK_Area_User_UpdaterId");
             });
             modelBuilder.Entity<Notification>(entity =>
             {
@@ -504,7 +534,8 @@ namespace BusinessObjects
                     .HasMaxLength(200);
                 entity.Property(e => e.Description)
                     .HasMaxLength(500);
-
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedGames).HasConstraintName("FK_Game_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedGames).HasConstraintName("FK_Game_User_UpdaterId");
             });
             #endregion
 

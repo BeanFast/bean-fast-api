@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class ExchangeGift : BaseEntity
+    public class ExchangeGift : BaseAuditableEntity
     {
         public Guid ProfileId { get; set; }
         public Guid SessionDetailId { get; set; }

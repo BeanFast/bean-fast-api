@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models
 {
-    public class Kitchen : BaseEntity
+    public class Kitchen : BaseAuditableEntity
     {
         public Guid AreaId { get; set; }
         public string Code { get; set; }
