@@ -30,10 +30,27 @@ namespace DataTransferObjects.Models.Order.Response
         public class OrderDetailOfGetOrderResponse
         {
             public Guid OrderId { get; set; }
-            public Guid FoodId { get; set; }
+            public FoodOfOrderDetail Food { get; set; }
             public int Quantity { get; set; }
             public double Price { get; set; }
             public string? Note { get; set; }
+            public class FoodOfOrderDetail
+            {
+                public Guid Id { get; set; }
+                public string Code { get; set; }
+                public string Name { get; set; }
+                public double Price { get; set; }
+                public string Description { get; set; }
+                public bool IsCombo { get; set; }
+                public string ImagePath { get; set; }
+                public CategoryOfFood Category { get; set; }
+                public class CategoryOfFood
+                {
+                    public Guid Id { get; set; }
+                    public string Name { get; set; }
+                }
+
+            }
         }
 
         public class SessionDetailOfOrderResponse
