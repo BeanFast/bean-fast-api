@@ -13,13 +13,13 @@ namespace Services.Interfaces
     {
         public Task<ICollection<Category>> GetAll(string? role);
 
-        public Task CreateCategory(CreateCategoryRequest category);
+        public Task CreateCategory(CreateCategoryRequest category, User user);
 
         public Task<Category?> GetById(Guid id);
 
         public Task<Category?> GetById(Guid id, int status);
-        Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category);
+        Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category, User user);
 
-        Task DeleteCategoryAsync(Guid id);
+        Task DeleteCategoryAsync(Guid id, User user);
     }
 }

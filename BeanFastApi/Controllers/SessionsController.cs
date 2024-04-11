@@ -1,7 +1,9 @@
-﻿using DataTransferObjects.Models.Session.Request;
+﻿using BeanFastApi.Validators;
+using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.User.Response;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using Utilities.Enums;
 
 namespace BeanFastApi.Controllers
 {
@@ -31,9 +33,19 @@ namespace BeanFastApi.Controllers
             return SuccessResult(result);
         }
         [HttpPost]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> CreateSessionAsync([FromBody] CreateSessionRequest request)
         {
-            await _sessionService.CreateSessionAsync(request);
+            await _sessionService.CreateSessionAsync(request, await GetUserAsync());
+            return SuccessResult<object>(null);
+        }
+        //[HttpPut("{id}")]
+
+        [HttpDelete("{id}")]
+        [Authorize(RoleName.MANAGER)]
+        public async Task<IActionResult> DeleteSessionAsync([FromRoute] Guid id)
+        {
+            await _sessionService.DeleteAsync(id, await GetUserAsync());
             return SuccessResult<object>(null);
         }
     }

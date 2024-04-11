@@ -101,6 +101,7 @@ namespace Utilities.Constants
         {
             public static string TransactionPrefix = "Tr";
             public static string ExchangeGiftTransactionPrefix = TransactionPrefix + ExchangeGiftCodeConstraint.ExchangeGiftPrefix;
+            public static string OrderTransactionPrefix = TransactionPrefix + OrderCodeConstrant.OrderPrefix;
         }
 
         public class ExchangeGiftCodeConstraint

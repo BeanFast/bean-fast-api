@@ -4,11 +4,11 @@ namespace Services.Interfaces;
 
 public interface IComboService : IBaseService
 {
-    Task CreateComboAsync(Combo combo);
-    Task CreateComboListAsync(List<Combo> combos);
+    Task CreateComboAsync(Combo combo, User user);
+    Task CreateComboListAsync(List<Combo> combos, User user);
 
-    Task DeleteComboAsync(Combo combo);
-    Task DeleteComboListAsync(ICollection<Combo> combos);
+    Task DeleteComboAsync(Combo combo, User user);
+    Task DeleteComboListAsync(ICollection<Combo> combos, User user);
 
     Task HardDeleteComboAsync(Combo combo);
 

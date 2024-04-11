@@ -13,6 +13,6 @@ namespace Services.Interfaces
         Task<bool> CheckLoyaltyCardWithQRCode(string qrCode);
         Task<LoyaltyCard> GetLoyaltyCardByQRCode(string qrCode);
 
-        Task CreateLoyaltyCard(CreateLoyaltyCardRequest request);
+        Task CreateLoyaltyCard(CreateLoyaltyCardRequest request, User user);
     }
 }

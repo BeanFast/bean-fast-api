@@ -38,10 +38,10 @@ namespace Services.Implements
             _orderActivityService = orderActivityService;
         }
 
-        public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, Guid customerId)
+        public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user)
         {
             var gift = await _giftService.GetGiftByIdAsync(request.GiftId);
-            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, customerId);
+            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
             var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
             if (sessionDetail.Session!.OrderEndTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
             {
@@ -86,7 +86,7 @@ namespace Services.Implements
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, await _transactionService.CountAsync() + 1)
                 }
             };
-            await _repository.InsertAsync(exchangeGift);
+            await _repository.InsertAsync(exchangeGift, user);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());
         }
@@ -95,14 +95,14 @@ namespace Services.Implements
         {
             return await _orderActivityService.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
         }
-        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
+        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user)
         {
             request.OrderId = null;
             if (request.ExchangeGiftId == null)
             {
                 throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftIdRequired);
             }
-            await _orderActivityService.CreateOrderActivityAsync(request);
+            await _orderActivityService.CreateOrderActivityAsync(request, user);
         }
     }
 }

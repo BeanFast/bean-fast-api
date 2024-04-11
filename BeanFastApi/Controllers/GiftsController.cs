@@ -17,7 +17,7 @@ namespace BeanFastApi.Controllers
         }
         [HttpGet]
         public async Task<IActionResult> GetGiftPageAsync(
-            [FromQuery] PaginationRequest paginationRequest, 
+            [FromQuery] PaginationRequest paginationRequest,
             [FromQuery] GiftFilterRequest filterRequest)
         {
             var result = await _giftService.GetGiftPageAsync(paginationRequest, filterRequest);
@@ -27,21 +27,21 @@ namespace BeanFastApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateGiftAsync([FromForm] CreateGiftRequest request)
         {
-            await _giftService.CreateGiftAsync(request);
+            await _giftService.CreateGiftAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGiftAsync([FromRoute]Guid id, [FromForm] UpdateGiftRequest request)
+        public async Task<IActionResult> UpdateGiftAsync([FromRoute] Guid id, [FromForm] UpdateGiftRequest request)
         {
-            await _giftService.UpdateGiftAsync(id, request);
+            await _giftService.UpdateGiftAsync(id, request, await GetUserAsync());
             return SuccessResult<object>();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGiftAsync([FromRoute]Guid id)
+        public async Task<IActionResult> DeleteGiftAsync([FromRoute] Guid id)
         {
-            await _giftService.DeleteGiftAsync(id);
+            await _giftService.DeleteGiftAsync(id, await GetUserAsync());
             return SuccessResult<object>();
         }
     }

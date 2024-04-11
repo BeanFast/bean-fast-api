@@ -12,6 +12,7 @@ using Azure.Core;
 using Microsoft.EntityFrameworkCore.Storage;
 using Utilities.Statuses;
 using System.Net.NetworkInformation;
+using Utilities.Utils;
 
 namespace Repositories.Implements
 {
@@ -187,10 +188,19 @@ namespace Repositories.Implements
             return result;
         }
 
-        
-
         public async Task InsertAsync(T entity)
         {
+            await _dbSet.AddAsync(entity);
+        }
+        public async Task InsertAsync(T entity, User inserter)
+        {
+            if (entity is BaseAuditableEntity auditableEntity)
+            {
+                auditableEntity.CreatedDate = TimeUtil.GetCurrentVietNamTime();
+                auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
+                auditableEntity.UpdaterId = inserter.Id;
+                auditableEntity.CreatorId = inserter.Id;
+            }
             await _dbSet.AddAsync(entity);
         }
 
@@ -202,6 +212,20 @@ namespace Repositories.Implements
 
         public async Task UpdateAsync(T entity)
         {
+            if (entity is BaseAuditableEntity auditableEntity)
+            {
+                auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
+            }
+            _dbSet.Update(entity);
+            await Task.CompletedTask;
+        }
+        public async Task UpdateAsync(T entity, User updater)
+        {
+            if (entity is BaseAuditableEntity auditableEntity)
+            {
+                auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
+                auditableEntity.UpdaterId = updater.Id;
+            }
             _dbSet.Update(entity);
             await Task.CompletedTask;
         }
@@ -216,8 +240,11 @@ namespace Repositories.Implements
             entity.Status = BaseEntityStatus.Deleted;
             await UpdateAsync(entity);
         }
-
-
+        public async Task DeleteAsync(T entity, User deleter)
+        {
+            entity.Status = BaseEntityStatus.Deleted;
+            await UpdateAsync(entity, deleter);
+        }
 
         public async Task DeleteRangeAsync(IEnumerable<T> entities)
         {

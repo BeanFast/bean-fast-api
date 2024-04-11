@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Core.Pagination;
+﻿using BeanFastApi.Validators;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 using Microsoft.AspNetCore.Http;
@@ -39,21 +40,26 @@ namespace BeanFastApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Utilities.Enums.RoleName.MANAGER)]
+
         public async Task<IActionResult> CreateSchoolAsync([FromForm] CreateSchoolRequest request)
         {
-            await _schoolService.CreateSchoolAsync(request);
+            await _schoolService.CreateSchoolAsync(request, await GetUserAsync());
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
         [HttpPut("{id}")]
+        [Authorize(Utilities.Enums.RoleName.MANAGER)]
         public async Task<IActionResult> UpdateSchoolAsync([FromRoute] Guid id, [FromForm] UpdateSchoolRequest request)
         {
-            await _schoolService.UpdateSchoolAsync(id, request);
+            await _schoolService.UpdateSchoolAsync(id, request, await GetUserAsync());
             return SuccessResult<object>();
         }
         [HttpDelete("{id}")]
+        [Authorize(Utilities.Enums.RoleName.MANAGER)]
+
         public async Task<IActionResult> DeleteSchoolAsync([FromRoute] Guid id)
         {
-            await _schoolService.DeleteSchoolAsync(id);
+            await _schoolService.DeleteSchoolAsync(id, await GetUserAsync());
             return SuccessResult<object>();
         }
     }

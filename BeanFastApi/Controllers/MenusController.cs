@@ -48,7 +48,7 @@ public class MenusController : BaseController
     [Authorize(Utilities.Enums.RoleName.MANAGER)]
     public async Task<IActionResult> CreateMenuAsync([FromBody] CreateMenuRequest request)
     {
-        await _menuService.CreateMenuAsync(request, GetUserId());
+        await _menuService.CreateMenuAsync(request, await GetUserAsync());
         return SuccessResult<object>();
     }
     [HttpPut("{id}")]

@@ -107,7 +107,7 @@ namespace Services.Implements
             return school;
         }
 
-        public async Task CreateSchoolAsync(CreateSchoolRequest request)
+        public async Task CreateSchoolAsync(CreateSchoolRequest request, User user)
         {
             var schoolEntity = _mapper.Map<School>(request);
             var schoolId = Guid.NewGuid();
@@ -125,18 +125,18 @@ namespace Services.Implements
             schoolEntity.ImagePath = imagePath;
             schoolEntity.Id = schoolId;
 
-            await _repository.InsertAsync(schoolEntity);
+            await _repository.InsertAsync(schoolEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task DeleteSchoolAsync(Guid id)
+        public async Task DeleteSchoolAsync(Guid id, User user)
         {
             var schoolEntity = await GetSchoolByIdAsync(SchoolStatus.Active, id);
-            await _repository.DeleteAsync(schoolEntity);
+            await _repository.DeleteAsync(schoolEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request)
+        public async Task UpdateSchoolAsync(Guid id, UpdateSchoolRequest request, User user)
         {
             var schoolEntity = await GetSchoolByIdAsync(id);
             if (!request.Address.Equals(schoolEntity.Address) && !request.AreaId.Equals(request.AreaId))
@@ -161,7 +161,7 @@ namespace Services.Implements
             }
 
 
-            await _repository.UpdateAsync(schoolEntity);
+            await _repository.UpdateAsync(schoolEntity, user);
             await _unitOfWork.CommitAsync();
         }
 

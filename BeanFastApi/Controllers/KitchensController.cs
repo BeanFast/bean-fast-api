@@ -35,7 +35,7 @@ public class KitchensController : BaseController
     [HttpPost]
     public async Task<IActionResult> CreateKitchenAsync([FromForm] CreateKitchenRequest request)
     {
-        await _kitchenService.CreateKitchenAsync(request);
+        await _kitchenService.CreateKitchenAsync(request, await GetUserAsync());
         return SuccessResult<object>(statusCode: HttpStatusCode.Created, data: new { Id = Guid.NewGuid() });
     }
     [HttpPut("{id}")]
@@ -47,7 +47,7 @@ public class KitchensController : BaseController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteKitchenAsync([FromRoute] Guid id)
     {
-        await _kitchenService.DeleteKitchenAsync(id);
+        await _kitchenService.DeleteKitchenAsync(id, await GetUserAsync());
         return SuccessResult<object>(statusCode: HttpStatusCode.OK);
     }
 }

@@ -12,15 +12,15 @@ public interface IKitchenService : IBaseService
 {
     public Task<IPaginable<GetKitchenResponse>> GetKitchenPageAsync(PaginationRequest paginationRequest, KitchenFilterRequest filterRequest, string? userRole);
 
-    public Task CreateKitchenAsync(CreateKitchenRequest request);
+    public Task CreateKitchenAsync(CreateKitchenRequest request, User user);
 
     public Task<Kitchen> GetByIdAsync(int status, Guid id);
 
     public Task<Kitchen> GetByIdAsync(Guid id);
 
-    Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request);
+    Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request, User user);
 
-    public Task DeleteKitchenAsync(Guid id);
+    public Task DeleteKitchenAsync(Guid id, User user);
     Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId);
     Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest);
 }

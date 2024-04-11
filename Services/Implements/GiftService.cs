@@ -31,7 +31,7 @@ namespace Services.Implements
             _cloudStorageService = cloudStorageService;
         }
 
-        public async Task CreateGiftAsync(CreateGiftRequest request)
+        public async Task CreateGiftAsync(CreateGiftRequest request, User user)
         {
             var giftEntity = _mapper.Map<Gift>(request);
             var giftId = Guid.NewGuid();
@@ -42,7 +42,7 @@ namespace Services.Implements
 
             var imagePath = await _cloudStorageService.UploadFileAsync(giftId, _appSettings.Firebase.FolderNames.Gift, request.Image);
             giftEntity.ImagePath = imagePath;
-            await _repository.InsertAsync(giftEntity);
+            await _repository.InsertAsync(giftEntity, user);
             await _unitOfWork.CommitAsync();
         }
         private List<Expression<Func<Gift, bool>>> getFiltersFromFGiftFilterRequest(GiftFilterRequest filterRequest)
@@ -114,7 +114,7 @@ namespace Services.Implements
             return gift;
         }
 
-        public async Task UpdateGiftAsync(Guid id, UpdateGiftRequest request)
+        public async Task UpdateGiftAsync(Guid id, UpdateGiftRequest request, User user)
         {
             var gift = await GetGiftByIdAsync(id, BaseEntityStatus.Active);
             gift.Name = request.Name;
@@ -124,14 +124,14 @@ namespace Services.Implements
             {
                 await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Gift, request.Image);
             }
-            await _repository.UpdateAsync(gift);
+            await _repository.UpdateAsync(gift, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task DeleteGiftAsync(Guid id)
+        public async Task DeleteGiftAsync(Guid id, User user)
         {
             var gift = await GetGiftByIdAsync(id, BaseEntityStatus.Active);
-            await _repository.DeleteAsync(gift);
+            await _repository.DeleteAsync(gift, user);
             await _unitOfWork.CommitAsync();
         }
 

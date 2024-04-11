@@ -16,10 +16,10 @@ namespace Services.Interfaces
         Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest, PaginationRequest request);
         Task<GetFoodResponse> GetFoodResponseByIdAsync(Guid id);
         Task<Food> GetByIdAsync(Guid id);
-        Task CreateFoodAsync(CreateFoodRequest request);
+        Task CreateFoodAsync(CreateFoodRequest request, User user);
 
-        Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request);
+        Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request, User user);
 
-        Task DeleteAsync(Guid guid);
+        Task DeleteAsync(Guid guid, User user);
     }
 }

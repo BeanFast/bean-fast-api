@@ -52,10 +52,10 @@ namespace Services.Implements
             return false;
         }
 
-        public async Task CreateLoyaltyCard(CreateLoyaltyCardRequest request)
+        public async Task CreateLoyaltyCard(CreateLoyaltyCardRequest request, User user)
         {
             var loyaltyCard = _mapper.Map<LoyaltyCard>(request);
-            await _profileService.GetByIdAsync(loyaltyCard.Id);
+            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
             await _cardTypeService.GetByIdAsync(loyaltyCard.CardTypeId);
             var qrCode = Guid.NewGuid().ToString();
             loyaltyCard.QRCode = qrCode;
@@ -66,7 +66,7 @@ namespace Services.Implements
             loyaltyCard.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.LoyaltyCardCodeConstraint.LoyaltyCardPrefix, entityNumber);
             //byte[] bytes = QrCodeUtil.GenerateQRCode(qrCode);
             //await _cloudStorageService.UploadFileAsync(loyaltyCard.Id, _appSettings.Firebase.FolderNames.LoyaltyCard, bytes, "image/png");
-            await _repository.InsertAsync(loyaltyCard);
+            await _repository.InsertAsync(loyaltyCard, user);
             await _unitOfWork.CommitAsync();
         }
 
