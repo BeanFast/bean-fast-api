@@ -241,6 +241,7 @@ namespace Utilities.Constants
             public const string GiftPointsRange = "Số điểm quà tặng phải lớn hơn 0";
             public const string GiftInStockRequired = "Số lượng quà tặng là bắt buộc";
             public const string GiftInStockRange = "Số lượng quà tặng phải lớn hơn 0";
+            public const string GiftDescriptionRequired = "Mô tả quà tặng là bắt buộc";
         }
         public class MenuMessageContrant
         {
