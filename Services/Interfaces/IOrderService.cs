@@ -25,15 +25,16 @@ namespace Services.Interfaces
         Task<Order> GetByIdAsync(Guid id);
         Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId);
         Task CreateOrderAsync(User user, CreateOrderRequest request);
-        Task UpdateOrderStatusByQRCodeAsync(string qrCode, Guid delivererId);
+        Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer);
         Task UpdateOrderCompleteStatusAsync(Guid orderId);
         Task UpdateOrderDeliveryStatusAsync(Guid orderId);
         Task UpdateOrderCancelStatusAsync(Guid orderId);
+        Task UpdateOrderCancelStatusAsync(Order orderEntity);
         Task UpdateOrderCancelStatusForCustomerAsync(Guid orderId);
         Task UpdateOrderStatusAfterDeliveryTimeEndedAsync();
         Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request);
         Task DeleteAsync(Guid guid);
-        Task CreateOrderActivityAsync(CreateOrderActivityRequest request);
+        Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
     }
 }

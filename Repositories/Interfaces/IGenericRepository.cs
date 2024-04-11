@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using DataTransferObjects.Core.Pagination;
 using Utilities.Enums;
+using BusinessObjects.Models;
 
 namespace Repositories.Interfaces
 {
@@ -95,27 +96,24 @@ namespace Repositories.Interfaces
 
         #endregion
 
-        #region Insert
+
 
         Task InsertAsync(T entity);
-
+        Task InsertAsync(T entity, User inserter);
         Task InsertRangeAsync(IEnumerable<T> entities);
 
-        #endregion
-
-        #region Update
 
         Task UpdateAsync(T entity);
+        Task UpdateAsync(T entity, User updater);
 
         void UpdateRange(IEnumerable<T> entities);
 
-        #endregion
 
         Task DeleteAsync(T entity);
+        Task DeleteAsync(T entity, User deleter);
         Task DeleteRangeAsync(IEnumerable<T> entities);
 
         Task HardDeleteAsync(T entity);
-
         Task HardDeleteRangeAsync(IEnumerable<T> entities);
     }
 }

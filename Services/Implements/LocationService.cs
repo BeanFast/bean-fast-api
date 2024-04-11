@@ -66,7 +66,7 @@ namespace Services.Implements
             return location!;
         }
 
-        public async Task CreateLocationAsync(CreateLocationRequest request)
+        public async Task CreateLocationAsync(CreateLocationRequest request, User user)
         {
             var locationEntity = _mapper.Map<Location>(request);
             var locationId = Guid.NewGuid();
@@ -85,12 +85,12 @@ namespace Services.Implements
             locationEntity.ImagePath = imagePath;
             locationEntity.Id = locationId;
 
-            await _repository.InsertAsync(locationEntity);
+            await _repository.InsertAsync(locationEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
 
-        public async Task UpdateLocationAsync(Guid id, UpdateLocationRequest request)
+        public async Task UpdateLocationAsync(Guid id, UpdateLocationRequest request, User user)
         {
             var locationEntity = await GetByIdAsync(id);
             if (!request.Name!.Equals(locationEntity.Name) && !request.SchoolId.Equals(locationEntity.SchoolId))
@@ -115,14 +115,14 @@ namespace Services.Implements
                 locationEntity.ImagePath = imagePath;
             }
 
-            await _repository.UpdateAsync(locationEntity);
+            await _repository.UpdateAsync(locationEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task DeleteLocationAsync(Guid id)
+        public async Task DeleteLocationAsync(Guid id, User user)
         {
             var locationEntity = await GetByIdAsync(id);
-            await _repository.DeleteAsync(locationEntity);
+            await _repository.DeleteAsync(locationEntity, user);
             await _unitOfWork.CommitAsync();
         }
     }

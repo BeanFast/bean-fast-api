@@ -67,7 +67,16 @@ namespace Services.Implements
             var users = await _repository.GetListAsync<GetDelivererResponse>(filters: filters);
             return users;
         }
+        public async Task<ICollection<GetDelivererResponse>> GetDeliverersAsync()
+        {
+            List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName),
 
+            };
+            var users = await _repository.GetListAsync<GetDelivererResponse>(filters: filters);
+            return users;
+        }
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
             List<Expression<Func<User, bool>>>? whereFilters = null;
@@ -234,5 +243,7 @@ namespace Services.Implements
             return mappedUser;
 
         }
+
+        
     }
 }

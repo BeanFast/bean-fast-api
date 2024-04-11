@@ -29,14 +29,16 @@ namespace Services.Implements
         private readonly ILocationService _locationService;
         private readonly ISessionDetailService _sessionDetailService;
         private readonly IUserService _userService;
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService) : base(unitOfWork, mapper, appSettings)
+        private readonly IOrderService _orderService;
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService) : base(unitOfWork, mapper, appSettings)
         {
             _locationService = locationService;
             _sessionDetailService = sessionDetailService;
             _userService = userService;
+            _orderService = orderService;
         }
 
-        public async Task CreateSessionAsync(CreateSessionRequest request)
+        public async Task CreateSessionAsync(CreateSessionRequest request, User user)
         {
             var sessionEntity = _mapper.Map<Session>(request);
             sessionEntity.Status = BaseEntityStatus.Active;
@@ -61,7 +63,7 @@ namespace Services.Implements
             }
             var sessionNumber = await _repository.CountAsync() + 1;
             sessionEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionCodeConstrant.SessionPrefix, sessionNumber);
-            await _repository.InsertAsync(sessionEntity);
+            await _repository.InsertAsync(sessionEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
@@ -170,6 +172,7 @@ namespace Services.Implements
                 s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
                 s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > s.DeliveryStartTime),
             }, include: i => i.Include(s => s.SessionDetails!));
+            var existedBusyDelivererIdList = session.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value).ToList();
 
             if (!sessions.IsNullOrEmpty())
             {
@@ -177,32 +180,51 @@ namespace Services.Implements
                     .SelectMany(s => s.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value))
                     .ToList();
                 // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
-                var existedBusyDelivererIdList = session.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value).ToList();
-                busyDelivererIds.AddRange(existedBusyDelivererIdList);
-                list = await _userService.GetDeliverersExcludeAsync(busyDelivererIds);
+                existedBusyDelivererIdList.AddRange(busyDelivererIds);
             }
-            
+            list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList);
+
             return list;
 
         }
-        public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request)
+        public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAsync(Guid guid)
+        public async Task DeleteAsync(Guid guid, User user)
         {
             var session = await _repository.FirstOrDefaultAsync(filters: new()
             {
                 session => session.Id == guid,
                 session => session.Status == BaseEntityStatus.Active
-            }, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
-            if(session == null) throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionNotFound(guid));
+            }, include: i => i
+                .Include(s => s.SessionDetails!)
+                .ThenInclude(sd => sd.Orders!)
+                .ThenInclude(s => s.OrderActivities!)
+                .Include(s => s.SessionDetails!)
+                .ThenInclude(sd => sd.Orders!)
+                .ThenInclude(o => o.Profile!)
+                .ThenInclude(p => p.Wallets!));
+            if (session == null) throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionNotFound(guid));
             var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
 
             if (session.DeliveryStartTime >= currentVietNamTime && session.DeliveryEndTime <= currentVietNamTime)
                 throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
-
+            foreach (var sessionDetail in session.SessionDetails!)
+            {
+                var orders = sessionDetail.Orders;
+                if (!orders.IsNullOrEmpty())
+                {
+                    foreach (var order in orders)
+                    {
+                        await _orderService.UpdateOrderCancelStatusAsync(order);
+                    }
+                }
+                sessionDetail.Status = BaseEntityStatus.Deleted;
+            }
+            await _repository.DeleteAsync(session, user);
+            await _unitOfWork.CommitAsync();
 
         }
 

@@ -21,7 +21,7 @@ namespace Services.Implements
             _cloudStorageService = cloudStorageService;
         }
 
-        public async Task CreateCardTypeAsync(CreateCardTypeRequest request)
+        public async Task CreateCardTypeAsync(CreateCardTypeRequest request, User creator)
         {
             var cardTypeEntity = _mapper.Map<CardType>(request);
             var cardId = Guid.NewGuid();
@@ -31,7 +31,7 @@ namespace Services.Implements
             cardTypeEntity.BackgroundImagePath = imagePath;
             var cardNumber = await _repository.CountAsync() + 1;    
             cardTypeEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.CardTypeCodeConstrant.CardTypePrefix, cardNumber);
-            await _repository.InsertAsync(cardTypeEntity);
+            await _repository.InsertAsync(cardTypeEntity, creator);
             await _unitOfWork.CommitAsync();
             //return ;
         }
@@ -50,7 +50,7 @@ namespace Services.Implements
                 throw new EntityNotFoundException(MessageConstants.CardTypeMessageConstrant.CardTypeNotFound(id));
         }
 
-        public async Task UpdateCardTypeAsync(Guid id, UpdateCardTypeRequest request)
+        public async Task UpdateCardTypeAsync(Guid id, UpdateCardTypeRequest request, User updater)
         {
             var cardType = await GetByIdAsync(id);
             cardType.Name = request.Name;
@@ -61,13 +61,13 @@ namespace Services.Implements
                 await _cloudStorageService.DeleteFileAsync(id, _appSettings.Firebase.FolderNames.CardType);
                 cardType.BackgroundImagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.CardType, request.Image);
             }
-            await _repository.UpdateAsync(cardType);
+            await _repository.UpdateAsync(cardType, updater);
             await _unitOfWork.CommitAsync();
         }
-        public async Task DeleteCardTypeAsync(Guid id)
+        public async Task DeleteCardTypeAsync(Guid id, User deleter)
         {
             var cardType = await GetByIdAsync(id);
-            await _repository.DeleteAsync(cardType);
+            await _repository.DeleteAsync(cardType, deleter);
             await _unitOfWork.CommitAsync();
         }
 

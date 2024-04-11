@@ -8,8 +8,8 @@ using System.Globalization;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 // Add services to the container.
-Console.WriteLine(TimeUtil.GetCurrentVietNamTime().Date);
-QrCodeUtil.GenerateQRCode("3e24d372-1776-4dc2-81f3-a6322317aad3");
+//Console.WriteLine(TimeUtil.GetCurrentVietNamTime().Date);
+//QrCodeUtil.GenerateQRCode("3e24d372-1776-4dc2-81f3-a6322317aad3");
 services.AddHttpContextAccessor();
 services.AddControllers().AddJsonOptions(options =>
 {

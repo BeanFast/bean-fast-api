@@ -153,7 +153,7 @@ namespace Services.Implements
             return food;
         }
 
-        public async Task CreateFoodAsync(CreateFoodRequest request)
+        public async Task CreateFoodAsync(CreateFoodRequest request, User user)
         {
             Console.WriteLine(request);
             var masterFoodId = Guid.NewGuid();
@@ -186,12 +186,12 @@ namespace Services.Implements
                 }
             }
             foodEntity.Combos?.Clear();
-            await _repository.InsertAsync(foodEntity);
-            await _comboService.CreateComboListAsync(comboEntityList);
+            await _repository.InsertAsync(foodEntity, user);
+            await _comboService.CreateComboListAsync(comboEntityList, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request)
+        public async Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request, User user)
         {
             var foodEntity = await GetByIdAsync(foodId);
             var category = await _categoryService.GetById(foodEntity.CategoryId, BaseEntityStatus.Active);
@@ -223,13 +223,13 @@ namespace Services.Implements
                 foodEntity.Combos?.Clear();
                 if (!foodEntity.MasterCombos.IsNullOrEmpty())
                     await _comboService.HardDeleteComboListAsync(foodEntity.MasterCombos!);
-                await _comboService.CreateComboListAsync(comboEntities);
+                await _comboService.CreateComboListAsync(comboEntities, user);
             }
-            await _repository.UpdateAsync(foodEntity);
+            await _repository.UpdateAsync(foodEntity, user);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task DeleteAsync(Guid guid)
+        public async Task DeleteAsync(Guid guid, User user)
         {
             var food = await GetByIdForUpdateActionAsync(guid);
             // check food is existed in other combos
@@ -248,7 +248,7 @@ namespace Services.Implements
                 message += $"Món ăn này hiện tại đang nằm trong {(menudDetailCodes.Count == 1 ? "" : "các ")} menu: {string.Join(", ", menudDetailCodes)}, vui lòng xóa chúng trong các menu này.";
             }
             if(message != string.Empty) { throw new InvalidRequestException(message); }
-            await _repository.DeleteAsync(food);
+            await _repository.DeleteAsync(food, user);
             await _unitOfWork.CommitAsync();
         }
 

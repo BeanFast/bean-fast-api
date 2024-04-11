@@ -87,7 +87,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
     }
 
-    public async Task CreateKitchenAsync(CreateKitchenRequest request)
+    public async Task CreateKitchenAsync(CreateKitchenRequest request, User user)
     {
         var kitchenEntity = _mapper.Map<Kitchen>(request);
         var kitchenId = Guid.NewGuid();
@@ -97,14 +97,14 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         kitchenEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.KitchenCodeConstrant.KitchenPrefix, await _repository.CountAsync());
         await _areaService.GetAreaByIdAsync(request.AreaId);
         //kitchenEntity.Area = areaEntity;
-        await _repository.InsertAsync(kitchenEntity);
+        await _repository.InsertAsync(kitchenEntity, user);
         await _unitOfWork.CommitAsync();
 
     }
-    public async Task DeleteKitchenAsync(Guid id)
+    public async Task DeleteKitchenAsync(Guid id, User user)
     {
         var kitchenEntity = await GetByIdAsync(BaseEntityStatus.Active, id);
-        await _repository.DeleteAsync(kitchenEntity);
+        await _repository.DeleteAsync(kitchenEntity, user);
         await _unitOfWork.CommitAsync();
     }
     public async Task<Kitchen> GetByIdIncludePrimarySchoolsAsync(Guid id)
@@ -122,7 +122,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         return kitchenEntity.PrimarySchools!.Count;
     }
 
-    public async Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request)
+    public async Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request, User user)
     {
         var kitchen = await GetByIdAsync(id);
         if (request.Image != null)
@@ -135,7 +135,7 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
         kitchen.Address = request.Address;
         kitchen.Name = request.Name;
         //kitchenEntity.Area = areaEntity;
-        await _repository.UpdateAsync(kitchen);
+        await _repository.UpdateAsync(kitchen, user);
         await _unitOfWork.CommitAsync();
     }
 

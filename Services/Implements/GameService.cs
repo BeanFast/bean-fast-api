@@ -24,14 +24,14 @@ namespace Services.Implements
         {
         }
 
-        public async Task CreateGameAsync(CreateGameRequest request)
+        public async Task CreateGameAsync(CreateGameRequest request, User user)
         {
             var gameEntity = _mapper.Map<Game>(request);
             gameEntity.Id = Guid.NewGuid();
             gameEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.GameCodeConstraint.GamePrefix, await _repository
                 .CountAsync() + 1);
             gameEntity.Status = BaseEntityStatus.Active;
-            await _repository.InsertAsync(gameEntity);
+            await _repository.InsertAsync(gameEntity, user);
             await _unitOfWork.CommitAsync();
         }
 

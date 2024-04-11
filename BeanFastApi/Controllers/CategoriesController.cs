@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BeanFastApi.Validators;
+using BusinessObjects.Models;
 using DataTransferObjects.Models.Category.Request;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -36,22 +37,26 @@ namespace BeanFastApi.Controllers
 
 
         [HttpPost]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> CreateCategoryAsync(CreateCategoryRequest category)
         {
-            await _categoryService.CreateCategory(category);
+            await _categoryService.CreateCategory(category, await GetUserAsync());
             return SuccessResult<object>(message: MessageConstants.CategoryMessageConstrant.CategoryCreateSucess, statusCode: System.Net.HttpStatusCode.Created);
         }
         [HttpPut("{id}")]
+        [Authorize(RoleName.MANAGER)]
+
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] Guid id, [FromBody] UpdateCategoryRequest category)
         {
-            await _categoryService.UpdateCategoryAsync(id, category);
+            await _categoryService.UpdateCategoryAsync(id, category, await GetUserAsync());
             return SuccessResult<object>();
         }
         [HttpDelete("{id}")]
+        [Authorize(RoleName.MANAGER)]
 
         public async Task<IActionResult> DeleteCategoryAsync([FromRoute] Guid id)
         {
-            await _categoryService.DeleteCategoryAsync(id);
+            await _categoryService.DeleteCategoryAsync(id, await GetUserAsync());
             return SuccessResult<object>();
         }
     }

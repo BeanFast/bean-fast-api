@@ -12,8 +12,8 @@ namespace Services.Interfaces
 {
     public interface IExchangeGIftService : IBaseService
     {
-        Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, Guid customerId);
+        Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
-        Task CreateOrderActivityAsync(CreateOrderActivityRequest request);
+        Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
     }
 }

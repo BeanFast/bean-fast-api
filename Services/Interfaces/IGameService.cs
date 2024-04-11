@@ -1,4 +1,5 @@
-﻿using DataTransferObjects.Models.Game.Request;
+﻿using BusinessObjects.Models;
+using DataTransferObjects.Models.Game.Request;
 using DataTransferObjects.Models.Game.Response;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace Services.Interfaces
     public interface IGameService
     {
         Task<ICollection<GetGameResponse>> GetGamesAsync();
-        Task CreateGameAsync(CreateGameRequest request);
+        Task CreateGameAsync(CreateGameRequest request, User user);
     }
 }

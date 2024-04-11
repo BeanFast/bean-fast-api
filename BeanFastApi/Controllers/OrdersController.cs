@@ -71,10 +71,11 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
         [HttpPost("{orderId}/orderActivities")]
+        [Authorize]
         public async Task<IActionResult> CreateOrderActivityAsync([FromRoute] Guid orderId, [FromForm] CreateOrderActivityRequest request)
         {
             request.OrderId = orderId;
-            await _orderService.CreateOrderActivityAsync(request);
+            await _orderService.CreateOrderActivityAsync(request, await GetUserAsync());
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
         [HttpPut("{id}")]
@@ -140,8 +141,7 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> UpdateOrderStatusByQRCode([FromQuery] string qrCode)
         {
             var user = await GetUserAsync();
-            var delivererId = user.Id;
-            await _orderService.UpdateOrderStatusByQRCodeAsync(qrCode, delivererId);
+            await _orderService.UpdateOrderStatusByQRCodeAsync(qrCode, user);
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
         }
 

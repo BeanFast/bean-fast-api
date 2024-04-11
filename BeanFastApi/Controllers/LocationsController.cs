@@ -35,7 +35,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> CreateLocationAsync([FromForm] CreateLocationRequest request)
         {
-            await _locationService.CreateLocationAsync(request);
+            await _locationService.CreateLocationAsync(request, await GetUserAsync());
             return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);
         }
 
@@ -43,7 +43,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> UpdateLocationAsync([FromRoute] Guid id, [FromForm] UpdateLocationRequest request)
         {
-            await _locationService.UpdateLocationAsync(id, request);
+            await _locationService.UpdateLocationAsync(id, request, await GetUserAsync());
             return SuccessResult<object>();
         }
 
@@ -51,7 +51,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> DeleteLocationAsync([FromRoute] Guid id)
         {
-            await _locationService.DeleteLocationAsync(id);
+            await _locationService.DeleteLocationAsync(id, await GetUserAsync());
             return SuccessResult<object>();
         }
     }

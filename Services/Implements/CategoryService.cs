@@ -54,7 +54,7 @@ namespace Services.Implements
             return category!;
         }
 
-        public async Task CreateCategory(CreateCategoryRequest category)
+        public async Task CreateCategory(CreateCategoryRequest category, User user)
         {
             var categoryEntity = _mapper.Map<Category>(category);
             categoryEntity.Id = Guid.NewGuid();
@@ -71,11 +71,11 @@ namespace Services.Implements
             var imagePath = await _cloudStorageService.UploadFileAsync(categoryEntity.Id, _appSettings.Firebase.FolderNames.Category, category.Image);
             categoryEntity.ImagePath = imagePath;
 
-            await _repository.InsertAsync(categoryEntity);
+            await _repository.InsertAsync(categoryEntity, user);
             return;
         }
 
-        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category)
+        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category, User user)
         {
             var categoryEntity = _mapper.Map<Category>(category);
             categoryEntity.Id = id;
@@ -92,14 +92,14 @@ namespace Services.Implements
             await _cloudStorageService.DeleteFileAsync(id, _appSettings.Firebase.FolderNames.Category);
             var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Category, category.Image);
             categoryEntity.ImagePath = imagePath;
-            await _repository.UpdateAsync(categoryEntity);
+            await _repository.UpdateAsync(categoryEntity, user);
             //await _repository.UpdateAsync()
         }
 
-        public async Task DeleteCategoryAsync(Guid id)
+        public async Task DeleteCategoryAsync(Guid id, User user)
         {
             var category = await GetById(id);
-            await _repository.DeleteAsync(category!);
+            await _repository.DeleteAsync(category!, user);
         }
     }
 }

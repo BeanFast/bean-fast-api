@@ -12,12 +12,12 @@ namespace Services.Interfaces
 {
     public interface IGiftService : IBaseService
     {
-        Task CreateGiftAsync(CreateGiftRequest request);
+        Task CreateGiftAsync(CreateGiftRequest request, User user);
         Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest);
         Task<Gift> GetGiftByIdAsync(int status, Guid id);
         Task<Gift> GetGiftByIdAsync(Guid id);
-        Task UpdateGiftAsync(Guid id, UpdateGiftRequest request);
-        Task DeleteGiftAsync(Guid id);
+        Task UpdateGiftAsync(Guid id, UpdateGiftRequest request, User user);
+        Task DeleteGiftAsync(Guid id, User user);
 
     }
 }

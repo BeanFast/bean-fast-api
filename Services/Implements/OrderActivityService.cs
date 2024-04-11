@@ -48,13 +48,13 @@ namespace Services.Implements
         {
             return _mapper.Map<GetOrderActivityResponse>(await GetByIdAsync(id));
         }
-        public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity)
+        public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user)
         {
             orderActivity.OrderId = order.Id;
-            await _repository.InsertAsync(orderActivity);
+            await _repository.InsertAsync(orderActivity, user);
             await _unitOfWork.CommitAsync();
         }
-        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
+        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user)
         {
             var orderActivity = _mapper.Map<OrderActivity>(request);
             var orderActivityId = Guid.NewGuid();
@@ -76,7 +76,7 @@ namespace Services.Implements
             orderActivity.Status = OrderActivityStatus.Active;
             var orderActivityNumber = await _repository.CountAsync() + 1;
             orderActivity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber);
-            await _repository.InsertAsync(orderActivity);
+            await _repository.InsertAsync(orderActivity, user);
             await _unitOfWork.CommitAsync();
         }
 

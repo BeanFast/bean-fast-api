@@ -49,7 +49,7 @@ namespace Services.Implements
 
             transaction.Status = OrderActivityStatus.Active;
             transaction.Id = Guid.NewGuid();
-            transaction.Time = TimeUtil.GetCurrentVietNamTime();    
+            transaction.Time = TimeUtil.GetCurrentVietNamTime();
             await _repository.InsertAsync(transaction);
             await _unitOfWork.CommitAsync();
         }

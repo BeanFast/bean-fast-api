@@ -20,7 +20,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> CreateExchangeGiftAsync([FromBody] CreateExchangeGiftRequest request)
         {
-            await _exchangeGiftService.CreateExchangeGiftAsync(request, GetUserId());
+            await _exchangeGiftService.CreateExchangeGiftAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
         [HttpGet("{exchangeGiftId}/orderActivities")]
@@ -28,14 +28,14 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> GetOrderActivitiesByExchangeGiftIdAsync([FromRoute] Guid exchangeGiftId)
         {
             var user = await GetUserAsync();
-            var result =  await _exchangeGiftService.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
+            var result = await _exchangeGiftService.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
             return SuccessResult(result);
         }
         [HttpPost("{exchangeGiftId}/orderActivities")]
-        public async Task<IActionResult> CreateOrderActivitiesAsync([FromRoute] Guid exchangeGiftId,[FromForm] CreateOrderActivityRequest request)
+        public async Task<IActionResult> CreateOrderActivitiesAsync([FromRoute] Guid exchangeGiftId, [FromForm] CreateOrderActivityRequest request)
         {
             request.ExchangeGiftId = exchangeGiftId;
-            await _exchangeGiftService.CreateOrderActivityAsync(request);
+            await _exchangeGiftService.CreateOrderActivityAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
     }

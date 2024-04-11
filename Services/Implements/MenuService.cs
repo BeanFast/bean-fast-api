@@ -157,15 +157,12 @@ public class MenuService : BaseService<Menu>, IMenuService
         return await _repository.GetListAsync<GetMenuResponse>(filters: filters, include: include);
 
     }
-    public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId)
+    public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, User creator)
     {
         await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, createMenuRequest.KitchenId);
         var menuId = Guid.NewGuid();
         var menuEntity = _mapper.Map<Menu>(createMenuRequest);
-        menuEntity.CreatorId = createrId;
-        menuEntity.UpdaterId = createrId;
-        menuEntity.CreateDate = DateTime.UtcNow;
-        menuEntity.UpdateDate = DateTime.UtcNow;
+ 
         menuEntity.Id = menuId;
         var menuNumber = await _repository.CountAsync() + 1;
         menuEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuNumber);
@@ -183,7 +180,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         {
             try
             {
-                await _repository.InsertAsync(menuEntity);
+                await _repository.InsertAsync(menuEntity, creator);
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
             }

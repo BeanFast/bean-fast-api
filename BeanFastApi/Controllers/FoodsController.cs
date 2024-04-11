@@ -54,7 +54,7 @@ public class FoodsController : BaseController
     [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> CreateFoodAsync([FromForm] CreateFoodRequest request)
     {
-        await _foodService.CreateFoodAsync(request);
+        await _foodService.CreateFoodAsync(request, await GetUserAsync());
         return SuccessResult<object>(statusCode: HttpStatusCode.Created);
     }
 
@@ -62,7 +62,7 @@ public class FoodsController : BaseController
     [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> UpdateFoodAsync([FromRoute] Guid id, [FromForm] UpdateFoodRequest request)
     {
-        await _foodService.UpdateFoodAsync(id, request);
+        await _foodService.UpdateFoodAsync(id, request, await GetUserAsync());
         return SuccessResult<object>(statusCode: HttpStatusCode.OK);
     }
 
@@ -70,7 +70,7 @@ public class FoodsController : BaseController
     [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> DeleteFoodAsync([FromRoute] Guid id)
     {
-        await _foodService.DeleteAsync(id);
+        await _foodService.DeleteAsync(id, await GetUserAsync());
         return SuccessResult<object>(statusCode: HttpStatusCode.OK);
     }
 }

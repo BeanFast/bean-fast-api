@@ -12,7 +12,7 @@ public interface IMenuService : IBaseService
 
     Task<Menu> GetByIdAsync(Guid id);
     Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id);
-    Task CreateMenuAsync(CreateMenuRequest createMenuRequest, Guid createrId);
+    Task CreateMenuAsync(CreateMenuRequest createMenuRequest, User creator);
     Task DeleteMenuAsync(Guid id);
     Task UpdateMenuAsync(UpdateMenuRequest request, Guid guid, User updater);
 }

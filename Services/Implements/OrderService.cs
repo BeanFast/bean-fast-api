@@ -99,9 +99,9 @@ namespace Services.Implements
                 .ThenInclude(p => p.Wallets)
                 .Include(o => o.SessionDetail!)
                 .Include(o => o.OrderDetails!)
-                .Include(o => o.OrderActivities!))
-                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
-            return order;
+                .Include(o => o.OrderActivities!)
+                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id)));
+            return order!;
         }
 
         public async Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id)
@@ -168,7 +168,7 @@ namespace Services.Implements
             List<Expression<Func<Order, bool>>> filters = new()
             {
                 (order) => order.Status == status
-            }; 
+            };
             var orders = await _repository.GetListAsync(filters: filters,
                 include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
 
@@ -271,7 +271,7 @@ namespace Services.Implements
                 }
             };
 
-            await _repository.InsertAsync(orderEntity);
+            await _repository.InsertAsync(orderEntity, user);
             await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
             await _unitOfWork.CommitAsync();
         }
@@ -302,12 +302,12 @@ namespace Services.Implements
             return validOrders;
         }
 
-        public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, Guid delivererId)
+        public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer)
         {
             bool isUpdated = false;
             var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
             var profileId = loyaltyCard.ProfileId;
-            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
+            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, deliverer.Id);
             if (orderList.IsNullOrEmpty())
             {
                 throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
@@ -339,7 +339,7 @@ namespace Services.Implements
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
             var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
             wallet.Balance += orderEntity.RewardPoints;
-            
+
             var newOrderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
@@ -359,7 +359,7 @@ namespace Services.Implements
                 OrderId = orderEntity.Id,
             };
 
-            await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
             await _transactionService.CreateTransactionAsync(newTransaction);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
@@ -412,19 +412,36 @@ namespace Services.Implements
 
         public async Task UpdateOrderCancelStatusAsync(Guid orderId)
         {
-            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
+            await UpdateOrderCancelStatusAsync(orderEntity);
+        }
+        public async Task UpdateOrderCancelStatusAsync(Order orderEntity)
+        {
             orderEntity.Status = (int)OrderStatus.Cancelled;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
-            orderEntity.OrderActivities!.Add(new OrderActivity
+            var orderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                 Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
-                Status = OrderActivityStatus.Active
-            });
-
+                Status = OrderActivityStatus.Active,
+                OrderId = orderEntity.Id
+            };
+            var moneyWallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type.ToString()));
+            moneyWallet.Balance += orderEntity.TotalPrice;
+            var rollbackMoneyTransaction = new Transaction
+            {
+                OrderId = orderEntity.Id,
+                Id = Guid.NewGuid(),
+                Value = orderEntity.TotalPrice,
+                WalletId = moneyWallet!.Id,
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.OrderTransactionPrefix, await _transactionService.CountAsync())
+            };
+            await _walletService.UpdateAsync(moneyWallet);
+            await _transactionService.CreateTransactionAsync(rollbackMoneyTransaction);
+            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
@@ -508,14 +525,14 @@ namespace Services.Implements
             return orderActivities;
         }
 
-        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request)
+        public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user)
         {
             request.ExchangeGiftId = null;
             if (request.OrderId == null || request.OrderId == Guid.Empty)
             {
                 throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderIdRequired);
             }
-            await _orderActivityService.CreateOrderActivityAsync(request);
+            await _orderActivityService.CreateOrderActivityAsync(request, user);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
         public async Task<IActionResult> CreateGameAsync([FromBody] CreateGameRequest request)
         {
-            await _gameService.CreateGameAsync(request);
+            await _gameService.CreateGameAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
     }
