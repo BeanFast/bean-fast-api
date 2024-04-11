@@ -152,6 +152,18 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
             return session;
         }
+        public async Task<Session> GetBySessionDetailIdAsync(Guid sesionDetailId)
+        {
+            List<Expression<Func<Session, bool>>> filters = new()
+            {
+                (session) => session.SessionDetails!.Where(sd => sd.Id == sesionDetailId).Any(),
+            };
+            var session = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+                filters: filters,
+                include: i => i.Include(s => s.SessionDetails!))
+                ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(sesionDetailId));
+            return session;
+        }
 
         public async Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id)
         {
@@ -163,9 +175,9 @@ namespace Services.Implements
         //    await _repository.InsertAsync(session);
         //    await _unitOfWork.CommitAsync();
         //}
-        public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionId)
+        public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionDetailId)
         {
-            var session = await GetByIdAsync(sessionId);
+            var session = await GetBySessionDetailIdAsync(sessionDetailId);
             ICollection<GetDelivererResponse> list = new List<GetDelivererResponse>();
             var sessions = await _repository.GetListAsync(filters: new()
             {

@@ -16,7 +16,7 @@ namespace Services.Interfaces
         Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id);
         Task<Session> GetByIdAsync(Guid id);
         Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole);
-        Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionId);
+        Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionDetailId);
         Task CreateSessionAsync(CreateSessionRequest request, User user);
         Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user);
         Task DeleteAsync(Guid guid, User user);
