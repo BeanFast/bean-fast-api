@@ -15,6 +15,8 @@ namespace Services.Mappers
         {
             CreateMap<Order, GetOrderResponse>();
             CreateMap<OrderDetail, GetOrderResponse.OrderDetailOfGetOrderResponse>();
+            CreateMap<Food, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail>();
+            CreateMap<Category, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail.CategoryOfFood>();
             CreateMap<SessionDetail, GetOrderResponse.SessionDetailOfOrderResponse>();
             CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
             CreateMap<Session, GetOrderResponse.SessionDetailOfOrderResponse.GetSessionOfSessionDetail>();
