@@ -38,7 +38,7 @@ namespace BeanFastApi.Controllers
         }
 
         // Update location, session, deliverer
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> UpdateSessionDetail([FromRoute] Guid id, [FromBody] UpdateSessionDetailRequest request)
         {

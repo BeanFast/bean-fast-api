@@ -16,6 +16,7 @@ namespace Services.Mappers
             CreateMap<CreateTransactionRequest, Transaction>();
             CreateMap<Transaction, GetTransactionResponse>();
             CreateMap<Transaction, GetTransactionPageByProfileIdAndCurrentUserResponse>();
+            CreateMap<Order, GetTransactionPageByProfileIdAndCurrentUserResponse.OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse>();
         }
     }
 }
