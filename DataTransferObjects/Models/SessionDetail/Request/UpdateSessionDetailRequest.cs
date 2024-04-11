@@ -9,8 +9,8 @@ namespace DataTransferObjects.Models.SessionDetail.Request
 {
     public class UpdateSessionDetailRequest
     {
-        [RequiredGuid]
-        public Guid LocationId { get; set; }
+        //[RequiredGuid]
+        //public Guid LocationId { get; set; }
         [RequiredGuid]
         public Guid DelivererId { get; set; }
     }

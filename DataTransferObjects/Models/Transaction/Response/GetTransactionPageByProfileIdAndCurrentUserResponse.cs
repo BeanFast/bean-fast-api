@@ -10,6 +10,7 @@ namespace DataTransferObjects.Models.Transaction.Response
     {
         public Guid? Id { get; set; }
         public Guid? OrderId { get; set; }
+        public OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse? ORder { get; set; }
         public Guid? ExchangeGiftId { get; set; }
         public Guid? GameId { get; set; }
         public Guid? WalletId { get; set; }
@@ -17,5 +18,12 @@ namespace DataTransferObjects.Models.Transaction.Response
         public DateTime Time { get; set; }
         public double Value { get; set; }
         public int Status { get; set; }
+
+        public class OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse
+        {
+            public Guid Id { get; set;}
+
+            public string Code { get; set;}
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BeanFastApi.Validators;
 using DataTransferObjects.Core.Pagination;
+using DataTransferObjects.Models.Transaction.Request;
 using DataTransferObjects.Models.VnPay.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,10 +45,13 @@ namespace BeanFastApi.Controllers
         }
         [HttpGet("profiles/{profileId}")]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> GetCurrentProfileTransaction([FromRoute] Guid profileId, [FromQuery] PaginationRequest paginationRequest)
+        public async Task<IActionResult> GetCurrentProfileTransaction(
+            [FromRoute] Guid profileId, 
+            [FromQuery] PaginationRequest paginationRequest,
+            [FromQuery] TransactionFilterRequest filterRequest)
         {
             object? transactions = default;
-            transactions = await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, await GetUserAsync());
+            transactions = await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, filterRequest, await GetUserAsync());
             return SuccessResult(transactions);
         }
     }

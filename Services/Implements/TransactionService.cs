@@ -8,6 +8,7 @@ using DataTransferObjects.Models.VnPay.Request;
 using Google.Apis.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
@@ -32,8 +33,6 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IProfileService _profileService;
 
-
-
         public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService) : base(unitOfWork, mapper, appSettings)
         {
             _vnPayService = vnPayService;
@@ -53,7 +52,19 @@ namespace Services.Implements
             await _repository.InsertAsync(transaction);
             await _unitOfWork.CommitAsync();
         }
-
+        private List<Expression<Func<Transaction, bool>>> GetTransactionFilterFromTransactionFilterRequest(TransactionFilterRequest filterRequest)
+        {
+            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>();
+            if (!filterRequest.Type.IsNullOrEmpty())
+            {
+                if (filterRequest.Type == "money")
+                {
+                    filters.Add(t => WalletType.Money.ToString().Equals(t.Wallet!.Type));
+                }
+            }
+            //if(!filterRequest.)
+            return filters;
+        }
         public async Task CreateTransactionListAsync(List<Transaction> transactions)
         {
             foreach (var transaction in transactions)
@@ -96,20 +107,24 @@ namespace Services.Implements
             //await _unitOfWork.CommitAsync();
         }
 
-        public async Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(Guid profileId, PaginationRequest paginationRequest, User user)
+        public async Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(
+            Guid profileId,
+            PaginationRequest paginationRequest,
+            TransactionFilterRequest filterRequest,
+            User user)
         {
             var profile = await _profileService.GetByIdAsync(profileId);
             if (profile.UserId != user.Id)
             {
                 throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
             }
-            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
-            {
-
-                t => (t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null) ? t.Wallet!.UserId == user.Id : t.Wallet!.User!.Profiles!.Any(p => p.Id == profileId && p.Status == BaseEntityStatus
-                .Active),
-            };
-            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(paginationRequest, filters);
+            var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
+            filters.Add(
+                t => (t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null) ?
+                    t.Wallet!.UserId == user.Id :
+                    t.Wallet!.User!.Profiles!.Any(p => p.Id == profileId && p.Status == BaseEntityStatus.Active));
+            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(paginationRequest, filters, 
+                orderBy: o => o.OrderByDescending(t => t.Time));
             return transactionPage;
         }
     }
