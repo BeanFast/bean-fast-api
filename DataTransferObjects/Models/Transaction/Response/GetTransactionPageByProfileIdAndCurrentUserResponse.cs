@@ -10,7 +10,7 @@ namespace DataTransferObjects.Models.Transaction.Response
     {
         public Guid? Id { get; set; }
         public Guid? OrderId { get; set; }
-        public OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse? ORder { get; set; }
+        public OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse? Order { get; set; }
         public Guid? ExchangeGiftId { get; set; }
         public Guid? GameId { get; set; }
         public Guid? WalletId { get; set; }
