@@ -80,16 +80,20 @@ namespace Services.Implements
             {
                 (sessionDetail) => sessionDetail.DelivererId == user.Id,
                 (sessionDetail) => sessionDetail.Status == BaseEntityStatus.Active,
+                (sessionDetail) => sessionDetail.Orders!.Where(o => o.Status == OrderStatus.Cooking).Any()
             };
 
             var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
                 filters: filters
-                //, include: queryable => queryable
-                //.Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
-                //.Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
-                //.Include(sd => sd.Session!)
+                , include: queryable => queryable
+                .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
+                .Include(sd => sd.Session!)
+                .Include(sd => sd.Orders!.Where(o => o.Status == OrderStatus.Cooking)).ThenInclude(o => o.OrderDetails!)
                 );
-
+            foreach (var item in sessionDetails)
+            {
+                item.Orders = item.Orders!.Where(o => o.Status == OrderStatus.Cooking).ToList();
+            }
             return sessionDetails;
         }
         public async Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user)
