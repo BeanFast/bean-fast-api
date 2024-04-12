@@ -39,7 +39,7 @@ namespace BeanFastApi.Controllers
         [HttpGet("delay")]
         public async Task<IActionResult> ChangeBackgroundJobDeplay([FromQuery] int delay)
         {
-            BackgroundJobConstrant.DelayedInMinites = delay;
+            BackgroundJobConstrant.DelayedInMinutes = delay;
             return SuccessResult(new object());
         }
         [HttpPost("payment")]

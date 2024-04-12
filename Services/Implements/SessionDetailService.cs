@@ -92,7 +92,7 @@ namespace Services.Implements
                 );
             foreach (var item in sessionDetails)
             {
-                item.Orders = item.Orders!.Where(o => o.Status == OrderStatus.Cooking).ToList();
+                item.Orders = item.Orders!.Where(o => o.Status == OrderStatus.Delivering).ToList();
             }
             return sessionDetails;
         }

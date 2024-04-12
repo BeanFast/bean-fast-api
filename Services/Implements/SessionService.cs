@@ -257,10 +257,77 @@ namespace Services.Implements
             {
                session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
             };
+            var sessions = await _repository
+                .GetListAsync(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+            foreach (var s in sessions)
+            {
+                if (s.Status == SessionStatus.Active || s.Status == SessionStatus.Incoming)
+                {
+                    var currentTime = TimeUtil.GetCurrentVietNamTime();
 
-            //var sessions = await _repository
-            //    .GetListAsync<Dictionary<Guid, >>(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+                    if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.DeliveryStartTime)
+                    {
+                        CancelOrderRequest request = new()
+                        {
+                            Reason = "Đơn hàng bị hủy do chưa có người giao"
+                        };
+                        foreach (var sd in s.SessionDetails)
+                        {
+                            if (sd.DelivererId == null)
+                            {
+                                foreach (var order in sd.Orders)
+                                {
+                                    var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
+                                    await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, request, null!);
+                                }
+                            }
 
+                        }
+                        s.Status = SessionStatus.Incoming;
+                        await _repository.UpdateAsync(s);
+                        await _unitOfWork.CommitAsync();
+                    }
+                    else
+                    {
+                        foreach (var sd in s.SessionDetails)
+                        {
+                            foreach (var order in sd.Orders)
+                            {
+                                if(order.Status == OrderStatus.Cooking)
+                                {
+                                    await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                }
+                            }
+
+                        }
+                    }
+                }
+                else if (s.Status == SessionStatus.Incoming)
+                {
+                    var currentTime = TimeUtil.GetCurrentVietNamTime();
+                    if (currentTime > s.DeliveryEndTime)
+                    {
+                        CancelOrderRequest request = new()
+                        {
+                            Reason = "Đơn hàng bị hủy do chưa có người nhận"
+                        };
+                        foreach (var sd in s.SessionDetails)
+                        {
+                            foreach (var order in sd.Orders)
+                            {
+                                if (order.Status == OrderStatus.Delivering)
+                                {
+                                    var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
+                                    await _orderService.CancelOrderForCustomerAsync(order, request, null!);
+                                }
+                            }
+                        }
+                        s.Status = SessionStatus.Ended;
+                        await _repository.UpdateAsync(s);
+                        await _unitOfWork.CommitAsync();
+                    }
+                }
+            }
         }
     }
 }

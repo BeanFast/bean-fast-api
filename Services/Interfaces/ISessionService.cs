@@ -20,5 +20,6 @@ namespace Services.Interfaces
         Task CreateSessionAsync(CreateSessionRequest request, User user);
         Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user);
         Task DeleteAsync(Guid guid, User user);
+        Task UpdateOrdersStatusAutoAsync();
     }
 }

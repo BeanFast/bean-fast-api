@@ -8,6 +8,6 @@ namespace Utilities.Constants
 {
     public class BackgroundJobConstrant
     {
-        public static int DelayedInMinites = 2;
+        public static int DelayedInMinutes = 2;
     }
 }

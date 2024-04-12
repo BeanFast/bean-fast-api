@@ -194,12 +194,12 @@ namespace BeanFastApi.Extensions
             using (var scope = app.Services.CreateScope())
             {
                 var injectedService = scope.ServiceProvider;
-                var timer = new PeriodicTimer(TimeSpan.FromSeconds(BackgroundJobConstrant.DelayedInMinites));
-                var userService = injectedService.GetRequiredService<IUserService>();
+                var timer = new PeriodicTimer(TimeSpan.FromMinutes(BackgroundJobConstrant.DelayedInMinutes));
+                var sessionService = injectedService.GetRequiredService<ISessionService>();
                 while (await timer.WaitForNextTickAsync())
                 {
-                    Console.WriteLine(await userService.CountAsync());
-                    Console.WriteLine(BackgroundJobConstrant.DelayedInMinites);
+                    await sessionService.UpdateOrdersStatusAutoAsync();
+                    Console.WriteLine(BackgroundJobConstrant.DelayedInMinutes);
                     Console.Out.WriteLine(TimeUtil.GetCurrentVietNamTime());
                 }
 

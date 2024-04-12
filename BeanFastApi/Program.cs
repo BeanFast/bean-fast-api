@@ -59,6 +59,6 @@ app.UseAuthorization();
 app.UseCors(CorsConstrant.AllowAllPolicyName);
 app.MapControllers();
 app.UseRateLimiter();
-//app.UseBackgroundJobs();
+app.UseBackgroundJobs();
 
 app.Run();

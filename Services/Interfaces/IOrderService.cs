@@ -38,5 +38,7 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
         Task CancelOrderAsync(User user, Guid id, CancelOrderRequest cancelOrderRequest);
         Task CancelOrderAsync(Order order, CancelOrderRequest request, User user);
+        Task CancelOrderForManagerAsync(Order orderEntity, CancelOrderRequest request, User manager);
+        Task CancelOrderForCustomerAsync(Order orderEntity, CancelOrderRequest request, User manager);
     }
 }
