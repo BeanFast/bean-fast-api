@@ -97,9 +97,9 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        public async Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
         {
-            var profiles = await _repository.GetListAsync<GetProfilesByCurrentCustomerResponse>(BaseEntityStatus.Active,
+            var profiles = await _repository.GetListAsync<GetProfileResponse>(BaseEntityStatus.Active,
                 filters: new()
                 {
                     p => p.UserId == customerId,
