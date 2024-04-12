@@ -29,7 +29,7 @@ namespace Services.Implements
             smsOtp.ExpiredAt = TimeUtil.GetCurrentVietNamTime().AddMinutes(_appSettings.Twilio.OtpLifeTimeInMinutes);  
             smsOtp.Value = generateOtpValue();
             string convertedNumber = "+84" + user.Phone;
-            //await _smsService.SendSmsAsync(convertedNumber, _appSettings.Twilio.BodyTemplate + smsOtp.Value);
+            await _smsService.SendSmsAsync(convertedNumber, _appSettings.Twilio.BodyTemplate + smsOtp.Value);
             smsOtp.UserId = user.Id;
             await _repository.InsertAsync(smsOtp);
             await _unitOfWork.CommitAsync();
