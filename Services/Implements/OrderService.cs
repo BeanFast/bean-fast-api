@@ -98,9 +98,10 @@ namespace Services.Implements
                 filters: filters, include: queryable => queryable.Include(o => o.Profile!)
                 .ThenInclude(p => p.Wallets)
                 .Include(o => o.SessionDetail!)
+                .ThenInclude(o => o.Session!)
                 .Include(o => o.OrderDetails!)
-                .Include(o => o.OrderActivities!)
-                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id)));
+                .Include(o => o.OrderActivities!))
+                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return order!;
         }
 
@@ -317,7 +318,7 @@ namespace Services.Implements
             {
                 if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
                 {
-                    await UpdateOrderCompleteStatusAsync(order.Id);
+                    await UpdateOrderCompleteStatusAsync(order.Id, deliverer);
                     isUpdated = true;
                 }
                 if (!isUpdated)
@@ -326,14 +327,20 @@ namespace Services.Implements
                 }
             }
         }
-        public async Task UpdateOrderCompleteStatusAsync(Guid orderId)
+        public async Task UpdateOrderCompleteStatusAsync(Guid orderId, User deliverer)
         {
-            var startTime = DateTime.Now; // Get the current time before executing the code
-
-
+            var startTime = DateTime.Now;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var transactionNumber = await _transactionService.CountAsync() + 1;
             var orderEntity = await GetByIdAsync(orderId);
+            if (orderEntity.Status != OrderStatus.Delivering)
+            {
+                throw new InvalidRequestException("Bạn chỉ có thể hoàn thành các đơn hàng đang ở trạng thái đang giao");
+            }
+            if(TimeUtil.GetCurrentVietNamTime() > orderEntity.SessionDetail!.Session!.DeliveryEndTime)
+            {
+                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng");
+            }
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
@@ -359,7 +366,7 @@ namespace Services.Implements
                 OrderId = orderEntity.Id,
             };
 
-            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity, deliverer);
             await _transactionService.CreateTransactionAsync(newTransaction);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
@@ -405,17 +412,13 @@ namespace Services.Implements
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             });
-
+            await RollbackMoneyAsync(orderEntity);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateOrderCancelStatusAsync(Guid orderId)
-        {
-            var orderEntity = await GetByIdAsync(orderId);
-            await UpdateOrderCancelStatusAsync(orderEntity);
-        }
-        public async Task UpdateOrderCancelStatusAsync(Order orderEntity)
+
+        public async Task CancelOrderForManagerAsync(Order orderEntity, CancelOrderRequest request, User manager)
         {
             orderEntity.Status = (int)OrderStatus.Cancelled;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
@@ -429,40 +432,51 @@ namespace Services.Implements
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
             };
+            await RollbackMoneyAsync(orderEntity);
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, manager);
+            await _repository.UpdateAsync(orderEntity);
+            await _unitOfWork.CommitAsync();
+        }
+        public async Task RollbackMoneyAsync(Order orderEntity)
+        {
             var moneyWallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type.ToString()));
-            moneyWallet.Balance += orderEntity.TotalPrice;
+            moneyWallet!.Balance += orderEntity.TotalPrice;
             var rollbackMoneyTransaction = new Transaction
             {
                 OrderId = orderEntity.Id,
                 Id = Guid.NewGuid(),
                 Value = orderEntity.TotalPrice,
                 WalletId = moneyWallet!.Id,
-                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.OrderTransactionPrefix, await _transactionService.CountAsync())
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.OrderTransactionPrefix, await _transactionService.CountAsync() + 1)
             };
             await _walletService.UpdateAsync(moneyWallet);
             await _transactionService.CreateTransactionAsync(rollbackMoneyTransaction);
-            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity);
-            await _repository.UpdateAsync(orderEntity);
-            await _unitOfWork.CommitAsync();
         }
-
-        public async Task UpdateOrderCancelStatusForCustomerAsync(Guid orderId)
+        public async Task CancelOrderForCustomerAsync(Order orderEntity, CancelOrderRequest request, User customer)
         {
             var validTime = TimeUtil.GetCurrentVietNamTime();
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
-            var orderEntity = await GetByIdAsync(orderId);
-            if (validTime >= orderEntity.SessionDetail!.Session!.OrderStartTime && validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
+            if (validTime >= orderEntity.SessionDetail!.Session!.OrderStartTime &&
+                validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
             {
-                orderEntity.Status = (int)OrderStatus.Cancelled;
+                // hoan tien
+                var moneyWallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
+                if (moneyWallet != null)
+                {
+                    await RollbackMoneyAsync(orderEntity);
+                }
             }
-            orderEntity.OrderActivities!.Add(new OrderActivity
+
+            var orderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledByCustomerActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
-            });
+            };
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, customer);
+            orderEntity.Status = OrderStatus.CancelledByCustomer;
 
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
@@ -471,24 +485,28 @@ namespace Services.Implements
         public async Task UpdateOrderStatusAfterDeliveryTimeEndedAsync()
         {
             bool isUpdated = false;
-            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
             var realTime = TimeUtil.GetCurrentVietNamTime();
             var listOrderWithDeliveringStatus = await _repository.GetListAsync(status: OrderStatus.Delivering);
+
             foreach (var order in listOrderWithDeliveringStatus)
             {
                 if (realTime > order.SessionDetail!.Session!.DeliveryEndTime)
                 {
-                    await UpdateOrderCancelStatusAsync(order.Id);
-                    isUpdated = true;
+                    order.Status = OrderStatus.Cancelled;
+                    var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
-                    order.OrderActivities!.Add(new OrderActivity
+                    var orderActivity = new OrderActivity
                     {
                         Id = Guid.NewGuid(),
                         Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                         Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
                         Time = TimeUtil.GetCurrentVietNamTime(),
                         Status = OrderActivityStatus.Active
-                    });
+                    };
+                    await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, null);
+                    await _repository.UpdateAsync(order);
+                    await _unitOfWork.CommitAsync();
+                    isUpdated = true;
                 }
 
                 if (!isUpdated)
@@ -533,6 +551,49 @@ namespace Services.Implements
                 throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderIdRequired);
             }
             await _orderActivityService.CreateOrderActivityAsync(request, user);
+        }
+
+        public async Task CancelOrderAsync(User user, Guid id, CancelOrderRequest request)
+        {
+            var order = await GetByIdAsync(id);
+            if (RoleName.CUSTOMER.ToString() == user.Role.EnglishName)
+            {
+                if (order.Status != OrderStatus.Cooking)
+                {
+                    throw new InvalidRequestException("Bạn chỉ có thể hủy đơn hàng khi đơn hàng còn đang ở trạng thái đang nấu");
+                }
+                else
+                {
+                    await CancelOrderForCustomerAsync(order, request, user);
+                }
+            }
+            else if (RoleName.MANAGER.ToString() == user.Role.EnglishName)
+            {
+                if (OrderStatus.Cancelled == order.Status || OrderStatus.CancelledByCustomer == order.Status)
+                {
+                    throw new InvalidRequestException("Đơn hàng này đã bị hủy trước đó rồi!");
+                }
+                await CancelOrderForManagerAsync(order, request, user);
+            }
+        }
+
+        public async Task CancelOrderAsync(Order order, CancelOrderRequest request, User user)
+        {
+            order.Status = (int)OrderStatus.Cancelled;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+
+            var orderActivity = new OrderActivity
+            {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active,
+                OrderId = order.Id
+            };
+            await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
+            await _repository.UpdateAsync(order);
+            await _unitOfWork.CommitAsync();
         }
     }
 }

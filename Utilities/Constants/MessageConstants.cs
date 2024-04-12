@@ -274,6 +274,7 @@ namespace Utilities.Constants
             public const string OrderDeliveringActivityName = "Đơn hàng đang được giao";
             public const string OrderCompletedActivityName = "Đơn hàng đã được giao hoàn thành";
             public const string OrderCanceledActivityName = "Đơn hàng đã bị hủy";
+            public const string OrderCanceledByCustomerActivityName = "Đơn hàng đã bị hủy bởi khách hàng";
 
             public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }

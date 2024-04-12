@@ -13,6 +13,7 @@ namespace Utilities.Enums
         public static readonly int Cooking = 3;
         public static readonly int Delivering = 4;
         public static readonly int Completed = 5;
-        public static readonly int Cancelled = 6;
+        public static readonly int CancelledByCustomer = 6;
+        public static readonly int Cancelled = 7;
     }
 }

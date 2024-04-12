@@ -78,6 +78,31 @@ namespace BeanFastApi.Controllers
             await _orderService.CreateOrderActivityAsync(request, await GetUserAsync());
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
+        [HttpPut("cancel/{id}")]
+        [Authorize(RoleName.CUSTOMER, RoleName.MANAGER)]
+        public async Task<IActionResult> CancelOrderAsync([FromRoute] Guid id, [FromForm] CancelOrderRequest cancelOrderRequest)
+        {
+            var user = await GetUserAsync();
+            await _orderService.CancelOrderAsync(user, id, cancelOrderRequest);
+            return SuccessResult<object>();
+        }
+        [HttpPut("complete/{id}")]
+        [Authorize(RoleName.DELIVERER)]
+        public async Task<IActionResult> ChangeOrderStatusToCompleteAsync([FromRoute] Guid id)
+        {
+            var user = await GetUserAsync();
+            await _orderService.UpdateOrderCompleteStatusAsync(id, user);
+
+            return SuccessResult<object>();
+
+        }
+        //[HttpPut("delivering/{id}")]
+        //public async Task<IActionResult> DeliveringOrderAsync([FromRoute] Guid id)
+        //{
+        //    var user = await GetUserAsync();
+        //    await _orderService.UpdateOrderDeliveryStatusAsync(id);
+        //    return SuccessResult<object>();
+        //}
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
@@ -90,20 +115,13 @@ namespace BeanFastApi.Controllers
             {
                 await _orderService.UpdateOrderDeliveryStatusAsync(id);
             }
-            else if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
-            {
-                await _orderService.UpdateOrderCancelStatusAsync(id);
-            }
-            else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
-            {
-                await _orderService.UpdateOrderCancelStatusAsync(id);
-            }
             else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
             {
-                if (order.Status == OrderStatus.Delivering)
-                    await _orderService.UpdateOrderCompleteStatusAsync(id);
+                //if (order.Status == OrderStatus.Delivering)
+                //    await _orderService.UpdateOrderCompleteStatusAsync(id);
                 //else if (order.Status == OrderStatus.Completed)
-            }else if (order.Status == OrderStatus.Delivering && realTime > order.SessionDetail!.Session!.DeliveryEndTime)
+            }
+            else if (order.Status == OrderStatus.Delivering && realTime > order.SessionDetail!.Session!.DeliveryEndTime)
             {
                 await _orderService.UpdateOrderStatusAfterDeliveryTimeEndedAsync();
             }

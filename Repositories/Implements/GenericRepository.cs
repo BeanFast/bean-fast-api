@@ -192,14 +192,14 @@ namespace Repositories.Implements
         {
             await _dbSet.AddAsync(entity);
         }
-        public async Task InsertAsync(T entity, User inserter)
+        public async Task InsertAsync(T entity, User? inserter)
         {
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.CreatedDate = TimeUtil.GetCurrentVietNamTime();
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
-                auditableEntity.UpdaterId = inserter.Id;
-                auditableEntity.CreatorId = inserter.Id;
+                auditableEntity.UpdaterId = inserter?.Id;
+                auditableEntity.CreatorId = inserter?.Id;
             }
             await _dbSet.AddAsync(entity);
         }
@@ -219,12 +219,12 @@ namespace Repositories.Implements
             _dbSet.Update(entity);
             await Task.CompletedTask;
         }
-        public async Task UpdateAsync(T entity, User updater)
+        public async Task UpdateAsync(T entity, User? updater)
         {
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
-                auditableEntity.UpdaterId = updater.Id;
+                auditableEntity.UpdaterId = updater?.Id;
             }
             _dbSet.Update(entity);
             await Task.CompletedTask;
