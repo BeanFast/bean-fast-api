@@ -33,9 +33,9 @@ public class AuthController : BaseController
     }
     [HttpPost("otp")]
     //[EnableRateLimiting("otpRateLimit")]
-    public async Task<IActionResult> SendOtpAsync([FromBody] string phone)
+    public async Task<IActionResult> SendOtpAsync([FromBody] SendOtpRequest request)
     {
-        await _userService.SendOtpAsync(phone);
+        await _userService.SendOtpAsync(request.Phone);
         return SuccessResult("OK");
     }
     [HttpGet("current")]
