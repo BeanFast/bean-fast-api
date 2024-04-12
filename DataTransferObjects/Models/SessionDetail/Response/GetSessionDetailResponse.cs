@@ -61,6 +61,7 @@ namespace DataTransferObjects.Models.SessionDetail.Response
             public string Code { get; set; }
             public double TotalPrice { get; set; }
             public DateTime PaymentDate { get; set; }
+            public int Status { get; set; }
             public ICollection<OrderDetailOfOrder>? OrderDetails { get; set; }
 
             public class OrderDetailOfOrder
