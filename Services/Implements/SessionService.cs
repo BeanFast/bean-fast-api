@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.Order.Request;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
 using DataTransferObjects.Models.User.Response;
@@ -230,7 +231,8 @@ namespace Services.Implements
                 {
                     foreach (var order in orders)
                     {
-                        await _orderService.UpdateOrderCancelStatusAsync(order);
+                        var cancelOrderRequest = new CancelOrderRequest { Reason = "Đơn hàng bị hủy vì quản lý xóa phiên giao hàng" };
+                        await _orderService.CancelOrderAsync(order, cancelOrderRequest, user);
                     }
                 }
                 sessionDetail.Status = BaseEntityStatus.Deleted;
