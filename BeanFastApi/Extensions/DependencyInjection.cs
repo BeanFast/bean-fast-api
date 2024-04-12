@@ -180,13 +180,31 @@ namespace BeanFastApi.Extensions
                 typeof(NotificationMapper),
                 typeof(TransactionMapper),
                 typeof(GameMapper)
-                ); 
+                );
             return services;
         }
         public static IServiceCollection AddAppSettingsBinding(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<AppSettings>(configuration);
             return services;
+        }
+        public async static Task<WebApplication> UseBackgroundJobs(this WebApplication app)
+        {
+            //app.UseRouting()
+            using (var scope = app.Services.CreateScope())
+            {
+                var injectedService = scope.ServiceProvider;
+                var timer = new PeriodicTimer(TimeSpan.FromSeconds(BackgroundJobConstrant.DelayedInMinites));
+                var userService = injectedService.GetRequiredService<IUserService>();
+                while (await timer.WaitForNextTickAsync())
+                {
+                    Console.WriteLine(await userService.CountAsync());
+                    Console.WriteLine(BackgroundJobConstrant.DelayedInMinites);
+                    Console.Out.WriteLine(TimeUtil.GetCurrentVietNamTime());
+                }
+
+            }
+            return app;
         }
 
     }

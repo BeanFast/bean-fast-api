@@ -36,7 +36,12 @@ namespace BeanFastApi.Controllers
             await _notificationService.SendNotificationAsync(request);
             return SuccessResult(new object());
         }
-
+        [HttpGet("delay")]
+        public async Task<IActionResult> ChangeBackgroundJobDeplay([FromQuery] int delay)
+        {
+            BackgroundJobConstrant.DelayedInMinites = delay;
+            return SuccessResult(new object());
+        }
         [HttpPost("payment")]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> topUp([FromQuery] double amount)

@@ -250,5 +250,17 @@ namespace Services.Implements
                  ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
             return result!;
         }
+
+        public async Task UpdateOrdersStatusAutoAsync()
+        {
+            var filters = new List<Expression<Func<Session, bool>>>()
+            {
+               session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
+            };
+
+            //var sessions = await _repository
+            //    .GetListAsync<Dictionary<Guid, >>(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+
+        }
     }
 }
