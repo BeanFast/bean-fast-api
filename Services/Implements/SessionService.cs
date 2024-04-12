@@ -258,8 +258,8 @@ namespace Services.Implements
                session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
             };
 
-            var sessions = await _repository
-                .GetListAsync<Dictionary<Guid, >>(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+            //var sessions = await _repository
+            //    .GetListAsync<Dictionary<Guid, >>(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
 
         }
     }
