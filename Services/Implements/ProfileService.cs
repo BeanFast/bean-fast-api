@@ -53,7 +53,7 @@ namespace Services.Implements
             profileEntity.Id = profileId;
             profileEntity.Status = Utilities.Statuses.BaseEntityStatus.Active;
             profileEntity.CurrentBMI = currentBMI.Weight / (currentBMI.Height * currentBMI.Height);
-            
+
             var pointsWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
@@ -97,13 +97,19 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<ICollection<GetProfilesByCurrentCustomerResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        public async Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
         {
-            var profiles = await _repository.GetListAsync<GetProfilesByCurrentCustomerResponse>(BaseEntityStatus.Active,
+            var profiles = await _repository.GetListAsync<GetProfileResponse>(BaseEntityStatus.Active,
                 filters: new()
                 {
                     p => p.UserId == customerId,
-                });
+                }, include: i => i.Include(p => p.School!)
+                    .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
+                    .Include(p => p.Wallets!
+                            .Where(w => w.Status == BaseEntityStatus.Active
+                                && WalletType.Points.ToString().Equals(w.Type)
+                             )
+                        ));
             //foreach (var profile in profiles)
             //{
             //    profile.SchoolName = profile.Schoo
@@ -126,7 +132,7 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
             return profile;
         }
-        
+
 
         public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user)
         {
@@ -138,15 +144,15 @@ namespace Services.Implements
             {
                 filters.Add(p => p.UserId == user.Id);
             }
-            
+
             var profile = await _repository.FirstOrDefaultAsync<GetProfileResponse>(
                 status: BaseEntityStatus.Active,
-                filters: filters, 
+                filters: filters,
                 include: queryable => queryable
                     .Include(p => p.School!)
                     .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
                     .Include(p => p.Wallets!
-                            .Where(w => w.Status == BaseEntityStatus.Active 
+                            .Where(w => w.Status == BaseEntityStatus.Active
                                 && WalletType.Points.ToString().Equals(w.Type)
                              )
                         )
