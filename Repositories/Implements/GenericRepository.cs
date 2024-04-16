@@ -135,12 +135,14 @@ namespace Repositories.Implements
             return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).ToListAsync();
         }
         public async Task<ICollection<TResult>> GetListAsync<TResult>(
-            int status, Expression<Func<T, TResult>> selector,
+            Expression<Func<T, TResult>> selector,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null,
+            Expression<Func<T, object>>? groupBy = null)
         {
-            IQueryable<T> query = buildQuery(status, filters, orderBy, include);
+            IQueryable<T> query = buildQuery(filters, orderBy, include);
+            if(groupBy != null) query.GroupBy(groupBy);
             return await query.Select(selector).ToListAsync();
         }
 
@@ -187,6 +189,7 @@ namespace Repositories.Implements
             var result = await _dbSet.CountAsync();
             return result;
         }
+
 
         public async Task InsertAsync(T entity)
         {

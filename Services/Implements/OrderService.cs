@@ -337,7 +337,7 @@ namespace Services.Implements
             {
                 throw new InvalidRequestException("Bạn chỉ có thể hoàn thành các đơn hàng đang ở trạng thái đang giao");
             }
-            if(TimeUtil.GetCurrentVietNamTime() > orderEntity.SessionDetail!.Session!.DeliveryEndTime)
+            if (TimeUtil.GetCurrentVietNamTime() > orderEntity.SessionDetail!.Session!.DeliveryEndTime)
             {
                 throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng");
             }
@@ -404,15 +404,16 @@ namespace Services.Implements
             var orderEntity = await GetByIdAsync(orderId);
             orderEntity.Status = OrderStatus.Delivering;
 
-            orderEntity.OrderActivities!.Add(new OrderActivity
+
+            await RollbackMoneyAsync(orderEntity);
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
                 Name = MessageConstants.OrderActivityMessageConstrant.OrderDeliveringActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
-            });
-            await RollbackMoneyAsync(orderEntity);
+            }, null!);
             await _repository.UpdateAsync(orderEntity);
             await _unitOfWork.CommitAsync();
         }
@@ -595,5 +596,29 @@ namespace Services.Implements
             await _repository.UpdateAsync(order);
             await _unitOfWork.CommitAsync();
         }
+
+        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request)
+        {
+            //var today = TimeUtil.GetCurrentVietNamTime();
+            var filters = new List<Expression<Func<Order, bool>>>
+                {
+                    order => order.PaymentDate.Date >= request.StartDate.Date && order.PaymentDate.Date <= request.EndDate.Date
+                };
+            if (request.Status != null) filters.Add(order => order.Status == request.Status.Value);
+
+            var orders = await _repository.GetListAsync(
+                filters: filters
+            );
+            return orders.GroupBy(order => order.PaymentDate.Month)
+                .Select(
+                    group => new GetOrdersByLastMonthsResponse
+                    {
+                        Month = TimeUtil.GetMonthName(group.Key),
+                        Count = group.Count(),
+                        Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
+                    }
+                ).ToList();
+        }
+
     }
 }

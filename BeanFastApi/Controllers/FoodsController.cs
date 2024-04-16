@@ -49,7 +49,12 @@ public class FoodsController : BaseController
         GetFoodResponse food = await _foodService.GetFoodResponseByIdAsync(id);
         return SuccessResult(food);
     }
-
+    [HttpGet("bestSellers")]
+    public async Task<IActionResult> GetBestSellerFoodsAsync([FromQuery] GetBestSellerFoodsRequest request)
+    {
+        var data = await _foodService.GetBestSellerFoodsAsync(request);
+        return SuccessResult(data);
+    }
     [HttpPost]
     [Authorize(RoleName.MANAGER)]
     public async Task<IActionResult> CreateFoodAsync([FromForm] CreateFoodRequest request)

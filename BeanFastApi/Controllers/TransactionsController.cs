@@ -54,5 +54,22 @@ namespace BeanFastApi.Controllers
             transactions = await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, filterRequest, await GetUserAsync());
             return SuccessResult(transactions);
         }
+        [HttpGet()]
+        [Authorize(RoleName.CUSTOMER)]
+        public async Task<IActionResult> GetCurrentAccountTransaction(
+            [FromQuery] PaginationRequest paginationRequest,
+            [FromQuery] TransactionFilterRequest filterRequest)
+        {
+            object? transactions = default;
+            transactions = await _transactionService.GetMoneyTransactionPageByCurrentUser(paginationRequest, filterRequest, await GetUserAsync());
+            return SuccessResult(transactions);
+        }
+        [HttpGet("countByMonth")]
+        [Authorize(RoleName.ADMIN, RoleName.MANAGER)]
+        public async Task<IActionResult> GetTransactionsForDashBoard([FromQuery] GetTransactionsForDashBoardRequest request)
+        {
+            var transactions = await _transactionService.GetTransactionsForDashBoard(request);
+            return SuccessResult(transactions);
+        }
     }
 }

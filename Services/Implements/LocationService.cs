@@ -36,8 +36,7 @@ namespace Services.Implements
 
         public async Task<ICollection<GetLocationResponse>> GetAllLocationAsync()
         {
-            Expression<Func<Location, GetLocationResponse>> selector = (l => _mapper.Map<GetLocationResponse>(l));
-            return await _repository.GetListAsync(BaseEntityStatus.Active, selector: selector);
+            return await _repository.GetListAsync<GetLocationResponse>(BaseEntityStatus.Active);
         }
 
         public async Task<Location> GetByIdAsync(Guid id)

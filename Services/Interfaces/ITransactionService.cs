@@ -22,5 +22,7 @@ namespace Services.Interfaces
             PaginationRequest paginationRequest,
             TransactionFilterRequest filterRequest,
             User user);
+        Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoard(GetTransactionsForDashBoardRequest request);
+        Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(PaginationRequest paginationRequest, TransactionFilterRequest filterRequest, User user);
     }
 }

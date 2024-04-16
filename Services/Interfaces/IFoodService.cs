@@ -21,5 +21,6 @@ namespace Services.Interfaces
         Task UpdateFoodAsync(Guid foodId, UpdateFoodRequest request, User user);
 
         Task DeleteAsync(Guid guid, User user);
+        Task<ICollection<GetBestSellerFoodsResponse>> GetBestSellerFoodsAsync(GetBestSellerFoodsRequest request);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using AutoMapper;
 using BusinessObjects;
@@ -233,24 +234,52 @@ namespace Services.Implements
         {
             var food = await GetByIdForUpdateActionAsync(guid);
             // check food is existed in other combos
-            var message = string.Empty; 
-            if(food.Combos != null && food.Combos.Any())
+            var message = string.Empty;
+            if (food.Combos != null && food.Combos.Any())
             {
                 var comboCodes = food.Combos.Select(c => c.Code).ToList();
                 message = $"Món ăn này hiện tại đang nằm trong {(comboCodes.Count == 1 ? "" : "các ")} combo: {string.Join(", ", comboCodes)}, vui lòng xóa chúng trong các combo này.";
 
             }
-            if(food.MenuDetails != null && food.MenuDetails.Any())
+            if (food.MenuDetails != null && food.MenuDetails.Any())
             {
                 //var menuDetailsCode = food.MenuDetails.
                 var menudDetailCodes = food.MenuDetails.Select(md => md.Menu!.Code).Distinct().ToList();
                 message += "\n";
                 message += $"Món ăn này hiện tại đang nằm trong {(menudDetailCodes.Count == 1 ? "" : "các ")} menu: {string.Join(", ", menudDetailCodes)}, vui lòng xóa chúng trong các menu này.";
             }
-            if(message != string.Empty) { throw new InvalidRequestException(message); }
+            if (message != string.Empty) { throw new InvalidRequestException(message); }
             await _repository.DeleteAsync(food, user);
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task<ICollection<GetBestSellerFoodsResponse>> GetBestSellerFoodsAsync(GetBestSellerFoodsRequest request)
+        {
+            var filters = new List<Expression<Func<Food, bool>>>();
+            Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include;
+            
+            if (request.StartDate != DateTime.MinValue && request.EndDate != DateTime.MinValue)
+            {
+                include = i => i
+                .Include(f => f.OrderDetails!
+                    .Where(od => od.Order!.PaymentDate.Date >= request.StartDate.Date && od.Order.PaymentDate.Date <= request.EndDate.Date)
+                );
+            }
+            else
+            {
+                include = i => i.Include(f => f.OrderDetails!);
+            }
+            var foodPage = await _repository.GetPageAsync(
+                filters: filters,
+                include: include,
+                orderBy: o => o.OrderByDescending(f => f.OrderDetails!.Count),
+                paginationRequest: new PaginationRequest
+                {
+                    Page = 1,
+                    Size = request.Number
+                });
+            //_mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
+            return _mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
+        }
     }
 }
