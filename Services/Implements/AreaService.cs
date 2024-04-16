@@ -54,7 +54,7 @@ namespace Services.Implements
         public async Task<ICollection<string>> SearchCityNamesAsync(string cityName)
         {
             cityName = cityName.ToLower();
-            var cityNames = await _repository.GetListAsync(status: BaseEntityStatus.Active, filters: new()
+            var cityNames = await _repository.GetListAsync(filters: new()
             {
                 area => area.Status == BaseEntityStatus.Active
             }, selector: l => l.City);
@@ -63,19 +63,21 @@ namespace Services.Implements
 
         public async Task<ICollection<string>> SearchDistrictNamesAsync(string cityName, string districtName)
         {
-            var districtNames = await _repository.GetListAsync(status: BaseEntityStatus.Active, filters: new()
+            var districtNames = await _repository.GetListAsync( filters: new()
             {
-                area => area.City == cityName
+                area => area.City == cityName,
+                area => area.Status == BaseEntityStatus.Active,
             }, selector: d => d.District);
             return searchLocation(districtNames, districtName);
         }
 
         public async Task<ICollection<string>> SearchWardNamesAsync(string cityName, string districtName, string wardName)
         {
-            var wardNames = await _repository.GetListAsync(status: BaseEntityStatus.Active, filters: new()
+            var wardNames = await _repository.GetListAsync(filters: new()
             {
                 area => area.City == cityName,
                 area => area.District == districtName,
+                area => area.Status == BaseEntityStatus.Active
             }, selector: d => d.Ward);
             return searchLocation(wardNames, wardName);
         }

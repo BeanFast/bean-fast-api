@@ -596,5 +596,29 @@ namespace Services.Implements
             await _repository.UpdateAsync(order);
             await _unitOfWork.CommitAsync();
         }
+
+        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request)
+        {
+            //var today = TimeUtil.GetCurrentVietNamTime();
+            var filters = new List<Expression<Func<Order, bool>>>
+                {
+                    order => order.PaymentDate.Date >= request.StartDate.Date && order.PaymentDate.Date <= request.EndDate.Date
+                };
+            if (request.Status != null) filters.Add(order => order.Status == request.Status.Value);
+
+            var orders = await _repository.GetListAsync(
+                filters: filters
+            );
+            return orders.GroupBy(order => order.PaymentDate.Month)
+                .Select(
+                    group => new GetOrdersByLastMonthsResponse
+                    {
+                        Month = TimeUtil.GetMonthName(group.Key),
+                        Count = group.Count(),
+                        Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
+                    }
+                ).ToList();
+        }
+
     }
 }

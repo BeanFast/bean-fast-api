@@ -9,7 +9,6 @@ namespace Repositories.Interfaces
     public interface IGenericRepository<T> : IDisposable where T : class
     {
 
-        #region Read
         Task<int> CountAsync();
         Task<T?> FirstOrDefaultAsync(
             List<Expression<Func<T, bool>>>? filters = null,
@@ -44,11 +43,11 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
         Task<ICollection<TResult>> GetListAsync<TResult>(
-            int status,
             Expression<Func<T, TResult>> selector,
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null,
+            Expression<Func<T, object>>? groupBy = null);
 
 
         Task<ICollection<TResult>> GetListAsync<TResult>(
@@ -91,10 +90,6 @@ namespace Repositories.Interfaces
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
-
-
-
-        #endregion
 
 
 

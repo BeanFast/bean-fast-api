@@ -120,12 +120,41 @@ namespace Services.Implements
             }
             var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
             filters.Add(
-                t => (t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null) ?
-                    t.Wallet!.UserId == user.Id :
-                    t.Wallet!.User!.Profiles!.Any(p => p.Id == profileId && p.Status == BaseEntityStatus.Active));
-            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(paginationRequest, filters, 
+                t => t.Wallet!.User!.Profiles!.Any(p => p.Id == profileId && p.Status == BaseEntityStatus.Active));
+            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(paginationRequest, filters,
                 orderBy: o => o.OrderByDescending(t => t.Time));
             return transactionPage;
         }
+        public async Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(PaginationRequest paginationRequest, TransactionFilterRequest filterRequest, User user)
+        {
+            var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
+            filters.Add(t =>t.Wallet!.UserId == user.Id);
+            filters.Add(t => t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null);
+            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByCurrentUserResponse>(paginationRequest, filters,
+                orderBy: o => o.OrderByDescending(t => t.Time));
+            return transactionPage;
+        }
+
+        public async Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoard(GetTransactionsForDashBoardRequest request)
+        {
+            var filters = new List<Expression<Func<Transaction, bool>>>();
+            if (request.Type == "money")
+            {
+                filters.Add(t => t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null);
+            }
+            if (request.StartDate != DateTime.MinValue)
+            {
+                filters.Add(t => t.Time.Date >= request.StartDate.Date && t.Time.Date <= request.EndDate.Date);
+            }
+            var transactions = await _repository.GetListAsync(filters);
+            return transactions.GroupBy(t => t.Time.Month).Select(group => new GetTransactionsForDashBoardResponse
+            {
+                Count = group.Count(),
+                Month = TimeUtil.GetMonthName(group.Key),
+                Value = (int)group.Sum(t => t.Value)
+            }).ToList();
+        }
+
+
     }
 }

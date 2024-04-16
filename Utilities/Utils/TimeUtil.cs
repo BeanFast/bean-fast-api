@@ -41,6 +41,10 @@ namespace Utilities.Utils
         {
             return DateTime.UtcNow.AddHours(7);
         }
+        public static string GetMonthName(int month)
+        {
+            return new DateTime(2000, month, 1).ToString("MMM");
+        }
         public static double GetAgeRoundedToHalfYear(DateTime birthDate)
         {
             DateTime today = DateTime.Today;
