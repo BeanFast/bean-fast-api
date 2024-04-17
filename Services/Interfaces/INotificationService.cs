@@ -1,5 +1,7 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Notification.Request;
+using DataTransferObjects.Models.Notification.Response;
 using FirebaseAdmin.Messaging;
 using System;
 using System.Collections.Generic;
@@ -14,5 +16,6 @@ namespace Services.Interfaces
        Task<BatchResponse> SendNotificationAsync(CreateNotificationRequest request);
 
         Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user);
+        Task<IPaginable<GetNotificationResponse>> GetNotificationPageByCurrentUser(PaginationRequest paginationRequest, User user);
     }
 }
