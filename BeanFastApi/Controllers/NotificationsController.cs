@@ -1,4 +1,5 @@
 ﻿using BeanFastApi.Validators;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Notification.Request;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -18,6 +19,12 @@ namespace BeanFastApi.Controllers
         {
             await _notificationService.MarkAsReadNotificationAsync(request, await GetUserAsync());
             return SuccessResult(new { });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetNotificationsByCurrentUser([FromQuery] PaginationRequest paginationRequest)
+        {
+            var notificationPage = await _notificationService.GetNotificationPageByCurrentUser(paginationRequest, await GetUserAsync());
+            return SuccessResult(notificationPage);
         }
         [HttpPost]
         public async Task<IActionResult> SendNotificationsAsync([FromBody] CreateNotificationRequest request)

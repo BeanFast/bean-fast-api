@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Notification.Request;
+using DataTransferObjects.Models.Notification.Response;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
@@ -27,6 +29,25 @@ namespace Services.Implements
         public NotificationService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IUserService userService) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
+        }
+
+        public async Task<IPaginable<GetNotificationResponse>> GetNotificationPageByCurrentUser(PaginationRequest paginationRequest, User user)
+        {
+            var notificationsPage = await _repository.GetPageAsync(paginationRequest, filters: new()
+            {
+                n => n.NotificationDetails.Any(nd => nd.UserId == user.Id)
+            }, include: i => i.Include(n => n.NotificationDetails.Where(nd => nd.UserId == user.Id)));
+            Paginate<GetNotificationResponse> result = new Paginate<GetNotificationResponse>
+            {
+                Page = notificationsPage.Page,
+                TotalPages = notificationsPage.TotalPages,
+                Items = _mapper.Map<List<GetNotificationResponse>>(notificationsPage.Items),
+                Size = notificationsPage.Size,
+                Total = notificationsPage.Total
+            };
+            
+
+            return result;
         }
 
         public async Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user)
@@ -107,7 +128,7 @@ namespace Services.Implements
             }
             FirebaseMessaging messaging = FirebaseMessaging.GetMessaging(app);
             var response = await messaging.SendMulticastAsync(message);
-            
+
             //await _repository.InsertAsync(notification);
             //await _unitOfWork.CommitAsync();
             return response;
