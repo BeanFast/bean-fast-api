@@ -43,7 +43,7 @@ namespace Repositories.Implements
             filters?.ForEach(filter => query = query.Where(filter));
 
             if (orderBy != null) query = orderBy(query);
-            return query;
+            return query.AsNoTracking();
         }
 
         private IQueryable<T> buildQuery(
@@ -57,7 +57,7 @@ namespace Repositories.Implements
             filters?.ForEach(filter => query = query.Where(filter));
             query.Where(e => e.Status.Equals(status));
             if (orderBy != null) query = orderBy(query);
-            return query;
+            return query.AsNoTracking();
         }
 
         public virtual async Task<T?> FirstOrDefaultAsync(
@@ -215,6 +215,7 @@ namespace Repositories.Implements
 
         public async Task UpdateAsync(T entity)
         {
+            _dbContext.ChangeTracker.Clear();
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
@@ -224,6 +225,7 @@ namespace Repositories.Implements
         }
         public async Task UpdateAsync(T entity, User? updater)
         {
+            
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();

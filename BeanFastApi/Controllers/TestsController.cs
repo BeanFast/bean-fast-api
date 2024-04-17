@@ -16,18 +16,16 @@ namespace BeanFastApi.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IVnPayService _vnPayService;
-        private readonly IWalletService _walletService;
-        private readonly ITransactionService _transactionService;
+
+        private readonly ISessionService _sessionService;
         public TestsController(IUserService userService,
             INotificationService notificationService,
             IVnPayService vnPayService,
-            IWalletService walletService,
-            ITransactionService transactionService) : base(userService)
+            ISessionService sessionService) : base(userService)
         {
             _notificationService = notificationService;
             _vnPayService = vnPayService;
-            _walletService = walletService;
-            _transactionService = transactionService;
+            _sessionService = sessionService;
         }
 
         [HttpPost]
@@ -39,14 +37,20 @@ namespace BeanFastApi.Controllers
         [HttpGet("delay")]
         public async Task<IActionResult> ChangeBackgroundJobDeplay([FromQuery] int delay)
         {
-            BackgroundJobConstrant.DelayedInMinutes = delay;
+            BackgroundServiceConstrant.DelayedInMinutes = delay;
+            return SuccessResult(new object());
+        }
+        [HttpGet("background-job")]
+        public async Task<IActionResult> RunBackgroundJob()
+        {
+            await _sessionService.UpdateOrdersStatusAutoAsync();
             return SuccessResult(new object());
         }
         [HttpPost("payment")]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> topUp([FromQuery] double amount)
         {
-           var user = await GetUserAsync();
+            var user = await GetUserAsync();
             var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
             var vnPayEntity = new VnPayRequest
             {
