@@ -96,7 +96,7 @@ namespace Services.Implements
             };
             var order = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters, include: queryable => queryable.Include(o => o.Profile!)
-                .ThenInclude(p => p.Wallets)
+                .ThenInclude(p => p.Wallets).AsNoTracking()
                 .Include(o => o.SessionDetail!)
                 .ThenInclude(o => o.Session!)
                 .Include(o => o.OrderDetails!)
@@ -421,21 +421,21 @@ namespace Services.Implements
 
         public async Task CancelOrderForManagerAsync(Order orderEntity, CancelOrderRequest request, User manager)
         {
-            orderEntity.Status = (int)OrderStatus.Cancelled;
+            orderEntity.Status = OrderStatus.Cancelled;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
             var orderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+                Name = request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
             };
             await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, manager);
-            await _repository.UpdateAsync(orderEntity);
+            await _repository.UpdateAsync(orderEntity, manager);
             await _unitOfWork.CommitAsync();
         }
         public async Task RollbackMoneyAsync(Order orderEntity)
@@ -479,7 +479,7 @@ namespace Services.Implements
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, customer);
             orderEntity.Status = OrderStatus.CancelledByCustomer;
 
-            await _repository.UpdateAsync(orderEntity);
+            await _repository.UpdateAsync(orderEntity, customer);
             await _unitOfWork.CommitAsync();
         }
 

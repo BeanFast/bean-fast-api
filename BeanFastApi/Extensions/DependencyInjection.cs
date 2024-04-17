@@ -17,6 +17,7 @@ using Google.Cloud.Storage.V1;
 using System.Threading.RateLimiting;
 using Utilities.Exceptions;
 using Utilities.Utils;
+using BeanFastApi.BackgroundJobs;
 
 
 namespace BeanFastApi.Extensions
@@ -188,24 +189,30 @@ namespace BeanFastApi.Extensions
             services.Configure<AppSettings>(configuration);
             return services;
         }
-        public async static Task<WebApplication> UseBackgroundJobs(this WebApplication app)
+        public static IServiceCollection AddBackgroundServices(this IServiceCollection services)
         {
-            //app.UseRouting()
-            using (var scope = app.Services.CreateScope())
-            {
-                var injectedService = scope.ServiceProvider;
-                var timer = new PeriodicTimer(TimeSpan.FromMinutes(BackgroundJobConstrant.DelayedInMinutes));
-                var sessionService = injectedService.GetRequiredService<ISessionService>();
-                while (await timer.WaitForNextTickAsync())
-                {
-                    await sessionService.UpdateOrdersStatusAutoAsync();
-                    Console.WriteLine(BackgroundJobConstrant.DelayedInMinutes);
-                    Console.Out.WriteLine(TimeUtil.GetCurrentVietNamTime());
-                }
-
-            }
-            return app;
+            services.AddHostedService<SessionBackgroundService>();
+            return services;
         }
+        //public async static Task<WebApplication> UseBackgroundJobs(this WebApplication app)
+        //{
+        //    //app.UseRouting()
+        //    using (var scope = app.Services.CreateScope())
+        //    {
+        //        var injectedService = scope.ServiceProvider;
+        //        var timer = new PeriodicTimer(TimeSpan.FromMinutes(BackgroundJobConstrant.DelayedInMinutes));
+        //        var sessionService = injectedService.GetRequiredService<ISessionService>();
+        //        while (await timer.WaitForNextTickAsync())
+        //        {
+        //            await sessionService.UpdateOrdersStatusAutoAsync();
+        //            Console.WriteLine(BackgroundJobConstrant.DelayedInMinutes);
+        //            Console.Out.WriteLine(TimeUtil.GetCurrentVietNamTime());
+        //        }
+
+        //    }
+        //    return app;
+        //}
+
 
     }
 }

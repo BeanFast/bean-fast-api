@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Utilities.Constants
 {
-    public class BackgroundJobConstrant
+    public class BackgroundServiceConstrant
     {
-        public static int DelayedInMinutes = 2;
+        public static int DelayedInMinutes = 1;
     }
 }

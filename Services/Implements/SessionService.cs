@@ -263,69 +263,71 @@ namespace Services.Implements
             {
                 if (s.Status == SessionStatus.Active || s.Status == SessionStatus.Incoming)
                 {
-                    var currentTime = TimeUtil.GetCurrentVietNamTime();
 
-                    if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.DeliveryStartTime)
+                    if (s.Status == SessionStatus.Active)
                     {
-                        CancelOrderRequest request = new()
+                        var currentTime = TimeUtil.GetCurrentVietNamTime();
+                        if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.DeliveryStartTime)
                         {
-                            Reason = "Đơn hàng bị hủy do chưa có người giao"
-                        };
-                        foreach (var sd in s.SessionDetails)
-                        {
-                            if (sd.DelivererId == null)
+                            CancelOrderRequest request = new()
                             {
-                                foreach (var order in sd.Orders)
+                                Reason = "Đơn hàng bị hủy do chưa có người giao"
+                            };
+                            foreach (var sd in s.SessionDetails)
+                            {
+                                if (sd.DelivererId == null)
                                 {
-                                    var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
-                                    await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, request, null!);
-                                }
-                            }
+                                    foreach (var order in sd.Orders)
+                                    {
+                                        var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
+                                        await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, request, null!);
+                                    }
 
+                                }
+                                else
+                                {
+
+                                    foreach (var order in sd.Orders)
+                                    {
+                                        if (order.Status == OrderStatus.Cooking)
+                                        {
+                                            await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                        }
+                                    }
+                                }
+                                sd.Orders = null;
+                            }
+                            s.Status = SessionStatus.Incoming;
                         }
-                        s.Status = SessionStatus.Incoming;
                         await _repository.UpdateAsync(s);
                         await _unitOfWork.CommitAsync();
                     }
-                    else
+                    else if (s.Status == SessionStatus.Incoming)
                     {
-                        foreach (var sd in s.SessionDetails)
+                        var currentTime = TimeUtil.GetCurrentVietNamTime();
+                        if (currentTime > s.DeliveryEndTime)
                         {
-                            foreach (var order in sd.Orders)
+                            CancelOrderRequest request = new()
                             {
-                                if(order.Status == OrderStatus.Cooking)
+                                Reason = "Đơn hàng bị hủy do chưa có người nhận"
+                            };
+                            foreach (var sd in s.SessionDetails!)
+                            {
+                                foreach (var order in sd.Orders!)
                                 {
-                                    await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                    if (order.Status == OrderStatus.Delivering)
+                                    {
+                                        var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
+                                        await _orderService.CancelOrderForCustomerAsync(order, request, null!);
+                                    }
                                 }
                             }
+                            s.Status = SessionStatus.Ended;
+                            await _repository.UpdateAsync(s);
+                            await _unitOfWork.CommitAsync();
+                        }
+                    }
 
-                        }
-                    }
-                }
-                else if (s.Status == SessionStatus.Incoming)
-                {
-                    var currentTime = TimeUtil.GetCurrentVietNamTime();
-                    if (currentTime > s.DeliveryEndTime)
-                    {
-                        CancelOrderRequest request = new()
-                        {
-                            Reason = "Đơn hàng bị hủy do chưa có người nhận"
-                        };
-                        foreach (var sd in s.SessionDetails)
-                        {
-                            foreach (var order in sd.Orders)
-                            {
-                                if (order.Status == OrderStatus.Delivering)
-                                {
-                                    var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
-                                    await _orderService.CancelOrderForCustomerAsync(order, request, null!);
-                                }
-                            }
-                        }
-                        s.Status = SessionStatus.Ended;
-                        await _repository.UpdateAsync(s);
-                        await _unitOfWork.CommitAsync();
-                    }
                 }
             }
         }

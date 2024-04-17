@@ -27,6 +27,7 @@ services.AddJwtAuthentication();
 services.AddDatabase(builder.Configuration);
 services.AddUnitOfWork();
 services.AddServices();
+services.AddBackgroundServices();
 services.AddSwagger();
 services.AddAppSettingsBinding(builder.Configuration);
 services.AddRateLimiting();
@@ -59,6 +60,5 @@ app.UseAuthorization();
 app.UseCors(CorsConstrant.AllowAllPolicyName);
 app.MapControllers();
 app.UseRateLimiter();
-//app.UseBackgroundJobs();
 
 app.Run();
