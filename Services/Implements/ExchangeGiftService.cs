@@ -1,15 +1,19 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.ExchangeGift.Request;
+using DataTransferObjects.Models.ExchangeGift.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using DataTransferObjects.Models.OrderActivity.Response;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
@@ -29,6 +33,7 @@ namespace Services.Implements
         private readonly ISessionDetailService _sessionDetailService;
         private readonly ITransactionService _transactionService;
         private readonly IOrderActivityService _orderActivityService;
+        
         public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService) : base(unitOfWork, mapper, appSettings)
         {
             _giftService = giftService;
@@ -37,7 +42,19 @@ namespace Services.Implements
             _transactionService = transactionService;
             _orderActivityService = orderActivityService;
         }
-
+        public List<Expression<Func<ExchangeGift, bool>>> GetFilterFromFilterRequest(ExchangeGiftFilterRequest filterRequest)
+        {
+            List<Expression<Func<ExchangeGift, bool>>> expressions = new List<Expression<Func<ExchangeGift, bool>>>();
+            if(filterRequest.Status != null)
+            {
+                expressions.Add(eg => eg.Status == filterRequest.Status);
+            }
+            if (!filterRequest.Code.IsNullOrEmpty())
+            {
+                expressions.Add(eg => eg.Code == filterRequest.Code);
+            }
+            return expressions;
+        }
         public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user)
         {
             var gift = await _giftService.GetGiftByIdAsync(request.GiftId);
@@ -45,12 +62,18 @@ namespace Services.Implements
             var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
             if (sessionDetail.Session!.OrderEndTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
             {
-                throw new(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
+            }else if (sessionDetail.Session!.OrderStartTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
+            {
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
             }
             if (sessionDetail.Location!.SchoolId != profile.SchoolId)
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
             }
+            gift.InStock -= 1;
+            if(gift.InStock < 0) throw new InvalidRequestException("Món quà này đã hết hàng");
+            
             var exchangeGift = _mapper.Map<ExchangeGift>(request);
             exchangeGift.Id = Guid.NewGuid();
             exchangeGift.Points = gift.Points;
@@ -86,6 +109,7 @@ namespace Services.Implements
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, await _transactionService.CountAsync() + 1)
                 }
             };
+            await _giftService.UpdateGiftAsync(gift);
             await _repository.InsertAsync(exchangeGift, user);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());
@@ -103,6 +127,21 @@ namespace Services.Implements
                 throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftIdRequired);
             }
             await _orderActivityService.CreateOrderActivityAsync(request, user);
+        }
+
+        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest)
+        {
+            var filters = GetFilterFromFilterRequest(filterRequest);
+            return await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
+        }
+
+        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId)
+        {
+            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(profileId, user.Id);
+            var filters = GetFilterFromFilterRequest(filterRequest);
+            filters.Add(eg => eg.ProfileId == profileId);
+            IPaginable<GetExchangeGiftResponse> page =  await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
+            return page;
         }
     }
 }

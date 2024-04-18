@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
-    <Folder Include="Models\ExchangeGift\Response\" />
     <Folder Include="Models\LoyaltyCard\Response\" />
     <Folder Include="Models\Wallet\Request\" />
   </ItemGroup>

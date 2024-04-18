@@ -127,6 +127,11 @@ namespace Services.Implements
             await _repository.UpdateAsync(gift, user);
             await _unitOfWork.CommitAsync();
         }
+        public async Task UpdateGiftAsync(Gift gift)
+        {
+            await _repository.UpdateAsync(gift);
+            await _unitOfWork.CommitAsync();
+        }
 
         public async Task DeleteGiftAsync(Guid id, User user)
         {
@@ -134,7 +139,6 @@ namespace Services.Implements
             await _repository.DeleteAsync(gift, user);
             await _unitOfWork.CommitAsync();
         }
-
 
         
     }

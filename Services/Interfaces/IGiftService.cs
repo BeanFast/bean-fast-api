@@ -17,6 +17,7 @@ namespace Services.Interfaces
         Task<Gift> GetGiftByIdAsync(int status, Guid id);
         Task<Gift> GetGiftByIdAsync(Guid id);
         Task UpdateGiftAsync(Guid id, UpdateGiftRequest request, User user);
+        Task UpdateGiftAsync(Gift gift);
         Task DeleteGiftAsync(Guid id, User user);
 
     }

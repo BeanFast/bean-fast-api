@@ -61,6 +61,10 @@ namespace Services.Implements
                 {
                     filters.Add(t => WalletType.Money.ToString().Equals(t.Wallet!.Type));
                 }
+                else if(filterRequest.Type == "points")
+                {
+                    filters.Add(t => WalletType.Points.ToString().Equals(t.Wallet!.Type));
+                }
             }
             //if(!filterRequest.)
             return filters;

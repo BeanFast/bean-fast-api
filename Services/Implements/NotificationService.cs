@@ -128,9 +128,9 @@ namespace Services.Implements
             }
             FirebaseMessaging messaging = FirebaseMessaging.GetMessaging(app);
             var response = await messaging.SendMulticastAsync(message);
-
-            //await _repository.InsertAsync(notification);
-            //await _unitOfWork.CommitAsync();
+            //var response = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+            await _repository.InsertAsync(notification);
+            await _unitOfWork.CommitAsync();
             return response;
         }
     }
