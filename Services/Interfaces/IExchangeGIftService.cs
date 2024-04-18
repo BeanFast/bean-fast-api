@@ -1,5 +1,7 @@
 ﻿using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.ExchangeGift.Request;
+using DataTransferObjects.Models.ExchangeGift.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using DataTransferObjects.Models.OrderActivity.Response;
 using System;
@@ -15,5 +17,7 @@ namespace Services.Interfaces
         Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
+        Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
+        Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId);
     }
 }

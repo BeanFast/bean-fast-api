@@ -16,7 +16,7 @@ namespace Services.Mappers
             CreateMap<CreateNotificationRequest, Notification>();
             CreateMap<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest, NotificationDetail>();
             CreateMap<Notification, GetNotificationResponse>()
-                .ForMember(dest => dest.ReadDate, src => src.MapFrom(src => src.NotificationDetails.First().SendDate))
+                .ForMember(dest => dest.ReadDate, src => src.MapFrom(src => src.NotificationDetails.First().ReadDate))
                 .ForMember(dest => dest.SendDate, src => src.MapFrom(src => src.NotificationDetails.First().SendDate))
                 .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.NotificationDetails.First().UserId))
                 .ForMember(dest => dest.Status, src => src.MapFrom(src => src.NotificationDetails.First().Status));

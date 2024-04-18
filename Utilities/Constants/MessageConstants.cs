@@ -195,6 +195,7 @@ namespace Utilities.Constants
         public class SessionDetailMessageConstrant
         {
             public const string SessionOrderClosed = "Thời gian đặt hàng đã đóng, không thể thực hiện thao tác này";
+            public const string SessionOrderNotStarted = "Thời gian đặt hàng chưa đến, không thể thực hiện thao tác này";
             public const string InvalidSchoolLocation = "Địa điểm không thuộc trường học mà bạn đã đăng ký";
             public static string SessionDetailNotFound(Guid guid) => $"Buổi chi tiết với id: {guid} không tồn tại";
         }
