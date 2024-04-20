@@ -311,8 +311,15 @@ namespace Utilities.Constants
         {
             public const string ExchangeGiftIdRequired = "ExchangeGiftId là bắt buộc";
         }
+        public class GameMessageConstrant
+        {
+            public static string GameNotFound(Guid id) => $"Game với id: {id} không tồn tại";
+        }
         public class TransactionMessageConstrant
         {
+            public const string PointMustBeGreaterThanZero = "Điểm phải lớn hơn 0!";
+            public const string TopUpMoneyMustBeGreaterThanTenThousand = "Số tiền cần nạp phải tối thiểu là 10000 VND";
+
             //public const string Profile
         }
     }

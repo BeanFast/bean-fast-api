@@ -120,6 +120,27 @@ namespace Services.Implements
             await _repository.InsertAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();
         }
+        public async Task<bool> CheckSessionDetailAsync(CheckSessionDetailRequest request, Guid sessionDetailId)
+        {
+            var filters = new List<Expression<Func<SessionDetail, bool>>>();
+            var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
+            filters.Add(sd => sd.Id == sessionDetailId && sd.Status == BaseEntityStatus.Active);
+            Console.WriteLine("orderable: " + request.Orderable == null);
+            if (request.Orderable != null)
+            {
+                if(request.Orderable == true)
+                {
+                    filters.Add(sd => sd.Session!.OrderStartTime >= currentVietnamTime && sd.Session.OrderEndTime < currentVietnamTime);
+                }
+                else
+                {
+                    filters.Add(sd => sd.Session!.OrderStartTime < currentVietnamTime || sd.Session.OrderEndTime >= currentVietnamTime);
+                }
+            }
+            var sessionDetail = await _repository.FirstOrDefaultAsync(filters: filters);
+            if (sessionDetail == null) return false;
+            return true;
+        }
 
         public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest)
         {

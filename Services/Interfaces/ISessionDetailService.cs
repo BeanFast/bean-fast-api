@@ -19,5 +19,6 @@ namespace Services.Interfaces
         Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user);
         Task CreateSessionDetailAsync(CreateSessionDetailRequest createSessionDetail);
         Task UpdateSessionDetailByIdAsync(Guid id, UpdateSessionDetailRequest updateSessionDetail);
+        Task<bool> CheckSessionDetailAsync(CheckSessionDetailRequest request, Guid sessionDetailId);
     }
 }

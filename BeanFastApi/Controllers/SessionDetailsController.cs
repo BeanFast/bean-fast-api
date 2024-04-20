@@ -27,6 +27,12 @@ namespace BeanFastApi.Controllers
             var sessionDetails = await _sessionDetailService.GetSessionDetailsAsync(user, request);
             return SuccessResult(sessionDetails);
         }
+        [HttpGet("{id}/check")]
+        public async Task<IActionResult> CheckSessionDetailAsync([FromRoute] Guid id, [FromQuery] CheckSessionDetailRequest request)
+        {
+            var result = await _sessionDetailService.CheckSessionDetailAsync(request, id);
+            return SuccessResult(result);
+        }
 
         //Create new session detail (create new delivery schedule)
         [HttpPost]
