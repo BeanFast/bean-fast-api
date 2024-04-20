@@ -54,6 +54,15 @@ namespace BeanFastApi.Controllers
             transactions = await _transactionService.GetTransactionPageByProfileIdAndCurrentUser(profileId, paginationRequest, filterRequest, await GetUserAsync());
             return SuccessResult(transactions);
         }
+        [HttpPost("games")]
+        [Authorize(RoleName.CUSTOMER)]
+        public async Task<IActionResult> CreatGameTransaction(CreateGameTransactionRequest request)
+        {
+            await _transactionService.CreateGameTransactionAsync(request, await GetUserAsync());
+            return SuccessResult<object>();
+        }
+
+
         [HttpGet()]
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> GetCurrentAccountTransaction(

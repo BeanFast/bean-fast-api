@@ -33,11 +33,14 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IProfileService _profileService;
 
-        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService) : base(unitOfWork, mapper, appSettings)
+        private readonly IGameService _gameService;
+
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService) : base(unitOfWork, mapper, appSettings)
         {
             _vnPayService = vnPayService;
             _walletService = walletService;
             _profileService = profileService;
+            _gameService = gameService;
         }
         public async Task CreateTransactionAsync(Transaction transaction)
         {
@@ -80,6 +83,10 @@ namespace Services.Implements
         public string CreateVnPayPaymentRequest(User user, int amount, HttpContext context)
         {
             Console.WriteLine(amount);
+            if(amount < 10000)
+            {
+                throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.TopUpMoneyMustBeGreaterThanTenThousand);
+            }
             var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
             var vnPayEntity = new VnPayRequest
             {
@@ -161,6 +168,20 @@ namespace Services.Implements
             }).ToList();
         }
 
-
+        public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
+        {
+            await _gameService.GetGamesAsync();
+            var transaction = new Transaction
+            {
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1),
+                GameId = request.GameId,
+                Value = request.Points,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                WalletId = user.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!.Id,
+                Status = BaseEntityStatus.Active
+            };
+            await _repository.InsertAsync(transaction, user);
+            await _unitOfWork.CommitAsync();
+        }
     }
 }

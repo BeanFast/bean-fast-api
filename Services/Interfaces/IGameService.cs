@@ -12,6 +12,7 @@ namespace Services.Interfaces
     public interface IGameService
     {
         Task<ICollection<GetGameResponse>> GetGamesAsync();
+        Task<Game> GetGameById(Guid id);
         Task CreateGameAsync(CreateGameRequest request, User user);
     }
 }
