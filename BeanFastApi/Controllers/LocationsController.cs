@@ -30,7 +30,12 @@ namespace BeanFastApi.Controllers
             var location = await _locationService.GetByIdAsync(id);
             return SuccessResult(location);
         }
-
+        [HttpGet("bestSellers")]
+        public async Task<IActionResult> GetBestSellerLocationAsync([FromQuery] BestSellerLocationFilterRequest filterRequest)
+        {
+            var locations = await _locationService.GetBestSellerLocationAsync(filterRequest);
+            return SuccessResult(locations);
+        }
         [HttpPost]
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> CreateLocationAsync([FromForm] CreateLocationRequest request)

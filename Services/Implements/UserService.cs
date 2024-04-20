@@ -139,10 +139,10 @@ namespace Services.Implements
             customer.AvatarPath = UserConstrants.DefaultAvatar;
             customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Status = UserStatus.NotVerified;
-            if(registerRequest.FullName.IsNullOrEmpty())
-            {
-                customer.FullName = "User #" + customer.Id;
-            }
+            //if(registerRequest.FullName.IsNullOrEmpty())
+            //{
+            //    customer.FullName = "User #" + customer.Id;
+            //}
             var customerNumber = await _repository.CountAsync() + 1;
             customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
             var moneyWallet = new Wallet

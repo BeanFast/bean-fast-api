@@ -16,6 +16,7 @@ namespace Services.Mappers
         {
             CreateMap<Location, GetLocationIncludeSchoolResponse>();
             CreateMap<Location, GetLocationResponse>();
+            CreateMap<Location, GetBestSellerLocationResponse>().ForMember(dest => dest.OrderCount, src => src.MapFrom(l => l.SessionDetails!.Sum(s => s.Orders!.Count())));
             CreateMap<CreateLocationRequest, Location>();
             CreateMap<UpdateLocationRequest, Location>();
             CreateMap<School, GetSchoolResponse>();

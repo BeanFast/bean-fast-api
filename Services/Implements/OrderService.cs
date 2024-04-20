@@ -37,6 +37,7 @@ namespace Services.Implements
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
         private readonly ILoyaltyCardService _loyaltyCardService;
+        private readonly IFoodService _foodService;
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
            IProfileService profileService,
            ISessionDetailService sessionDetailService,
@@ -45,7 +46,7 @@ namespace Services.Implements
            IMenuDetailService menuDetailService,
            ITransactionService transactionService,
            IWalletService walletService,
-           ILoyaltyCardService loyaltyCardService) : base(unitOfWork, mapper, appSettings)
+           ILoyaltyCardService loyaltyCardService, IFoodService foodService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -55,6 +56,7 @@ namespace Services.Implements
             _transactionService = transactionService;
             _walletService = walletService;
             _loyaltyCardService = loyaltyCardService;
+            _foodService = foodService;
         }
         private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
@@ -217,6 +219,14 @@ namespace Services.Implements
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
             }
+            if (sessionDetail.Session!.OrderEndTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
+            {
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
+            }
+            else if (sessionDetail.Session!.OrderStartTime.CompareTo(TimeUtil.GetCurrentVietNamTime()) <= 0)
+            {
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
+            }
             if (sessionDetail.Location!.SchoolId != profile.SchoolId)
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
@@ -228,11 +238,14 @@ namespace Services.Implements
             {
                 var orderDetailEntity = _mapper.Map<OrderDetail>(orderDetailModel);
                 var menuDetail = await _menuDetailService.GetByIdAsync(orderDetailModel.MenuDetailId);
+                var food = await _foodService.GetByIdAsync(menuDetail.FoodId);
                 orderDetailEntity.OrderId = orderId;
                 orderDetailEntity.FoodId = menuDetail.FoodId;
                 orderDetailEntity.Price = menuDetail.Price;
                 orderDetailEntity.Status = OrderDetailStatus.Active;
                 orderDetailEntityList.Add(orderDetailEntity);
+                
+                // food?
             }
             orderEntity.OrderDetails?.Clear();
 

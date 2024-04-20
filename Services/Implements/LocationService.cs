@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Location.Request;
 using DataTransferObjects.Models.Location.Response;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
@@ -123,6 +125,35 @@ namespace Services.Implements
             var locationEntity = await GetByIdAsync(id);
             await _repository.DeleteAsync(locationEntity, user);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<object> GetBestSellerLocationAsync(BestSellerLocationFilterRequest filterRequest)
+        {
+            var filters = new List<Expression<Func<Location, bool>>>();
+            Func<IQueryable<Location>, IIncludableQueryable<Location, object>> include;
+
+            if (filterRequest.StartDate != DateTime.MinValue && filterRequest.EndDate != DateTime.MinValue)
+            {
+                include = (i) => i.Include(f => f.SessionDetails!).ThenInclude(sd => sd.Orders!.Where(o => o.PaymentDate >= filterRequest.StartDate && o.PaymentDate <= filterRequest.EndDate));
+            }
+            else
+            {
+                include = i => i.Include(l => l.SessionDetails!);
+            }
+            if (filterRequest.SchoolId != null && filterRequest.SchoolId != Guid.Empty)
+            {
+                filters.Add(l => l.SchoolId == filterRequest.SchoolId);
+            }
+            filters.Add(l => l.Status == BaseEntityStatus.Active);
+            var locations = await _repository.GetListAsync(
+                filters: filters,
+                include: include);
+            var data = locations.OrderByDescending(l =>
+            {
+                return l.SessionDetails!.Sum(sd => sd.Orders!.Where(o => o.Status == OrderStatus.Completed).Count());
+            }).ToList();
+            return _mapper.Map<ICollection<GetBestSellerLocationResponse>>(data);
+            //locations
         }
     }
 }
