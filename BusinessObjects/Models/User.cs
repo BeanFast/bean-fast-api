@@ -11,6 +11,8 @@
         public string AvatarPath { get; set; }
         public string? RefreshToken { get; set; }
         public string? DeviceToken { get; set; }
+        public string? QRCode { get; set; }
+        public DateTime? QrCodeExpiry { get; set; }
         public virtual Role? Role { get; set; }
         public virtual ICollection<Profile>? Profiles { get; set; }
         public virtual ICollection<Area>? CreatedAreas { get; set; }

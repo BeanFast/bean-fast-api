@@ -38,6 +38,8 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly ILoyaltyCardService _loyaltyCardService;
         private readonly IFoodService _foodService;
+        private readonly IUserService _userService;
+
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
            IProfileService profileService,
            ISessionDetailService sessionDetailService,
@@ -46,7 +48,7 @@ namespace Services.Implements
            IMenuDetailService menuDetailService,
            ITransactionService transactionService,
            IWalletService walletService,
-           ILoyaltyCardService loyaltyCardService, IFoodService foodService) : base(unitOfWork, mapper, appSettings)
+           ILoyaltyCardService loyaltyCardService, IFoodService foodService, IUserService userService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -57,6 +59,7 @@ namespace Services.Implements
             _walletService = walletService;
             _loyaltyCardService = loyaltyCardService;
             _foodService = foodService;
+            _userService = userService;
         }
         private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
@@ -244,7 +247,7 @@ namespace Services.Implements
                 orderDetailEntity.Price = menuDetail.Price;
                 orderDetailEntity.Status = OrderDetailStatus.Active;
                 orderDetailEntityList.Add(orderDetailEntity);
-                
+
                 // food?
             }
             orderEntity.OrderDetails?.Clear();
@@ -292,21 +295,23 @@ namespace Services.Implements
 
         public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
         {
-            var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
-            var profileId = loyaltyCard.ProfileId;
-            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
-            if (orderList.IsNullOrEmpty())
+            //var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
+            //var profileId = loyaltyCard.ProfileId;
+            //var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
+            var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
+            var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id); 
+            if (orders.IsNullOrEmpty())
             {
                 throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
             }
             var timeScanning = TimeUtil.GetCurrentVietNamTime();
             var validOrders = new List<GetOrderResponse>();
-            foreach (var order in orderList)
+            foreach (var order in orders)
             {
                 if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
                 {
 
-                    validOrders.Add(order);
+                    validOrders.Add(_mapper.Map<GetOrderResponse>(order));
                 }
             }
             if (validOrders.Count == 0)
@@ -315,31 +320,46 @@ namespace Services.Implements
             }
             return validOrders;
         }
-
-        public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer)
+        public async Task<ICollection<Order>> GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId)
         {
-            bool isUpdated = false;
-            var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
-            var profileId = loyaltyCard.ProfileId;
-            var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, deliverer.Id);
-            if (orderList.IsNullOrEmpty())
+            List<Expression<Func<Order, bool>>> filters = new()
             {
-                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
-            }
-            var timeScanning = TimeUtil.GetCurrentVietNamTime();
-            foreach (var order in orderList)
-            {
-                if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
-                {
-                    await UpdateOrderCompleteStatusAsync(order.Id, deliverer);
-                    isUpdated = true;
-                }
-                if (!isUpdated)
-                {
-                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryClosed);
-                }
-            }
+                (order) => order.SessionDetail!.DelivererId == delivererId
+                && order.Profile!.UserId == customerId
+                && order.Status == OrderStatus.Delivering
+            };
+            var orders = await _repository.GetListAsync(
+                filters: filters, 
+                include: queryable => queryable
+                .Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!)
+                .Include(o => o.OrderDetails!)
+            );
+            return orders!;
         }
+        //public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer)
+        //{
+        //    bool isUpdated = false;
+        //    var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
+        //    var profileId = loyaltyCard.ProfileId;
+        //    var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, deliverer.Id);
+        //    if (orderList.IsNullOrEmpty())
+        //    {
+        //        throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
+        //    }
+        //    var timeScanning = TimeUtil.GetCurrentVietNamTime();
+        //    foreach (var order in orderList)
+        //    {
+        //        if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
+        //        {
+        //            await UpdateOrderCompleteStatusAsync(order.Id, deliverer);
+        //            isUpdated = true;
+        //        }
+        //        if (!isUpdated)
+        //        {
+        //            throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryClosed);
+        //        }
+        //    }
+        //}
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId, User deliverer)
         {
             var startTime = DateTime.Now;
@@ -570,7 +590,7 @@ namespace Services.Implements
         public async Task CancelOrderAsync(User user, Guid id, CancelOrderRequest request)
         {
             var order = await GetByIdAsync(id);
-            if (RoleName.CUSTOMER.ToString() == user.Role.EnglishName)
+            if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
             {
                 if (order.Status != OrderStatus.Cooking)
                 {

@@ -110,35 +110,36 @@ namespace BeanFastApi.Controllers
         //    await _orderService.UpdateOrderDeliveryStatusAsync(id);
         //    return SuccessResult<object>();
         //}
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
-        {
-            var realTime = TimeUtil.GetCurrentVietNamTime();
-            var order = await _orderService.GetByIdAsync(id);
-            var user = await GetUserAsync();
 
-            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
-            {
-                await _orderService.UpdateOrderDeliveryStatusAsync(id);
-            }
-            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
-            {
-                //if (order.Status == OrderStatus.Delivering)
-                //    await _orderService.UpdateOrderCompleteStatusAsync(id);
-                //else if (order.Status == OrderStatus.Completed)
-            }
-            else if (order.Status == OrderStatus.Delivering && realTime > order.SessionDetail!.Session!.DeliveryEndTime)
-            {
-                await _orderService.UpdateOrderStatusAfterDeliveryTimeEndedAsync();
-            }
-            else
-            {
-                throw new InvalidRoleException();
-            }
+        //[HttpPut("{id}")]
+        //[Authorize]
+        //public async Task<IActionResult> UpdateOrderStatus([FromRoute] Guid id)
+        //{
+        //    var realTime = TimeUtil.GetCurrentVietNamTime();
+        //    var order = await _orderService.GetByIdAsync(id);
+        //    var user = await GetUserAsync();
 
-            return SuccessResult<object>(statusCode: HttpStatusCode.OK);
-        }
+        //    if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName) && order.Status == OrderStatus.Cooking)
+        //    {
+        //        await _orderService.UpdateOrderDeliveryStatusAsync(id);
+        //    }
+        //    else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
+        //    {
+        //        //if (order.Status == OrderStatus.Delivering)
+        //        //    await _orderService.UpdateOrderCompleteStatusAsync(id);
+        //        //else if (order.Status == OrderStatus.Completed)
+        //    }
+        //    else if (order.Status == OrderStatus.Delivering && realTime > order.SessionDetail!.Session!.DeliveryEndTime)
+        //    {
+        //        await _orderService.UpdateOrderStatusAfterDeliveryTimeEndedAsync();
+        //    }
+        //    else
+        //    {
+        //        throw new InvalidRoleException();
+        //    }
+
+        //    return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        //}
 
 
 
@@ -161,14 +162,14 @@ namespace BeanFastApi.Controllers
             return SuccessResult(orders);
         }
 
-        [HttpPut("updateOrderStatusByQrCode")]
-        [Authorize(RoleName.DELIVERER)]
-        public async Task<IActionResult> UpdateOrderStatusByQRCode([FromQuery] string qrCode)
-        {
-            var user = await GetUserAsync();
-            await _orderService.UpdateOrderStatusByQRCodeAsync(qrCode, user);
-            return SuccessResult<object>(statusCode: HttpStatusCode.OK);
-        }
+        //[HttpPut("updateOrderStatusByQrCode")]
+        //[Authorize(RoleName.DELIVERER)]
+        //public async Task<IActionResult> UpdateOrderStatusByQRCode([FromQuery] string qrCode)
+        //{
+        //    var user = await GetUserAsync();
+        //    await _orderService.UpdateOrderStatusByQRCodeAsync(qrCode, user);
+        //    return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        //}
 
         [HttpPut("{orderId}/feedbacks")]
         [Authorize(RoleName.CUSTOMER)]

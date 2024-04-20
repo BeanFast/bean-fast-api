@@ -26,10 +26,8 @@ namespace Services.Implements
     public class UserService : BaseService<User>, IUserService
     {
         private readonly ICloudStorageService _cloudStorageService;
-
         private readonly IRoleService _roleService;
         private readonly ISmsOtpService _smsOtpService;
-
         private readonly IWalletService _walletService;
         public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
             ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService, IWalletService walletService) : base(
@@ -54,7 +52,23 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
             return user;
         }
-
+        public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
+        {
+            List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.QRCode == qrCode && user.Status == BaseEntityStatus.Active,
+                //(user) => user.QrCodeExpiry > TimeUtil.GetCurrentVietNamTime()
+            };
+            var user = await _repository.FirstOrDefaultAsync(
+                filters: filters,
+                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
+                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFoundByQrCode);
+            if (user.QrCodeExpiry < TimeUtil.GetCurrentVietNamTime())
+            {
+                throw new InvalidRequestException(MessageConstants.UserMessageConstrant.QrCodeExpired);
+            }
+            return user;
+        }
         public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
         {
             List<Expression<Func<User, bool>>> filters = new()
@@ -248,6 +262,27 @@ namespace Services.Implements
 
         }
 
-        
+        public async Task<GenerateQrCodeResponse> GenerateQrCodeAsync(User user)
+        {
+            var qrCodeString = "";
+            DateTime currentVietnamTime;
+            do
+            {
+                currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
+                qrCodeString = QrCodeUtil.GenerateQRCodeString(user.Id.ToString() + user.Code + currentVietnamTime, _appSettings.QrCode.QrCodeSecretKey);
+            } while (await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
+            {
+                    u => u.QRCode == qrCodeString
+            }) != null);
+            user.QRCode = qrCodeString;
+            user.QrCodeExpiry = currentVietnamTime.AddSeconds(_appSettings.QrCode.QrCodeExpiryInSeconds);
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+            return new GenerateQrCodeResponse
+            {
+                QrCode = qrCodeString,
+                QrCodeExpiry = user.QrCodeExpiry.Value
+            };
+        }
     }
 }
