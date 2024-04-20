@@ -151,7 +151,9 @@ namespace Services.Implements
                 filters.Add(t => t.Time.Date >= request.StartDate.Date && t.Time.Date <= request.EndDate.Date);
             }
             var transactions = await _repository.GetListAsync(filters);
-            return transactions.GroupBy(t => t.Time.Month).Select(group => new GetTransactionsForDashBoardResponse
+            return transactions.GroupBy(t => t.Time.Month)
+                .OrderBy(group => group.Key)
+                .Select(group => new GetTransactionsForDashBoardResponse
             {
                 Count = group.Count(),
                 Month = TimeUtil.GetMonthName(group.Key),

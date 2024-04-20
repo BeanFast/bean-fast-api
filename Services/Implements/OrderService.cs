@@ -643,6 +643,7 @@ namespace Services.Implements
                 filters: filters
             );
             return orders.GroupBy(order => order.PaymentDate.Month)
+                .OrderBy(group => group.Key)
                 .Select(
                     group => new GetOrdersByLastMonthsResponse
                     {
