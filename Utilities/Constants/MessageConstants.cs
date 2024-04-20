@@ -97,6 +97,10 @@ namespace Utilities.Constants
             public const string UserGenderRequired = "Giới tính là bắt buộc";
 
             public const string UserGenderInvalid = "Giới tính không hợp lệ";
+
+            public const string UserNotFoundByQrCode = "Không tìm thấy người dùng với mã QR này";
+
+            public const string QrCodeExpired = "Mã QR này đã hết hạn, vui lòng sử dụng mã QR mới";
         }
 
         public static class AreaMessageConstrant
@@ -262,7 +266,7 @@ namespace Utilities.Constants
             public const string OrderTotalPriceRange = "Tổng giá đơn hàng phải ít nhất 1000 VNĐ";
             public const string OrderCreateDateInvalid = "Ngày tạo đơn hàng không hợp lệ";
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
-            public const string OrderIdRequired= "Order id là bắt buộc";
+            public const string OrderIdRequired = "Order id là bắt buộc";
             public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
             public const string NotFoundOrders = "Không có đơn hàng nào cần giao trong khoảng thời gian này";
         }

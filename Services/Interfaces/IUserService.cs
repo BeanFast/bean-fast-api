@@ -20,5 +20,7 @@ namespace Services.Interfaces
         Task CreateUserAsync(CreateUserRequest request);
         Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId);
         Task<ICollection<GetDelivererResponse>> GetDeliverersAsync();
+        Task<GenerateQrCodeResponse> GenerateQrCodeAsync(User user);
+        Task<User> GetCustomerByQrCodeAsync(string qrCode);
     }
 }

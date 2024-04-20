@@ -17,5 +17,6 @@ namespace Services.Interfaces
         Task<Location> GetByIdAsync(Guid id);
         Task DeleteLocationAsync(Guid id, User user);
         Task UpdateLocationAsync(Guid id, UpdateLocationRequest request, User user);
+        Task<object> GetBestSellerLocationAsync(BestSellerLocationFilterRequest filterRequest);
     }
 }

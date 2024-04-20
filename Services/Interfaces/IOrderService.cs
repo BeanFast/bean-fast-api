@@ -25,7 +25,7 @@ namespace Services.Interfaces
         Task<Order> GetByIdAsync(Guid id);
         Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId);
         Task CreateOrderAsync(User user, CreateOrderRequest request);
-        Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer);
+        //Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer);
         Task UpdateOrderCompleteStatusAsync(Guid orderId, User user);
         Task UpdateOrderDeliveryStatusAsync(Guid orderId);
         //Task UpdateOrderCancelStatusAsync(Guid orderId);

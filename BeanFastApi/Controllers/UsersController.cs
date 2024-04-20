@@ -21,7 +21,13 @@ namespace BeanFastApi.Controllers
             await _userService.UpdateCustomerAsync(request, await GetUserAsync());
             return SuccessResult<object>(new object());
         }
-        
+        [HttpPut("qrCode")]
+        [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
+        public async Task<IActionResult> GenerateQrCodeAsync()
+        {
+            var qrcode = await _userService.GenerateQrCodeAsync(await GetUserAsync());
+            return SuccessResult(qrcode);
+        }
         [HttpPost]
         [Authorize(Utilities.Enums.RoleName.ADMIN)]
         public async Task<IActionResult> CreateUser([FromForm] CreateUserRequest request)
