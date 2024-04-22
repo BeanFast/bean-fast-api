@@ -43,11 +43,11 @@ namespace Services.Implements
         {
             List<Expression<Func<User, bool>>> filters = new()
             {
-                (user) => user.Id == userId
+                (user) => user.Id == userId,
+                (user) => user.Status == BaseEntityStatus.Active
             };
 
-            var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters,
+            var user = await _repository.FirstOrDefaultAsync(filters: filters,
                 include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
             return user;
@@ -147,11 +147,12 @@ namespace Services.Implements
             );
             if (existedData is not null)
                 throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
+            var customerRole = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
             customer.Password = PasswordUtil.HashPassword(registerRequest.Password);
             customer.Id = Guid.NewGuid();
             customer.Status = BaseEntityStatus.Active;
             customer.AvatarPath = UserConstrants.DefaultAvatar;
-            customer.Role = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
+            customer.RoleId = customerRole.Id;
             customer.Status = UserStatus.NotVerified;
             //if(registerRequest.FullName.IsNullOrEmpty())
             //{
@@ -209,7 +210,6 @@ namespace Services.Implements
         private async Task<User> findNotVerifiedUserByPhone(string phone)
         {
             return await _repository.FirstOrDefaultAsync(
-                status: UserStatus.NotVerified,
                 filters: new List<Expression<Func<User, bool>>>
                 {
                     (user) => user.Phone == phone,
