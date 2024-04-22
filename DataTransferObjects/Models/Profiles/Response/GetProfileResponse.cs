@@ -11,6 +11,7 @@ namespace DataTransferObjects.Models.Profiles.Response
     public class GetProfileResponse
     {
         public Guid Id { get; set; }
+        public int Status { get; set; }
         public string FullName { get; set; }
         public string? NickName { get; set; }
         public string AvatarPath { get; set; }
