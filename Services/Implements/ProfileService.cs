@@ -99,10 +99,11 @@ namespace Services.Implements
 
         public async Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
         {
-            var profiles = await _repository.GetListAsync<GetProfileResponse>(BaseEntityStatus.Active,
+            var profiles = await _repository.GetListAsync<GetProfileResponse>(
                 filters: new()
                 {
                     p => p.UserId == customerId,
+                    p => p.Status ==BaseEntityStatus.Active
                 }, include: i => i.Include(p => p.School!)
                     .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
                     .Include(p => p.Wallets!
