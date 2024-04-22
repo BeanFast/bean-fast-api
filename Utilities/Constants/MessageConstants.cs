@@ -319,6 +319,7 @@ namespace Utilities.Constants
         {
             public const string PointMustBeGreaterThanZero = "Điểm phải lớn hơn 0!";
             public const string TopUpMoneyMustBeGreaterThanTenThousand = "Số tiền cần nạp phải tối thiểu là 10000 VND";
+            public static string GameTransactionIsExceedPermittedAmount = $"Số lượt chơi game đã vượt quá {TransactionConstrant.MaxGameTransactionPerDay} lượt trong một ngày";
 
             //public const string Profile
         }

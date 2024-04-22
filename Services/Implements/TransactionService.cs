@@ -171,13 +171,26 @@ namespace Services.Implements
         public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
         {
             await _gameService.GetGamesAsync();
+            var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
+            await _profileService.GetByIdAsync(request.ProfileId);
+            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
+            {
+                t => t.Wallet!.UserId == user.Id && WalletType.Points.ToString().Equals(t.Wallet.Type),
+                t => t.GameId == request.GameId && t.OrderId == null && t.ExchangeGiftId == null,
+                t => t.Time.Date == currentVietnamDate.Date
+            };
+            var playedGameTransactions = await _repository.GetListAsync(filters: filters);
+            if (playedGameTransactions.Count >= TransactionConstrant.MaxGameTransactionPerDay)
+            {
+                throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.GameTransactionIsExceedPermittedAmount);
+            }
             var transaction = new Transaction
             {
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1),
                 GameId = request.GameId,
                 Value = request.Points,
                 Time = TimeUtil.GetCurrentVietNamTime(),
-                WalletId = user.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!.Id,
+                WalletId = user.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type) && w.ProfileId == request.ProfileId)!.Id,
                 Status = BaseEntityStatus.Active
             };
             await _repository.InsertAsync(transaction, user);
