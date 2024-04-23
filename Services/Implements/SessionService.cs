@@ -344,5 +344,26 @@ namespace Services.Implements
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
             await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList());
         }
+        public async Task<bool> CheckOrderable(Guid menuDetailId, Guid profileId, Guid sessionId)
+        {
+            var filters = new List<Expression<Func<Session, bool>>>()
+            {
+                s => s.Id == sessionId,
+                s => s.Status != BaseEntityStatus.Deleted,
+            };
+
+            var session = await _repository.FirstOrDefaultAsync(
+                filters: filters,
+                include: i =>
+                    i.Include(s => s.SessionDetails!.Where(sd => sd.Orders!.Any(o => o.ProfileId == profileId)))
+                        .ThenInclude(sd => sd.Orders!)
+                        .ThenInclude(o => o.Profile!)
+                        .ThenInclude(p => p.School!)
+                        .ThenInclude(s => s.Locations!)
+                    .Include(s => s.Menu!)
+                        .ThenInclude(m => m.MenuDetails!)
+            );
+            return true;
+        }
     }
 }
