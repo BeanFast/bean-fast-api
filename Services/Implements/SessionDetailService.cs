@@ -154,7 +154,7 @@ namespace Services.Implements
             }
             foreach (var item in updateSessionDetailRequest.DelivererIds.ToList())
             {
-                if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException("Người giao này đã nhận trách nhiệm giao ");
+                if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException("Người giao này đã nhận trách nhiệm giao một phiên khác rồi!");
                 
                 sessionDetailDeliverers.Add(new SessionDetailDeliverer
                 {

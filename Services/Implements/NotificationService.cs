@@ -35,7 +35,8 @@ namespace Services.Implements
         {
             var notificationsPage = await _repository.GetPageAsync(paginationRequest, filters: new()
             {
-                n => n.NotificationDetails.Any(nd => nd.UserId == user.Id)
+                n => n.NotificationDetails.Any(nd => nd.UserId == user.Id),
+                n => n.Status != BaseEntityStatus.Deleted
             }, include: i => i.Include(n => n.NotificationDetails.Where(nd => nd.UserId == user.Id)));
             Paginate<GetNotificationResponse> result = new Paginate<GetNotificationResponse>
             {

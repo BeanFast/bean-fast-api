@@ -655,9 +655,9 @@ namespace Services.Implements
         }
         public async Task<bool> CheckMenuDetailOrderableAsync(Guid menuDetailId, Guid sessionDetailId, Guid profileId)
         {
-            //var menuDetail = _menuDetailService.GetByIdAsync(menuDetailId);
-            //var sessionDetail = await _sessionDetailService.GetByIdAsync(sessionDetailId);
-            //var orderable = true;
+            var menuDetail = _menuDetailService.GetByIdAsync(menuDetailId);
+            var sessionDetail = await _sessionDetailService.GetByIdAsync(sessionDetailId);
+            var orderable = false;
             //foreach (var orderDetail in orderDetails)
             //{
             //    var order = await GetByIdAsync(orderDetail.OrderId);
@@ -671,7 +671,7 @@ namespace Services.Implements
             //    }
             //}
             //return orderable;
-            return true;
+            return orderable;
         }
     }
 }
