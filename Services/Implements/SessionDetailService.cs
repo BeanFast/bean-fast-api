@@ -50,7 +50,7 @@ namespace Services.Implements
                 (sessionDetail) => sessionDetail.Id == id
             };
             var sessionDetail = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(sd => sd.Deliverer!).Include(sd => sd.Location!).Include(sd => sd.Session!))
+                filters: filters, include: queryable => queryable.Include(sd => sd.SessionDetailDeliverers!).ThenInclude(sdd => sdd.Deliverer).Include(sd => sd.Location!).Include(sd => sd.Session!))
                 ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(id));
             return sessionDetail;
         }
@@ -78,7 +78,7 @@ namespace Services.Implements
 
             List<Expression<Func<SessionDetail, bool>>> filters = new()
             {
-                (sessionDetail) => sessionDetail.DelivererId == user.Id,
+                (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
                 (sessionDetail) => sessionDetail.Status == BaseEntityStatus.Active,
                 (sessionDetail) => sessionDetail.Orders!.Where(o => o.Status == OrderStatus.Cooking).Any()
             };
@@ -146,7 +146,8 @@ namespace Services.Implements
         {
             var sessionDetailEntity = await GetByIdAsync(sessionDetailId);
             await _userService.GetByIdAsync(updateSessionDetailRequest.DelivererId);
-            sessionDetailEntity.DelivererId = updateSessionDetailRequest.DelivererId;
+            // fix
+            //sessionDetailEntity.DelivererId = updateSessionDetailRequest.DelivererId;
 
             await _repository.UpdateAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();

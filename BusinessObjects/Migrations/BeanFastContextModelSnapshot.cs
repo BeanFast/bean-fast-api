@@ -1145,9 +1145,6 @@ namespace BusinessObjects.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("DelivererId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1160,13 +1157,51 @@ namespace BusinessObjects.Migrations
                     b.HasKey("Id")
                         .HasName("PK_SessionDetail");
 
-                    b.HasIndex("DelivererId");
-
                     b.HasIndex("LocationId");
 
                     b.HasIndex("SessionId");
 
                     b.ToTable("SessionDetail", (string)null);
+                });
+
+            modelBuilder.Entity("BusinessObjects.Models.SessionDetailDeliverer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DelivererId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SessionDetailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdaterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("DelivererId");
+
+                    b.HasIndex("SessionDetailId");
+
+                    b.HasIndex("UpdaterId");
+
+                    b.ToTable("SessionDetailDeliverer");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SmsOtp", b =>
@@ -1891,12 +1926,6 @@ namespace BusinessObjects.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.SessionDetail", b =>
                 {
-                    b.HasOne("BusinessObjects.Models.User", "Deliverer")
-                        .WithMany("SessionDetails")
-                        .HasForeignKey("DelivererId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK_SessionDetail_User");
-
                     b.HasOne("BusinessObjects.Models.Location", "Location")
                         .WithMany("SessionDetails")
                         .HasForeignKey("LocationId")
@@ -1911,11 +1940,42 @@ namespace BusinessObjects.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_SessionDetail_Session");
 
-                    b.Navigation("Deliverer");
-
                     b.Navigation("Location");
 
                     b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Models.SessionDetailDeliverer", b =>
+                {
+                    b.HasOne("BusinessObjects.Models.User", "Creator")
+                        .WithMany("CreatedSessionDetailDeliverer")
+                        .HasForeignKey("CreatorId")
+                        .HasConstraintName("FK_SessionDetailDeliverer_User_CreatorId");
+
+                    b.HasOne("BusinessObjects.Models.User", "Deliverer")
+                        .WithMany()
+                        .HasForeignKey("DelivererId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObjects.Models.SessionDetail", "SessionDetail")
+                        .WithMany("SessionDetailDeliverers")
+                        .HasForeignKey("SessionDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObjects.Models.User", "Updater")
+                        .WithMany("UpdatedSessionDetailDeliverer")
+                        .HasForeignKey("UpdaterId")
+                        .HasConstraintName("FK_SessionDetailDeliverer_User_UpdaterId");
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Deliverer");
+
+                    b.Navigation("SessionDetail");
+
+                    b.Navigation("Updater");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SmsOtp", b =>
@@ -2120,6 +2180,8 @@ namespace BusinessObjects.Migrations
                     b.Navigation("ExchangeGifts");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("SessionDetailDeliverers");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.User", b =>
@@ -2154,6 +2216,8 @@ namespace BusinessObjects.Migrations
 
                     b.Navigation("CreatedSchools");
 
+                    b.Navigation("CreatedSessionDetailDeliverer");
+
                     b.Navigation("CreatedSessions");
 
                     b.Navigation("CreatedUsers");
@@ -2161,8 +2225,6 @@ namespace BusinessObjects.Migrations
                     b.Navigation("NotificationDetails");
 
                     b.Navigation("Profiles");
-
-                    b.Navigation("SessionDetails");
 
                     b.Navigation("SmsOtps");
 
@@ -2195,6 +2257,8 @@ namespace BusinessObjects.Migrations
                     b.Navigation("UpdatedOrders");
 
                     b.Navigation("UpdatedSchools");
+
+                    b.Navigation("UpdatedSessionDetailDeliverer");
 
                     b.Navigation("UpdatedSessions");
 

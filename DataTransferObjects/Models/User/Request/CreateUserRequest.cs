@@ -14,7 +14,7 @@ namespace DataTransferObjects.Models.User.Request
         public Guid RoleId { get; set; }
         public string FullName { get; set; }
         public string Password { get; set; }
-        public string Phone { get; set; }
+        //public string Phone { get; set; }
         public string Email { get; set; }
         [RequiredFileExtensions(Utilities.Enums.AllowedFileTypes.IMAGE)]
         public IFormFile Image { get; set; }

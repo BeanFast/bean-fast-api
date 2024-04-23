@@ -26,6 +26,7 @@ namespace BusinessObjects
         public virtual DbSet<MenuDetail> MenuDetails { get; set; }
         public virtual DbSet<Session> Sessions { get; set; }
         public virtual DbSet<SessionDetail> SessionDetails { get; set; }
+        public virtual DbSet<SessionDetailDeliverer> SessionDetailDeliverers { get; set; }
         public virtual DbSet<School> Schools { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
@@ -56,8 +57,8 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=20.11.68.170;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
-                //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfast;User ID=sa;Password=12345;TrustServerCertificate=True;");
+                //optionsBuilder.UseSqlServer("Server=20.11.68.170;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfastv4;User ID=sa;Password=12345;TrustServerCertificate=True;");
 
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
@@ -269,11 +270,6 @@ namespace BusinessObjects
                     .WithMany(e => e.SessionDetails)
                     .HasForeignKey(e => e.SessionId)
                     .HasConstraintName("FK_SessionDetail_Session")
-                    .OnDelete(DeleteBehavior.NoAction);
-                entity.HasOne(e => e.Deliverer)
-                    .WithMany(e => e.SessionDetails)
-                    .HasForeignKey(e => e.DelivererId)
-                    .HasConstraintName("FK_SessionDetail_User")
                     .OnDelete(DeleteBehavior.NoAction);
             });
             modelBuilder.Entity<School>(entity =>
@@ -536,6 +532,15 @@ namespace BusinessObjects
                     .HasMaxLength(500);
                 entity.HasOne(e => e.Creator).WithMany(e => e.CreatedGames).HasConstraintName("FK_Game_User_CreatorId");
                 entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedGames).HasConstraintName("FK_Game_User_UpdaterId");
+            });
+            modelBuilder.Entity<SessionDetailDeliverer>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_SessionDetailDeliverer");
+                entity.ToTable("SessionDetailDeliverer");
+                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedSessionDetailDeliverer).HasConstraintName("FK_SessionDetailDeliverer_User_CreatorId");
+                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedSessionDetailDeliverer).HasConstraintName("FK_SessionDetailDeliverer_User_UpdaterId");
+                entity.HasOne(e => e.Deliverer).WithMany(e => e.SessionDetailDeliverers).HasConstraintName("FK_SessionDetailDeliverer_User");
+                entity.HasOne(e => e.SessionDetail).WithMany(e => e.SessionDetailDeliverers).HasConstraintName("FK_SessionDetailDeliverer_SessionDetail");
             });
             #endregion
 

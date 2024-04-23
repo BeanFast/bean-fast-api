@@ -53,12 +53,15 @@
         
         public virtual ICollection<Session>? CreatedSessions { get; set; }
         public virtual ICollection<Session>? UpdatedSessions { get; set; }
-        
+
+        public virtual ICollection<SessionDetailDeliverer>? CreatedSessionDetailDeliverer { get; set; }
+        public virtual ICollection<SessionDetailDeliverer>? UpdatedSessionDetailDeliverer { get; set; }
+
         public virtual ICollection<User>? CreatedUsers { get; set; }
         public virtual ICollection<User>? UpdatedUsers { get; set; }
 
-        public virtual ICollection<SessionDetail>? SessionDetails { get; set; }
         public virtual ICollection<Wallet>? Wallets { get; set; }
+        public virtual ICollection<SessionDetailDeliverer>? SessionDetailDeliverers { get; set; }
         public virtual ICollection<SmsOtp>? SmsOtps { get; set; }
         public virtual ICollection<NotificationDetail>? NotificationDetails { get; set; }
     }
