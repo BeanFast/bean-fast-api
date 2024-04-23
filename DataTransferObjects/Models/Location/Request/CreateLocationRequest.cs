@@ -11,10 +11,10 @@ namespace DataTransferObjects.Models.Location.Request
 {
     public class CreateLocationRequest
     {
-        public Guid SchoolId { get; set; }
+        public Guid? SchoolId { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
-        public IFormFile Image { get; set; } = default!;
+        public IFormFile Image { get; set; }
     }
 }

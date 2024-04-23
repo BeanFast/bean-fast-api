@@ -27,12 +27,14 @@ namespace Services.Implements
     {
         private readonly ICloudStorageService _cloudStorageService;
         private readonly IAreaService _areaService;
+        private readonly ILocationService _locationService;
         //private readonly I
-        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
+        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, ILocationService locationService) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _appSettings = appSettings.Value;
             _areaService = areaService;
+            _locationService = locationService;
         }
         private List<Expression<Func<School, bool>>> GetSchoolFilterFromFilterRequest(SchoolFilterRequest filterRequest)
         {
@@ -109,6 +111,7 @@ namespace Services.Implements
 
         public async Task CreateSchoolAsync(CreateSchoolRequest request, User user)
         {
+
             var schoolEntity = _mapper.Map<School>(request);
             var schoolId = Guid.NewGuid();
             var schoolNumber = await _repository.CountAsync() + 1;
@@ -124,9 +127,14 @@ namespace Services.Implements
                 request.Image);
             schoolEntity.ImagePath = imagePath;
             schoolEntity.Id = schoolId;
-
+            schoolEntity.Locations = null;
             await _repository.InsertAsync(schoolEntity, user);
             await _unitOfWork.CommitAsync();
+            foreach (var location in request.Locations)
+            {
+                location.SchoolId = schoolId;
+                await _locationService.CreateLocationAsync(location, user);
+            }
         }
 
         public async Task DeleteSchoolAsync(Guid id, User user)

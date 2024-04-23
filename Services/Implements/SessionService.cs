@@ -350,20 +350,39 @@ namespace Services.Implements
             {
                 s => s.Id == sessionId,
                 s => s.Status != BaseEntityStatus.Deleted,
+                s => s.Menu!.MenuDetails!.Any(md => md.Id == menuDetailId),
             };
-
+            bool profileIdIsInSchoolOfSession = false;
+            bool menuDetailIdIsInMenuOfSession = false;
             var session = await _repository.FirstOrDefaultAsync(
                 filters: filters,
                 include: i =>
-                    i.Include(s => s.SessionDetails!.Where(sd => sd.Orders!.Any(o => o.ProfileId == profileId)))
-                        .ThenInclude(sd => sd.Orders!)
-                        .ThenInclude(o => o.Profile!)
-                        .ThenInclude(p => p.School!)
-                        .ThenInclude(s => s.Locations!)
+                    i.Include(s => s.SessionDetails!)
+                        .ThenInclude(sd => sd.Location!)
+                        .ThenInclude(l => l.School!)
+                        .ThenInclude(s => s.Profiles!.Where(p => p.Id == profileId && p.Status != BaseEntityStatus.Deleted))
                     .Include(s => s.Menu!)
-                        .ThenInclude(m => m.MenuDetails!)
+                        .ThenInclude(m => m.MenuDetails!.Where(md => md.Id == menuDetailId))
             );
-            return true;
+            if(session == null || session.Menu == null || session.SessionDetails!.Count == 0 || session.Menu!.MenuDetails!.Count == 0)
+            {
+                return false;
+            }
+            foreach(var sessionDetail in session.SessionDetails!)
+            {
+                if(sessionDetail.Location!.School!.Profiles!.Any(p => p.Id == profileId))
+                {
+                    profileIdIsInSchoolOfSession = true;
+                }
+            }
+            foreach(var menuDetail in session.Menu.MenuDetails)
+            {
+                if(menuDetail.Id == menuDetailId)
+                {
+                    menuDetailIdIsInMenuOfSession = true;
+                }
+            }
+            return menuDetailIdIsInMenuOfSession && profileIdIsInSchoolOfSession;
         }
     }
 }

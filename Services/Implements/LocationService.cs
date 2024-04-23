@@ -30,10 +30,9 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
         private readonly ISchoolService _schoolService;
         public LocationService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
-            ICloudStorageService cloudStorageService, ISchoolService schoolService) : base(unitOfWork, mapper, appSettings)
+            ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
-            _schoolService = schoolService;
         }
 
         public async Task<ICollection<GetLocationResponse>> GetAllLocationAsync()
@@ -62,7 +61,7 @@ namespace Services.Implements
             var location = await _repository.FirstOrDefaultAsync(filters: new()
             {
                 l => l.SchoolId == schoolId,
-                s => s.Name.ToLower() == name.ToLower()
+                l => l.Name.ToLower() == name.ToLower()
             });
             return location!;
         }
@@ -72,14 +71,15 @@ namespace Services.Implements
             var locationEntity = _mapper.Map<Location>(request);
             var locationId = Guid.NewGuid();
             locationEntity.Status = BaseEntityStatus.Active;
-            await _schoolService.GetSchoolByIdAsync(SchoolStatus.Active, request.SchoolId);
+            //await _schoolService.GetSchoolByIdAsync(SchoolStatus.Active, request.SchoolId);
             var locationNumber = await _repository.CountAsync() + 1;
             locationEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.LocationCodeConstrant.LocationPrefix, locationNumber);
-            var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId, request.Name);
+            var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId!.Value, request.Name);
             if (duplicatedLocation != null)
             {
                 throw new InvalidRequestException(MessageConstants.LocationMessageConstrant.LocationAlreadyExists());
             }
+            //Console.WriteLine();
             var imagePath = await _cloudStorageService.UploadFileAsync(
                 locationId, _appSettings.Firebase.FolderNames.Location,
                 request.Image);
@@ -96,7 +96,7 @@ namespace Services.Implements
             var locationEntity = await GetByIdAsync(id);
             if (!request.Name!.Equals(locationEntity.Name) && !request.SchoolId.Equals(locationEntity.SchoolId))
             {
-                await _schoolService.GetSchoolByIdAsync(SchoolStatus.Active, request.SchoolId);
+                //await _schoolService.GetSchoolByIdAsync(SchoolStatus.Active, request.SchoolId);
                 var duplicatedLocation = await GetLocationBySchoolIdAndNameAsync(request.SchoolId, request.Name);
                 if (duplicatedLocation != null)
                 {

@@ -35,6 +35,12 @@ namespace BeanFastApi.Controllers
             var result = await _sessionService.GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
             return SuccessResult(result);
         }
+        [HttpGet("{sessionId}/check/{profileId}/{menuDetailId}")]
+        public async Task<IActionResult> CheckOrderable([FromRoute] Guid sessionId, [FromRoute] Guid profileId, [FromRoute] Guid menuDetailId)
+        {
+            var result = await _sessionService.CheckOrderable(menuDetailId, profileId, sessionId);
+            return SuccessResult(result);
+        }
         [HttpPost]
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> CreateSessionAsync([FromBody] CreateSessionRequest request)
