@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DataTransferObjects.Models.Location.Request;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,7 +25,7 @@ namespace DataTransferObjects.Models.School.Request
         [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
         public IFormFile Image { get; set; }
 
-        public ICollection<LocationOfCreateSchoolRequest> Locations { get; set; }
+        public ICollection<CreateLocationRequest> Locations { get; set; }
 
         public class LocationOfCreateSchoolRequest
         {
@@ -34,7 +35,7 @@ namespace DataTransferObjects.Models.School.Request
             [Required(ErrorMessage = MessageConstants.LocationMessageConstrant.LocationDescriptionRequired)]
             public string Description { get; set; }
             [RequiredFileExtensions(AllowedFileTypes.IMAGE)]
-            public IFormFile Image { get; set; }
+            public IFormFile? Image { get; set; }
         }
     }
 }
