@@ -19,6 +19,11 @@ namespace BeanFastApi.Controllers
         {
             return SuccessResult(await _areaService.SearchAreaAsync(request));
         }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            return SuccessResult(await _areaService.GetAllAsync());
+        }
         [HttpGet("cities")]
         public async Task<IActionResult> GetCityNamesAsync([FromQuery] string name = "")
         {

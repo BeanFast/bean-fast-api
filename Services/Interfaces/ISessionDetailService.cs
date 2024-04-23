@@ -18,7 +18,7 @@ namespace Services.Interfaces
         Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(User user);
         Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user);
         Task CreateSessionDetailAsync(CreateSessionDetailRequest createSessionDetail);
-        Task UpdateSessionDetailByIdAsync(Guid id, UpdateSessionDetailRequest updateSessionDetail);
+        Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest, List<Guid> availableDelivererIds);
         Task<bool> CheckSessionDetailAsync(CheckSessionDetailRequest request, Guid sessionDetailId);
     }
 }

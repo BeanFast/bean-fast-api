@@ -1,8 +1,11 @@
 ﻿using BeanFastApi.Validators;
 using DataTransferObjects.Models.Session.Request;
+using DataTransferObjects.Models.SessionDetail.Request;
 using DataTransferObjects.Models.User.Response;
 using Microsoft.AspNetCore.Mvc;
+using Services.Implements;
 using Services.Interfaces;
+using System.Net;
 using Utilities.Enums;
 
 namespace BeanFastApi.Controllers
@@ -40,7 +43,13 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>(null);
         }
         //[HttpPut("{id}")]
-
+        [HttpPut("sessionDetails/{id}")]
+        [Authorize(RoleName.MANAGER)]
+        public async Task<IActionResult> UpdateSessionDetail([FromRoute] Guid id, [FromBody] UpdateSessionDetailRequest request)
+        {
+            await _sessionService.UpdateSessionDetailByIdAsync(id, request);
+            return SuccessResult<object>(statusCode: HttpStatusCode.OK);
+        }
         [HttpDelete("{id}")]
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> DeleteSessionAsync([FromRoute] Guid id)

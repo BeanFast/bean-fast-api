@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
+using DataTransferObjects.Models.SessionDetail.Request;
 using DataTransferObjects.Models.User.Response;
 using System;
 using System.Collections.Generic;
@@ -21,5 +22,6 @@ namespace Services.Interfaces
         Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user);
         Task DeleteAsync(Guid guid, User user);
         Task UpdateOrdersStatusAutoAsync();
+        Task UpdateSessionDetailByIdAsync(Guid id, UpdateSessionDetailRequest request);
     }
 }
