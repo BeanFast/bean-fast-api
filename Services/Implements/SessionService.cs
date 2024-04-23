@@ -161,7 +161,7 @@ namespace Services.Implements
             };
             var session = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters,
-                include: i => i.Include(s => s.SessionDetails!))
+                include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!))
                 ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(sesionDetailId));
             return session;
         }
@@ -183,17 +183,20 @@ namespace Services.Implements
             var sessions = await _repository.GetListAsync(filters: new()
             {
                 s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
-                s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > s.DeliveryStartTime),
-            }, include: i => i.Include(s => s.SessionDetails!));
-            var existedBusyDelivererIdList = session.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value).ToList();
+                s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > session.DeliveryStartTime),
+            }, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!).ThenInclude(sdd => sdd.Deliverer!));
+            var existedBusyDelivererIdList = session.SessionDetails?.SelectMany(sd =>
+            {
+                return sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId);
+            }).ToList();
 
             if (!sessions.IsNullOrEmpty())
             {
                 var busyDelivererIds = sessions
-                    .SelectMany(s => s.SessionDetails!.Where(sd => sd.DelivererId.HasValue).Select(sd => sd.DelivererId!.Value))
+                    .SelectMany(s => s.SessionDetails!.SelectMany(sd => sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId)))
                     .ToList();
                 // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
-                existedBusyDelivererIdList.AddRange(busyDelivererIds);
+                existedBusyDelivererIdList?.AddRange(busyDelivererIds);
             }
             list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList);
 
@@ -258,7 +261,7 @@ namespace Services.Implements
                session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
             };
             var sessions = await _repository
-                .GetListAsync(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+                .GetListAsync(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!).Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
             foreach (var s in sessions)
             {
                 if (s.Status == SessionStatus.Active || s.Status == SessionStatus.Incoming)
@@ -273,11 +276,11 @@ namespace Services.Implements
                             {
                                 Reason = "Đơn hàng bị hủy do chưa có người giao"
                             };
-                            foreach (var sd in s.SessionDetails)
+                            foreach (var sd in s.SessionDetails!)
                             {
-                                if (sd.DelivererId == null)
+                                if (sd.SessionDetailDeliverers!.Count() == 0)
                                 {
-                                    foreach (var order in sd.Orders)
+                                    foreach (var order in sd.Orders!)
                                     {
                                         var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
                                         await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, request, null!);
@@ -298,9 +301,10 @@ namespace Services.Implements
                                 sd.Orders = null;
                             }
                             s.Status = SessionStatus.Incoming;
+                            await _repository.UpdateAsync(s);
+                            await _unitOfWork.CommitAsync();
                         }
-                        await _repository.UpdateAsync(s);
-                        await _unitOfWork.CommitAsync();
+                        
                     }
                     else if (s.Status == SessionStatus.Incoming)
                     {

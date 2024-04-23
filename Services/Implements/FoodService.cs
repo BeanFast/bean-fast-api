@@ -180,7 +180,6 @@ namespace Services.Implements
                         MasterFoodId = masterFoodId,
                         FoodId = combo.FoodId,
                         Quantity = combo.Quantity,
-
                     };
                     comboEntityList.Add(comboEntity);
 

@@ -86,7 +86,7 @@ namespace Services.Implements
             }
             else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
             {
-                filters.Add(o => o.SessionDetail!.DelivererId == user.Id);
+                filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
             }
 
             return await _repository.GetListAsync<GetOrderResponse>(filters: filters, include: include);
@@ -186,7 +186,7 @@ namespace Services.Implements
             List<Expression<Func<Order, bool>>> filters = new()
             {
                 (order) => order.ProfileId! == profileId
-                && order.SessionDetail!.DelivererId == delivererId
+                && order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
                 && order.Status == OrderStatus.Delivering
             };
             Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
@@ -299,7 +299,7 @@ namespace Services.Implements
             //var profileId = loyaltyCard.ProfileId;
             //var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
             var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
-            var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id); 
+            var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
             if (orders.IsNullOrEmpty())
             {
                 throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
@@ -324,12 +324,12 @@ namespace Services.Implements
         {
             List<Expression<Func<Order, bool>>> filters = new()
             {
-                (order) => order.SessionDetail!.DelivererId == delivererId
+                (order) => order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
                 && order.Profile!.UserId == customerId
                 && order.Status == OrderStatus.Delivering
             };
             var orders = await _repository.GetListAsync(
-                filters: filters, 
+                filters: filters,
                 include: queryable => queryable
                 .Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!)
                 .Include(o => o.OrderDetails!)

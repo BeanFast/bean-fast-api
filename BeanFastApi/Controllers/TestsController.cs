@@ -1,9 +1,11 @@
 ﻿using BeanFastApi.Validators;
+using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Notification.Request;
 using DataTransferObjects.Models.Transaction.Request;
 using DataTransferObjects.Models.VnPay.Request;
 using Microsoft.AspNetCore.Mvc;
+using Repositories.Interfaces;
 using Services.Implements;
 using Services.Interfaces;
 using Utilities.Constants;
@@ -16,16 +18,18 @@ namespace BeanFastApi.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IVnPayService _vnPayService;
-
+        private readonly IUnitOfWork<BeanFastContext> unitOfWork;
         private readonly ISessionService _sessionService;
         public TestsController(IUserService userService,
             INotificationService notificationService,
             IVnPayService vnPayService,
-            ISessionService sessionService) : base(userService)
+            ISessionService sessionService,
+            IUnitOfWork<BeanFastContext> unitOfWork) : base(userService)
         {
             _notificationService = notificationService;
             _vnPayService = vnPayService;
             _sessionService = sessionService;
+            this.unitOfWork = unitOfWork;
         }
 
         [HttpPost]
@@ -45,6 +49,13 @@ namespace BeanFastApi.Controllers
         {
             await _sessionService.UpdateOrdersStatusAutoAsync();
             return SuccessResult(new object());
+        }
+        [HttpGet("test")]
+        public async Task <IActionResult> Test()
+        {
+            object obj = new();
+            obj = await unitOfWork.GetRepository<SessionDetailDeliverer>().CountAsync();
+            return SuccessResult(obj);
         }
         [HttpPost("payment")]
         [Authorize(RoleName.CUSTOMER)]

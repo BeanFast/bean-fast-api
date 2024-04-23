@@ -221,11 +221,12 @@ namespace Services.Implements
         public async Task CreateUserAsync(CreateUserRequest request)
         {
             var user = _mapper.Map<User>(request);
-            await _roleService.GetRoleByIdAsync(request.RoleId);
+            var role = await _roleService.GetRoleByIdAsync(request.RoleId);
+            if (RoleName.CUSTOMER.ToString().Equals(role.EnglishName)) throw new InvalidRequestException("");
             var userId = Guid.NewGuid();
             var checkDupplicatedUserData = await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
             {
-                u => u.Email == request.Email || u.Phone == request.Phone,
+                u => u.Email == request.Email ,
             });
             if (checkDupplicatedUserData is not null) throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedEmail);
             user.AvatarPath = await _cloudStorageService.UploadFileAsync(userId, _appSettings.Firebase.FolderNames.User, request.Image);

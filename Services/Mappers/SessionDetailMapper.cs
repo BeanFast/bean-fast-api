@@ -16,7 +16,7 @@ namespace Services.Mappers
         {
             CreateMap<CreateSessionDetailRequest, SessionDetail>();
             CreateMap<UpdateSessionDetailRequest, SessionDetail>();
-            CreateMap<SessionDetail, GetSessionDetailResponse>();
+            CreateMap<SessionDetail, GetSessionDetailResponse>().ForMember(dest => dest.Deliverers, src => src.MapFrom(sd => sd.SessionDetailDeliverers!.Select(sdd => sdd.Deliverer)));
             CreateMap<Order, GetSessionDetailResponse.OrderOfSessionDetail>();
             CreateMap<Session, GetSessionDetailResponse.SessionOfSessionDetail>();
             CreateMap<OrderDetail, GetSessionDetailResponse.OrderOfSessionDetail.OrderDetailOfOrder>();

@@ -10,6 +10,5 @@ namespace DataTransferObjects.Models.Order.Request
     public class CancelOrderRequest
     {
         public string Reason { get; set; } = string.Empty;
-        public IFormFile? Image { get; set; }
     }
 }
