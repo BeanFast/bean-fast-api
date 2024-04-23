@@ -653,6 +653,24 @@ namespace Services.Implements
                     }
                 ).ToList();
         }
-
+        public async Task<bool> CheckMenuDetailOrderableAsync(Guid menuDetailId, Guid sessionDetailId)
+        {
+            //var menuDetail = _menuDetailService.GetByIdAsync(menuDetailId);
+            //var sessionDetail = await _sessionDetailService.GetByIdAsync(sessionDetailId);
+            //var orderable = true;
+            //foreach (var orderDetail in orderDetails)
+            //{
+            //    var order = await GetByIdAsync(orderDetail.OrderId);
+            //    if (order.Status == OrderStatus.Cooking || order.Status == OrderStatus.Delivering)
+            //    {
+            //        if (order.SessionDetailId == sessionDetailId)
+            //        {
+            //            orderable = false;
+            //            break;
+            //        }
+            //    }
+            //}
+            return orderable;
+        }
     }
 }

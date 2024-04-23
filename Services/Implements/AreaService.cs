@@ -35,6 +35,14 @@ namespace Services.Implements
             }) ?? throw new EntityNotFoundException(MessageConstants.AreaMessageConstrant.AreaNotFound(id));
             return area;
         }
+        public async Task<ICollection<SearchAreaResponse>> GetAllAsync()
+        {
+            var areaList = await _repository.GetListAsync<SearchAreaResponse>(filters: new()
+            {
+                area => area.Status == BaseEntityStatus.Active,
+            });
+            return areaList;
+        }
 
         public async Task<Area> GetAreaByIdAsync(int status, Guid id)
         {
@@ -63,7 +71,7 @@ namespace Services.Implements
 
         public async Task<ICollection<string>> SearchDistrictNamesAsync(string cityName, string districtName)
         {
-            var districtNames = await _repository.GetListAsync( filters: new()
+            var districtNames = await _repository.GetListAsync(filters: new()
             {
                 area => area.City == cityName,
                 area => area.Status == BaseEntityStatus.Active,

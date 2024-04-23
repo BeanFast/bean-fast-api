@@ -142,17 +142,31 @@ namespace Services.Implements
             return true;
         }
 
-        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest)
+        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest, List<Guid> availableDelivererIds)
         {
             var sessionDetailEntity = await GetByIdAsync(sessionDetailId);
-            await _userService.GetByIdAsync(updateSessionDetailRequest.DelivererId);
-            // fix
-            //sessionDetailEntity.DelivererId = updateSessionDetailRequest.DelivererId;
-
+            var sessionDetailDeliverers = new List<SessionDetailDeliverer>();
+            var sessionEntity = sessionDetailEntity.Session;
+            var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
+            if (currentVietnamTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime + 1) >= sessionEntity!.DeliveryStartTime)
+            {
+                throw new InvalidRequestException("Không thể cập nhật thông tin giao hàng khi thời gian giao hàng sắp bắt đầu");
+            }
+            foreach (var item in updateSessionDetailRequest.DelivererIds.ToList())
+            {
+                if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException("Người giao này đã nhận trách nhiệm giao ");
+                
+                sessionDetailDeliverers.Add(new SessionDetailDeliverer
+                {
+                    DelivererId = item,
+                    SessionDetailId = sessionDetailId
+                });
+            }
+            sessionDetailEntity.SessionDetailDeliverers = sessionDetailDeliverers;
             await _repository.UpdateAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();
         }
-
+        
 
     }
 }

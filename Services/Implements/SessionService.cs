@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using DataTransferObjects.Models.Order.Request;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
+using DataTransferObjects.Models.SessionDetail.Request;
 using DataTransferObjects.Models.User.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -176,10 +177,12 @@ namespace Services.Implements
         //    await _repository.InsertAsync(session);
         //    await _unitOfWork.CommitAsync();
         //}
+        
         public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionDetailId)
         {
-            var session = await GetBySessionDetailIdAsync(sessionDetailId);
             ICollection<GetDelivererResponse> list = new List<GetDelivererResponse>();
+
+            var session = await GetBySessionDetailIdAsync(sessionDetailId);
             var sessions = await _repository.GetListAsync(filters: new()
             {
                 s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
@@ -198,7 +201,7 @@ namespace Services.Implements
                 // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
                 existedBusyDelivererIdList?.AddRange(busyDelivererIds);
             }
-            list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList);
+            list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList.ToList());
 
             return list;
 
@@ -304,7 +307,7 @@ namespace Services.Implements
                             await _repository.UpdateAsync(s);
                             await _unitOfWork.CommitAsync();
                         }
-                        
+
                     }
                     else if (s.Status == SessionStatus.Incoming)
                     {
@@ -334,6 +337,12 @@ namespace Services.Implements
 
                 }
             }
+        }
+
+        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest request)
+        {
+            var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
+            await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList());
         }
     }
 }

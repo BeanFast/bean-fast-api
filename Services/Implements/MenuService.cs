@@ -59,10 +59,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
         if (filterRequest.Status != null)
         {
-            //if (userRole == null || userRole == RoleName.CUSTOMER.ToString())
-            //{
-            //    filters.Add(f => f.Status == BaseEntityStatus.Active);
-            //}
+
         }
         if (filterRequest.OrderStartTime != null)
         {
