@@ -653,7 +653,7 @@ namespace Services.Implements
                     }
                 ).ToList();
         }
-        public async Task<bool> CheckMenuDetailOrderableAsync(Guid menuDetailId, Guid sessionDetailId)
+        public async Task<bool> CheckMenuDetailOrderableAsync(Guid menuDetailId, Guid sessionDetailId, Guid profileId)
         {
             //var menuDetail = _menuDetailService.GetByIdAsync(menuDetailId);
             //var sessionDetail = await _sessionDetailService.GetByIdAsync(sessionDetailId);
@@ -670,7 +670,8 @@ namespace Services.Implements
             //        }
             //    }
             //}
-            return orderable;
+            //return orderable;
+            return true;
         }
     }
 }
