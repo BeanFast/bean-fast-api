@@ -108,7 +108,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
         if (filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
         {
-            filters.Add(m => m.Sessions!.Where(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == filterRequest.SchoolId).Any()).Any());
+            filters.Add(m => m.Kitchen!.PrimarySchools!.Any(s => s.Id == filterRequest.SchoolId));
         }
 
         return filters;

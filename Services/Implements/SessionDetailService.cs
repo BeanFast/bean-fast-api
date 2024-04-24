@@ -79,8 +79,7 @@ namespace Services.Implements
             List<Expression<Func<SessionDetail, bool>>> filters = new()
             {
                 (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
-                (sessionDetail) => sessionDetail.Status == BaseEntityStatus.Active,
-                (sessionDetail) => sessionDetail.Orders!.Where(o => o.Status == OrderStatus.Cooking).Any()
+                (sessionDetail) => sessionDetail.Status != BaseEntityStatus.Deleted,
             };
 
             var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
@@ -88,7 +87,7 @@ namespace Services.Implements
                 , include: queryable => queryable
                 .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
                 .Include(sd => sd.Session!)
-                .Include(sd => sd.Orders!.Where(o => o.Status == OrderStatus.Cooking)).ThenInclude(o => o.OrderDetails!)
+                .Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
                 );
             foreach (var item in sessionDetails)
             {
