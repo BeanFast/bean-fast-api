@@ -222,11 +222,11 @@ namespace Services.Implements
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
             }
-            if (sessionDetail.Session!.OrderEndTime >= TimeUtil.GetCurrentVietNamTime() )
+            if (TimeUtil.GetCurrentVietNamTime() >= sessionDetail.Session!.OrderEndTime)
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
             }
-            else if (sessionDetail.Session!.OrderStartTime < TimeUtil.GetCurrentVietNamTime() )
+            else if (TimeUtil.GetCurrentVietNamTime() < sessionDetail.Session!.OrderStartTime)
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
             }
