@@ -120,6 +120,9 @@ namespace Services.Implements
             if (user.Status == BaseEntityStatus.Deleted)
             {
                 throw new BannedAccountException();
+            }else if (user.Status == UserStatus.NotVerified)
+            {
+                throw new NotVerifiedAccountException();
             }
             if (!loginRequest.DeviceToken.IsNullOrEmpty())
             {

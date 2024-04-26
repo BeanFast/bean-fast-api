@@ -30,6 +30,7 @@ namespace Utilities.Constants
             public static string NotAllowed = "Bạn không được phép sử dụng tính năng này";
             public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
             public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
+            public static string NotVerifiedAccount = "Tài khoản của bạn chưa xác nhận số điện thoại, xin hãy xác nhận số điện thoại";
             public static string DupplicatedPhone = "Số điện thoại đã tồn tại";
             public static string DupplicatedEmail = "Email đã tồn tại";
             public static string PhoneNotFound = "Không tìm thấy số điện thoại này!";

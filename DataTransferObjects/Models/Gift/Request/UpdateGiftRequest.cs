@@ -21,6 +21,8 @@ namespace DataTransferObjects.Models.Gift.Request
         [Required(ErrorMessage = MessageConstants.GiftMessageConstrant.GiftInStockRequired)]
         [Range(1, 9999, ErrorMessage = MessageConstants.GiftMessageConstrant.GiftInStockRange)]
         public int InStock { get; set; }
+        [Required(ErrorMessage = MessageConstants.GiftMessageConstrant.GiftDescriptionRequired)]
+        public string Description { get; set; }
         [RequiredFileExtensions(Utilities.Enums.AllowedFileTypes.IMAGE)]
         //[Required]
         public IFormFile? Image { get; set; }
