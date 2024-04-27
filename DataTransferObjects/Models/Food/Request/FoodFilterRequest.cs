@@ -17,4 +17,6 @@ public class FoodFilterRequest
     [Range(1000, 500000, ErrorMessage = MessageConstants.FoodMessageConstrant.FoodPriceRange)]
     public double? MaxPrice { get; set; }
     public string? Description { get; set; }
+
+    public bool? IsCombo { get; set;}
 }

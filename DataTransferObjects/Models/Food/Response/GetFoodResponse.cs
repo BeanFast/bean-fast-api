@@ -11,6 +11,7 @@ public class GetFoodResponse
     public string ImagePath { get; set; }
     public virtual CategoryOfFood? Category { get; set; }
     public List<ComboOfFood> Combos { get; set; }
+    //public List<MasterComboOfFood> MasterCombos { get; set; }
     // public virtual ICollection<Combo>? MasterCombos { get; set; }
     // public virtual ICollection<Combo>? Combos { get; set; }
     // public virtual ICollection<MenuDetail>? MenuDetails { get; set; }
@@ -26,6 +27,13 @@ public class GetFoodResponse
     }
 
     public class ComboOfFood
+    {
+        public Guid MasterFoodId { get; set; }
+        public Guid FoodId { get; set; }
+        public string Code { get; set; }
+        public int Quantity { get; set; }
+    }
+    public class MasterComboOfFood
     {
         public Guid MasterFoodId { get; set; }
         public Guid FoodId { get; set; }

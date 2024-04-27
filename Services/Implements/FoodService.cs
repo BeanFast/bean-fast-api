@@ -66,7 +66,10 @@ namespace Services.Implements
             {
                 filters.Add(f => f.Price <= filterRequest.MaxPrice);
             }
-
+            if(filterRequest.IsCombo != null)
+            {
+                filters.Add(f => f.IsCombo == filterRequest.IsCombo);
+            }
             return filters;
         }
         public async Task<ICollection<GetFoodResponse>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
