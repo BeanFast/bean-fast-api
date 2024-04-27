@@ -9,7 +9,7 @@ public class FoodMapper : AutoMapper.Profile
 {
     public FoodMapper()
     {
-        CreateMap<Food, GetFoodResponse>();
+        CreateMap<Food, GetFoodResponse>().ForMember(dest => dest.Combos, opt => opt.MapFrom(src => src.MasterCombos));
         CreateMap<Food, GetBestSellerFoodsResponse>().ForMember(dest => dest.SoldCount, opt => opt.MapFrom(src => src.OrderDetails!.Count()));
         CreateMap<Combo, GetFoodResponse.ComboOfFood>();
         CreateMap<Category, GetFoodResponse.CategoryOfFood>().ReverseMap();
