@@ -16,7 +16,7 @@ namespace BeanFastApi.Controllers
         
         [HttpPut]
         [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
-        public async Task<IActionResult> UpdateCustomer([FromForm] UpdateCustomerRequest request)
+        public async Task<IActionResult> UpdateCustomerAsync([FromForm] UpdateCustomerRequest request)
         {
             await _userService.UpdateCustomerAsync(request, await GetUserAsync());
             return SuccessResult<object>(new object());
@@ -30,10 +30,24 @@ namespace BeanFastApi.Controllers
         }
         [HttpPost]
         [Authorize(Utilities.Enums.RoleName.ADMIN)]
-        public async Task<IActionResult> CreateUser([FromForm] CreateUserRequest request)
+        public async Task<IActionResult> CreateUserAsync([FromForm] CreateUserRequest request)
         {
             await _userService.CreateUserAsync(request);
             return SuccessResult(new object());
+        }
+        [HttpGet("{id}")]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
+        {
+            var result = await _userService.GetUserResponseByIdAsync(id);
+            return SuccessResult(result);
+        }
+        [HttpGet]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> GetAllUserAsync([FromQuery] UserFilterRequest request)
+        {
+            var result = await _userService.GetAllAsync(request);
+            return SuccessResult(result);
         }
     }
 }
