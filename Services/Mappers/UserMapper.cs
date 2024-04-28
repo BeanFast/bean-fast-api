@@ -16,6 +16,8 @@ namespace Services.Mappers
         {
             CreateMap<User, GetDelivererResponse>();
             CreateMap<User, GetCurrentUserResponse>();
+            CreateMap<User, GetUserResponse>().ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.Name));
+            CreateMap<Role, GetUserResponse.RoleOfGetUserResponse>();
             CreateMap<RegisterRequest, User>();
             CreateMap<CreateUserRequest, User>();
         }

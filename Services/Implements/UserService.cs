@@ -288,5 +288,26 @@ namespace Services.Implements
                 QrCodeExpiry = user.QrCodeExpiry.Value
             };
         }
+
+        public Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId)
+        {
+            var result = _repository.FirstOrDefaultAsync<GetUserResponse>(filters: new ()
+            {
+                u => u.Id == userId
+            });
+            if (result == null) throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            return result!;
+        }
+
+        public Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request)
+        {
+            var filters = new List<Expression<Func<User, bool>>>();
+            if(request.RoleId != null && request.RoleId != Guid.Empty)
+            {
+                filters.Add(u => u.RoleId == request.RoleId);
+            }
+            var result = _repository.GetListAsync<GetUserResponse>(filters: filters);
+            return result;
+        }
     }
 }
