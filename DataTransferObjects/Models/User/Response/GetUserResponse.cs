@@ -11,6 +11,7 @@ namespace DataTransferObjects.Models.User.Response
     {
         public Guid Id { get; set; }    
         public string? FullName { get; set; }
+        public int? Status { get; set; }
         public string? Code { get; set; }
         public string? Phone { get; set; }
         //public string? Password { get; set; }

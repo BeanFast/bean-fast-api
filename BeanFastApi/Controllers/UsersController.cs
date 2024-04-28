@@ -12,8 +12,28 @@ namespace BeanFastApi.Controllers
         {
 
         }
-        
-        
+        [HttpGet("{id}")]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
+        {
+            var result = await _userService.GetUserResponseByIdAsync(id);
+            return SuccessResult(result);
+        }
+        [HttpGet]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> GetAllUserAsync([FromQuery] UserFilterRequest request)
+        {
+            var result = await _userService.GetAllAsync(request);
+            return SuccessResult(result);
+        }
+        [HttpPatch("{id}")]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> UpdateUserStatusAsync([FromRoute] Guid id, [FromBody] UpdateUserStatusRequest request)
+        {
+            await _userService.UpdateUserStatusAsync(id, request);
+            return SuccessResult(new object());
+        }
+
         [HttpPut]
         [Authorize(Utilities.Enums.RoleName.CUSTOMER)]
         public async Task<IActionResult> UpdateCustomerAsync([FromForm] UpdateCustomerRequest request)
@@ -35,19 +55,6 @@ namespace BeanFastApi.Controllers
             await _userService.CreateUserAsync(request);
             return SuccessResult(new object());
         }
-        [HttpGet("{id}")]
-        [Authorize(Utilities.Enums.RoleName.ADMIN)]
-        public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
-        {
-            var result = await _userService.GetUserResponseByIdAsync(id);
-            return SuccessResult(result);
-        }
-        [HttpGet]
-        [Authorize(Utilities.Enums.RoleName.ADMIN)]
-        public async Task<IActionResult> GetAllUserAsync([FromQuery] UserFilterRequest request)
-        {
-            var result = await _userService.GetAllAsync(request);
-            return SuccessResult(result);
-        }
+        
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.Role.Response;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -21,6 +22,15 @@ namespace Services.Implements
     {
         public RoleService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
+        }
+
+        public async Task<ICollection<GetRoleResponse>> GetAllAsync()
+        {
+            var result = await _repository.GetListAsync<GetRoleResponse>(filters: new()
+            {
+                r => r.Status != BaseEntityStatus.Deleted
+            });
+            return result;
         }
 
         public async Task<Role> GetRoleByIdAsync(Guid id)

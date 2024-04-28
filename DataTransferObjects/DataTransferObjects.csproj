@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="Models\Category\Response\" />
     <Folder Include="Models\LoyaltyCard\Response\" />
+    <Folder Include="Models\Role\Request\" />
     <Folder Include="Models\Wallet\Request\" />
   </ItemGroup>
 
