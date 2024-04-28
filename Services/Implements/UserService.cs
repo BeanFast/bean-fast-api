@@ -309,5 +309,23 @@ namespace Services.Implements
             var result = _repository.GetListAsync<GetUserResponse>(filters: filters);
             return result;
         }
+
+        public async Task UpdateUserStatusAsync(Guid id, UpdateUserStatusRequest request)
+        {
+            var user = await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
+            {
+                u => u.Id == id
+            }) ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(id));
+            if(request.IsActive)
+            {
+                user.Status = UserStatus.Active;
+            }
+            else if(!request.IsActive)
+            {
+                user.Status = UserStatus.Deleted;
+            }
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+        }
     }
 }
