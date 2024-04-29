@@ -21,15 +21,18 @@ using System.Threading.Tasks;
 using Utilities.Enums;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Utilities.Utils;
+using DataTransferObjects.Models.Notification.Request;
 
 namespace Services.Implements
 {
     public class OrderActivityService : BaseService<OrderActivity>, IOrderActivityService
     {
         private readonly ICloudStorageService _cloudStorageService;
-        public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+        private readonly INotificationService _notificationService;
+        public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, INotificationService notificationService) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
+            _notificationService = notificationService;
         }
 
         public async Task<OrderActivity> GetByIdAsync(Guid id)
@@ -51,6 +54,21 @@ namespace Services.Implements
         public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user)
         {
             orderActivity.OrderId = order.Id;
+            if(user == null || order.Profile!.User!.Id != user.Id)
+            {
+                await _notificationService.SendNotificationAsync(new CreateNotificationRequest
+                {
+                    Body = orderActivity.Name,
+                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(order.Id),
+                    NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
+                {
+                    new ()
+                    {
+                        UserId = order.Profile!.UserId,
+                    }
+                }
+                });
+            }
             await _repository.InsertAsync(orderActivity, user);
             await _unitOfWork.CommitAsync();
         }
@@ -106,6 +124,28 @@ namespace Services.Implements
             filters.Add(oa => oa.ExchangeGiftId == exchangeGiftId);
             var result = await _repository.GetListAsync<GetOrderActivityResponse>(filters: filters);
             return result;
+        }
+
+        public async Task CreateOrderActivityAsync(ExchangeGift exchangeGift, OrderActivity orderActivity, User user)
+        {
+            orderActivity.OrderId = exchangeGift.Id;
+            if (user == null || exchangeGift.Profile!.User!.Id != user.Id)
+            {
+                await _notificationService.SendNotificationAsync(new CreateNotificationRequest
+                {
+                    Body = orderActivity.Name,
+                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(exchangeGift.Id),
+                    NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
+                {
+                    new ()
+                    {
+                        UserId = exchangeGift.Profile!.UserId,
+                    }
+                }
+                });
+            }
+            await _repository.InsertAsync(orderActivity, user);
+            await _unitOfWork.CommitAsync();
         }
     }
 }

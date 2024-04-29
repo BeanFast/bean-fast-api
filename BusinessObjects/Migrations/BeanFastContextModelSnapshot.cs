@@ -1191,7 +1191,8 @@ namespace BusinessObjects.Migrations
                     b.Property<Guid?>("UpdaterId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PK_SessionDetailDeliverer");
 
                     b.HasIndex("CreatorId");
 
@@ -1201,7 +1202,7 @@ namespace BusinessObjects.Migrations
 
                     b.HasIndex("UpdaterId");
 
-                    b.ToTable("SessionDetailDeliverer");
+                    b.ToTable("SessionDetailDeliverer", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.SmsOtp", b =>
@@ -1316,7 +1317,6 @@ namespace BusinessObjects.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
@@ -1953,16 +1953,18 @@ namespace BusinessObjects.Migrations
                         .HasConstraintName("FK_SessionDetailDeliverer_User_CreatorId");
 
                     b.HasOne("BusinessObjects.Models.User", "Deliverer")
-                        .WithMany()
+                        .WithMany("SessionDetailDeliverers")
                         .HasForeignKey("DelivererId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_SessionDetailDeliverer_User");
 
                     b.HasOne("BusinessObjects.Models.SessionDetail", "SessionDetail")
                         .WithMany("SessionDetailDeliverers")
                         .HasForeignKey("SessionDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_SessionDetailDeliverer_SessionDetail");
 
                     b.HasOne("BusinessObjects.Models.User", "Updater")
                         .WithMany("UpdatedSessionDetailDeliverer")
@@ -2225,6 +2227,8 @@ namespace BusinessObjects.Migrations
                     b.Navigation("NotificationDetails");
 
                     b.Navigation("Profiles");
+
+                    b.Navigation("SessionDetailDeliverers");
 
                     b.Navigation("SmsOtps");
 

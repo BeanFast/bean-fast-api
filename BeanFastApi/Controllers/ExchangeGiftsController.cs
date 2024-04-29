@@ -3,6 +3,7 @@ using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.AspNetCore.Mvc;
+using Services.Implements;
 using Services.Interfaces;
 using Utilities.Enums;
 
@@ -50,6 +51,15 @@ namespace BeanFastApi.Controllers
             var user = await GetUserAsync();
             var result = await _exchangeGiftService.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
             return SuccessResult(result);
+        }
+        [HttpGet("getExchangeGiftByQrCode")]
+        [Authorize(RoleName.DELIVERER)]
+        public async Task<IActionResult> GetValidOrdersByQRCode([FromQuery] string qrCode)
+        {
+            var user = await GetUserAsync();
+            var delivererId = user.Id;
+            var orders = await _exchangeGiftService.GetValidOrderResponsesByQRCodeAsync(qrCode, delivererId);
+            return SuccessResult(orders);
         }
         [HttpPost("{exchangeGiftId}/orderActivities")]
         public async Task<IActionResult> CreateOrderActivitiesAsync([FromRoute] Guid exchangeGiftId, [FromForm] CreateOrderActivityRequest request)

@@ -15,6 +15,7 @@ namespace Services.Mappers
         {
             CreateMap<CreateExchangeGiftRequest, ExchangeGift>();
             CreateMap<ExchangeGift, GetExchangeGiftResponse>();
+            CreateMap<Gift, GetExchangeGiftResponse.GiftOfGetExchangeGiftResponse>();
         }
     }
 }

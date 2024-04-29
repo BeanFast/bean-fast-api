@@ -11,12 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
@@ -146,9 +141,10 @@ namespace Services.Implements
         {
             List<Expression<Func<Session, bool>>> filters = new()
             {
-                (session) => session.Id == id
+                (session) => session.Id == id,
+                (session) => session.Status != BaseEntityStatus.Deleted
             };
-            var session = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+            var session = await _repository.FirstOrDefaultAsync(
                 filters: filters,
                 include: i => i.Include(s => s.SessionDetails!))
                 ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
@@ -159,8 +155,9 @@ namespace Services.Implements
             List<Expression<Func<Session, bool>>> filters = new()
             {
                 (session) => session.SessionDetails!.Where(sd => sd.Id == sesionDetailId).Any(),
+                (session) => session.Status != BaseEntityStatus.Deleted
             };
-            var session = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+            var session = await _repository.FirstOrDefaultAsync(
                 filters: filters,
                 include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!))
                 ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(sesionDetailId));
@@ -201,7 +198,7 @@ namespace Services.Implements
                 // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
                 existedBusyDelivererIdList?.AddRange(busyDelivererIds);
             }
-            list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList.ToList());
+            list = await _userService.GetDeliverersExcludeAsync(existedBusyDelivererIdList!.ToList());
 
             return list;
 
@@ -251,7 +248,7 @@ namespace Services.Implements
         public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)
         {
             var filters = getFiltersFromSessionFilterRequest(request, userRole!);
-            filters.Add((session) => session.Id == id && session.Status == BaseEntityStatus.Active);
+            filters.Add((session) => session.Id == id && session.Status != BaseEntityStatus.Deleted);
             var result = await _repository.FirstOrDefaultAsync<GetSessionForDeliveryResponse>(filters: filters)
                  ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
             return result!;

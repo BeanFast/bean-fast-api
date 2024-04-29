@@ -19,7 +19,6 @@ using Utilities.Constants;
 using Utilities.Utils;
 using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -100,10 +99,14 @@ namespace Services.Implements
                 (order) => order.Id == id
             };
             var order = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(o => o.Profile!)
-                .ThenInclude(p => p.Wallets).AsNoTracking()
+                filters: filters, include: queryable => 
+                queryable
+                .Include(o => o.Profile!)
+                    .ThenInclude(p => p.Wallets)
+                .Include(o => o.Profile!)
+                    .ThenInclude(p => p.User)
                 .Include(o => o.SessionDetail!)
-                .ThenInclude(o => o.Session!)
+                    .ThenInclude(o => o.Session!)
                 .Include(o => o.OrderDetails!)
                 .Include(o => o.OrderActivities!))
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
@@ -295,9 +298,6 @@ namespace Services.Implements
 
         public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
         {
-            //var loyaltyCard = await _loyaltyCardService.GetLoyaltyCardByQRCode(qrCode);
-            //var profileId = loyaltyCard.ProfileId;
-            //var orderList = await GetOrdersDeliveringByProfileIdAndDelivererId(profileId, delivererId);
             var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
             var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
             if (orders.IsNullOrEmpty())
@@ -438,7 +438,7 @@ namespace Services.Implements
             orderEntity.Status = OrderStatus.Delivering;
 
 
-            await RollbackMoneyAsync(orderEntity);
+            //await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, new OrderActivity
             {
                 Id = Guid.NewGuid(),

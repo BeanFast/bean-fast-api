@@ -90,7 +90,7 @@ namespace Services.Implements
             foreach (var notificationDetail in notification.NotificationDetails)
             {
                 var user = await _userService.GetByIdAsync(notificationDetail.UserId);
-                notificationDetail.SendDate = DateTime.UtcNow;
+                notificationDetail.SendDate = TimeUtil.GetCurrentVietNamTime();
                 notificationDetail.Status = NotificationDetailStatus.Unread;
                 notificationDetail.Id = Guid.NewGuid();
                 if (user.DeviceToken != null)
