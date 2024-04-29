@@ -19,9 +19,9 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> CreateProfileAsync([FromForm] CreateProfileRequest request)
         {
-            var uid = GetUserId();
+            var user = await GetUserAsync();
 
-            await _profileService.CreateProfileAsync(request, uid);
+            await _profileService.CreateProfileAsync(request, user.Id , user);
             return SuccessResult<object>(statusCode: System.Net.HttpStatusCode.Created);
         }
         [HttpGet]
@@ -44,7 +44,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> UpdateProfileAsync([FromRoute] Guid id, [FromForm] UpdateProfileRequest request)
         {
-            await _profileService.UpdateProfileAsync(id, request);
+            await _profileService.UpdateProfileAsync(id, request, await GetUserAsync());
             return SuccessResult<object>();
         }
         [HttpDelete("{id}")]
