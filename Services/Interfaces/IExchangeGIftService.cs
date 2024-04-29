@@ -18,7 +18,7 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
-        Task<List<GetExchangeGiftResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId);
+        Task<List<GetExchangeGiftResponse>> GetValidExchangeGiftResponsesByQRCodeAsync(string qrCode, Guid delivererId);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId);
     }
 }

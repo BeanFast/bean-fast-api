@@ -16,6 +16,7 @@ namespace DataTransferObjects.Models.ExchangeGift.Response
         public int Points { get; set; }
         public DateTime PaymentDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
+        public GiftOfGetExchangeGiftResponse? Gift { get; set; }
 
         public class GiftOfGetExchangeGiftResponse
         {

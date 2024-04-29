@@ -166,7 +166,7 @@ namespace Services.Implements
             {
                 (order) => order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
                 && order.Profile!.UserId == customerId
-                && order.Status == OrderStatus.Delivering
+                && order.Status == ExchangeGiftStatus.Delivering
             };
             var exchangeGifts = await _repository.GetListAsync(
                 filters: filters,
@@ -177,7 +177,7 @@ namespace Services.Implements
             );
             return exchangeGifts!;
         }
-        public async Task<List<GetExchangeGiftResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
+        public async Task<List<GetExchangeGiftResponse>> GetValidExchangeGiftResponsesByQRCodeAsync(string qrCode, Guid delivererId)
         {
             var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
             var exchangeGifts = await GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);

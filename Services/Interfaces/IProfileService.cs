@@ -11,9 +11,9 @@ namespace Services.Interfaces
 {
     public interface IProfileService : IBaseService
     {
-        Task CreateProfileAsync(CreateProfileRequest request, Guid userId);
+        Task CreateProfileAsync(CreateProfileRequest request, Guid userId, User user);
         Task DeleteProfileAsync(Guid id);
-        Task UpdateProfileAsync(Guid id, UpdateProfileRequest request);
+        Task UpdateProfileAsync(Guid id, UpdateProfileRequest request, User user);
         Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId);
         Task<Profile> GetByIdAsync(Guid id);
         Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user);

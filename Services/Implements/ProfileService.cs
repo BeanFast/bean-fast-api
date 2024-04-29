@@ -35,7 +35,7 @@ namespace Services.Implements
             _wallletService = wallletService;
         }
 
-        public async Task CreateProfileAsync(CreateProfileRequest request, Guid userId)
+        public async Task CreateProfileAsync(CreateProfileRequest request, Guid userId, User user)
         {
             var profileEntity = _mapper.Map<Profile>(request);
             var currentBMI = _mapper.Map<ProfileBodyMassIndex>(request.Bmi);
@@ -53,7 +53,7 @@ namespace Services.Implements
             profileEntity.Id = profileId;
             profileEntity.Status = Utilities.Statuses.BaseEntityStatus.Active;
             profileEntity.CurrentBMI = currentBMI.Weight / (currentBMI.Height * currentBMI.Height);
-
+            currentBMI.RecordDate = TimeUtil.GetCurrentVietNamTime();
             var pointsWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
@@ -61,7 +61,7 @@ namespace Services.Implements
                 Name = profileEntity.FullName,
                 UserId = userId,
             };
-            await _repository.InsertAsync(profileEntity);
+            await _repository.InsertAsync(profileEntity, user);
             await _unitOfWork.GetRepository<ProfileBodyMassIndex>().InsertAsync(currentBMI);
             await _unitOfWork.CommitAsync();
             await _wallletService.CreateWalletAsync(WalletType.Points, pointsWallet);
@@ -89,11 +89,38 @@ namespace Services.Implements
             await _repository.DeleteAsync(profile);
             await _unitOfWork.CommitAsync();
         }
-
-        public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request)
+        public async Task<Profile> GetProfileByIdForUpdateProfileAsync(Guid id)
         {
-            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
-            await _repository.UpdateAsync(profile);
+            var profile = await _repository.FirstOrDefaultAsync(filters: new()
+            {
+                s => s.Id == id,
+                s => s.Status == BaseEntityStatus.Active
+            }, include: i => i.Include(p => p.BMIs!)) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            return profile;
+        }
+        public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request, User user)
+        {
+            var profile = await GetProfileByIdForUpdateProfileAsync(id);
+            await _schoolService.GetSchoolByIdAsync(request.SchoolId);
+            if(profile.UserId != user.Id)
+            {
+                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
+            }
+            profile.NickName = request.NickName;
+            profile.Class = request.Class;
+            profile.Gender = request.Gender;
+            profile.Dob = request.Dob;
+            profile.FullName = request.FullName;
+            if(request.Image != null)
+            {
+                var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Profile, request.Image);
+                profile.AvatarPath = imagePath;
+            }
+            var currentBMI = _mapper.Map<ProfileBodyMassIndex>(request.Bmi);
+            currentBMI.RecordDate = TimeUtil.GetCurrentVietNamTime();
+            profile.CurrentBMI = currentBMI.Weight / (currentBMI.Height * currentBMI.Height);
+            profile.BMIs!.Add(currentBMI);
+            await _repository.UpdateAsync(profile, user);
             await _unitOfWork.CommitAsync();
         }
 

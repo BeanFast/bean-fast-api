@@ -54,12 +54,12 @@ namespace BeanFastApi.Controllers
         }
         [HttpGet("getExchangeGiftByQrCode")]
         [Authorize(RoleName.DELIVERER)]
-        public async Task<IActionResult> GetValidOrdersByQRCode([FromQuery] string qrCode)
+        public async Task<IActionResult> GetValidExchangeGiftByQRCode([FromQuery] string qrCode)
         {
             var user = await GetUserAsync();
             var delivererId = user.Id;
-            var orders = await _exchangeGiftService.GetValidOrderResponsesByQRCodeAsync(qrCode, delivererId);
-            return SuccessResult(orders);
+            var exchangeGifts = await _exchangeGiftService.GetValidExchangeGiftResponsesByQRCodeAsync(qrCode, delivererId);
+            return SuccessResult(exchangeGifts);
         }
         [HttpPost("{exchangeGiftId}/orderActivities")]
         public async Task<IActionResult> CreateOrderActivitiesAsync([FromRoute] Guid exchangeGiftId, [FromForm] CreateOrderActivityRequest request)

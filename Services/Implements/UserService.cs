@@ -44,12 +44,20 @@ namespace Services.Implements
             List<Expression<Func<User, bool>>> filters = new()
             {
                 (user) => user.Id == userId,
-                (user) => user.Status == BaseEntityStatus.Active
+                //(user) => user.Status == BaseEntityStatus.Active
             };
 
             var user = await _repository.FirstOrDefaultAsync(filters: filters,
                 include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            if(UserStatus.NotVerified == user.Status) 
+            {
+                throw new NotVerifiedAccountException();    
+            }
+            if (UserStatus.Deleted == user.Status)
+            {
+                throw new BannedAccountException();
+            }
             return user;
         }
         public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
