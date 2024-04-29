@@ -281,7 +281,7 @@ namespace Utilities.Constants
             public const string OrderCompletedActivityName = "Đơn hàng đã được giao hoàn thành";
             public const string OrderCanceledActivityName = "Đơn hàng đã bị hủy";
             public const string OrderCanceledByCustomerActivityName = "Đơn hàng đã bị hủy bởi khách hàng";
-
+            public const string ExchangeGiftDeliveringActivityName = "Quà đang được giao";
             public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
         }
 
@@ -322,6 +322,12 @@ namespace Utilities.Constants
             public const string TopUpMoneyMustBeGreaterThanTenThousand = "Số tiền cần nạp phải tối thiểu là 10000 VND";
             public static string GameTransactionIsExceedPermittedAmount = $"Số lượt chơi game đã vượt quá {TransactionConstrant.MaxGameTransactionPerDay} lượt trong một ngày";
 
+            //public const string Profile
+        }
+        public class NotificationMessageConstrant
+        {
+            public static string OrderNotificationTitle (Guid id)=> $"Thông báo đơn hàng #{id}";
+            public static string ExchangeGiftNotificationTitle (Guid id)=> $"Thông báo đổi quà #{id}";
             //public const string Profile
         }
     }

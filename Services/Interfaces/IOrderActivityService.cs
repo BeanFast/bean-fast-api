@@ -16,6 +16,7 @@ namespace Services.Interfaces
         Task<GetOrderActivityResponse> GetOrderActivityResponseByIdAsync(Guid id);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest orderActivity, User user);
         Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user);
+        Task CreateOrderActivityAsync(ExchangeGift exchangeGift, OrderActivity orderActivity, User user);
         //Task CreateOrderActivityListAsync(List<OrderActivity> orderActivities);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user);
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
