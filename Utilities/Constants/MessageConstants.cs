@@ -328,6 +328,8 @@ namespace Utilities.Constants
         {
             public static string OrderNotificationTitle (Guid id)=> $"Thông báo đơn hàng #{id}";
             public static string ExchangeGiftNotificationTitle (Guid id)=> $"Thông báo đổi quà #{id}";
+            public static string WelcomeTitle => $"Beanfast chào bạn";
+            public static string WelcomeMessage => $"Cảm ơn bạn đã sử dụng dịch vụ của beanfast!";
             //public const string Profile
         }
     }

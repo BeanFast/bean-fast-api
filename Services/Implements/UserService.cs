@@ -20,6 +20,7 @@ using DataTransferObjects.Models.SmsOtp;
 using DataTransferObjects.Models.User.Request;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
+using DataTransferObjects.Models.Notification.Request;
 
 namespace Services.Implements
 {
@@ -29,14 +30,18 @@ namespace Services.Implements
         private readonly IRoleService _roleService;
         private readonly ISmsOtpService _smsOtpService;
         private readonly IWalletService _walletService;
+        //private readonly INotificationService _notificationService;
         public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
-            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService, IWalletService walletService) : base(
+            ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService, IWalletService walletService
+            //, INotificationService notificationService
+            ) : base(
             unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _roleService = roleService;
             _smsOtpService = smsOtpService;
             _walletService = walletService;
+            //_notificationService = notificationService;
         }
 
         public async Task<User> GetByIdAsync(Guid userId)
@@ -165,10 +170,7 @@ namespace Services.Implements
             customer.AvatarPath = UserConstrants.DefaultAvatar;
             customer.RoleId = customerRole.Id;
             customer.Status = UserStatus.NotVerified;
-            //if(registerRequest.FullName.IsNullOrEmpty())
-            //{
-            //    customer.FullName = "User #" + customer.Id;
-            //}
+
             var customerNumber = await _repository.CountAsync() + 1;
             customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
             var moneyWallet = new Wallet
@@ -210,6 +212,20 @@ namespace Services.Implements
                 user.Status = UserStatus.Active;
                 await _repository.UpdateAsync(user);
                 await _unitOfWork.CommitAsync();
+                //await _notificationService.SendNotificationAsync(
+                //    new DataTransferObjects.Models.Notification.Request.CreateNotificationRequest
+                //    {
+                //        Body = MessageConstants.NotificationMessageConstrant.WelcomeMessage,
+                //        Title = MessageConstants.NotificationMessageConstrant.WelcomeTitle,
+                //        NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
+                //        {
+                //            new ()
+                //            {
+                //                UserId = user.Id,
+                //            }
+                //        }
+                //    }    
+                //);
             }
             else
             {

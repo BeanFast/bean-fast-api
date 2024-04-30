@@ -54,19 +54,20 @@ namespace Services.Implements
         public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user)
         {
             orderActivity.OrderId = order.Id;
-            if(user == null || order.Profile!.User!.Id != user.Id)
+            
+            if (user == null || order.Profile!.User!.Id != user.Id)
             {
                 await _notificationService.SendNotificationAsync(new CreateNotificationRequest
                 {
                     Body = orderActivity.Name,
                     Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(order.Id),
                     NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
-                {
-                    new ()
                     {
-                        UserId = order.Profile!.UserId,
+                        new ()
+                        {
+                            UserId = order.Profile!.UserId,
+                        }
                     }
-                }
                 });
             }
             await _repository.InsertAsync(orderActivity, user);
@@ -108,7 +109,7 @@ namespace Services.Implements
                 filters.Add(oa => oa.Order!.Profile!.UserId == user.Id);
             }
             filters.Add(oa => oa.OrderId == orderId);
-            var result =  await _repository.GetListAsync<GetOrderActivityResponse>(filters: filters);
+            var result = await _repository.GetListAsync<GetOrderActivityResponse>(filters: filters);
             return result;
             //await _repository.GetListAsync()
         }
