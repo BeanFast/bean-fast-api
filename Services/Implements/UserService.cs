@@ -212,20 +212,7 @@ namespace Services.Implements
                 user.Status = UserStatus.Active;
                 await _repository.UpdateAsync(user);
                 await _unitOfWork.CommitAsync();
-                //await _notificationService.SendNotificationAsync(
-                //    new DataTransferObjects.Models.Notification.Request.CreateNotificationRequest
-                //    {
-                //        Body = MessageConstants.NotificationMessageConstrant.WelcomeMessage,
-                //        Title = MessageConstants.NotificationMessageConstrant.WelcomeTitle,
-                //        NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
-                //        {
-                //            new ()
-                //            {
-                //                UserId = user.Id,
-                //            }
-                //        }
-                //    }    
-                //);
+                
             }
             else
             {
@@ -273,7 +260,7 @@ namespace Services.Implements
 
             var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
                 filters: filters,
-                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets))
+                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
             return user;
         }

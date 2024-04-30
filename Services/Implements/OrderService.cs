@@ -461,7 +461,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName  + request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
@@ -505,7 +505,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledByCustomerActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledByCustomerActivityName + request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };

@@ -274,7 +274,7 @@ namespace Services.Implements
                         {
                             CancelOrderRequest request = new()
                             {
-                                Reason = "Đơn hàng bị hủy do chưa có người giao"
+                                Reason = "chưa có người giao"
                             };
                             foreach (var sd in s.SessionDetails!)
                             {

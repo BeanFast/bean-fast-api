@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using DataTransferObjects.Models.Category.Request;
+using DataTransferObjects.Models.Category.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,6 @@ namespace Services.Interfaces
         Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category, User user);
 
         Task DeleteCategoryAsync(Guid id, User user);
+        Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount);
     }
 }

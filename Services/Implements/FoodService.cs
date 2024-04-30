@@ -70,6 +70,15 @@ namespace Services.Implements
             {
                 filters.Add(f => f.IsCombo == filterRequest.IsCombo);
             }
+            if(filterRequest.CreateStartDate != null)
+            {
+                filters.Add(f => f.CreatedDate!.Value.Date >= filterRequest.CreateStartDate.Value.Date);
+            }
+            if(filterRequest.CreateEndDate != null)
+            {
+                filters.Add(f => f.CreatedDate!.Value.Date <= filterRequest.CreateEndDate!.Value.Date);
+            }
+
             return filters;
         }
         public async Task<ICollection<GetFoodResponse>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
@@ -259,17 +268,17 @@ namespace Services.Implements
         {
             var filters = new List<Expression<Func<Food, bool>>>();
             Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include;
-            
+            filters.Add(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed) && f.Status == BaseEntityStatus.Active);
             if (request.StartDate != DateTime.MinValue && request.EndDate != DateTime.MinValue)
             {
                 include = i => i
                 .Include(f => f.OrderDetails!
-                    .Where(od => od.Order!.PaymentDate.Date >= request.StartDate.Date && od.Order.PaymentDate.Date <= request.EndDate.Date)
+                    .Where(od => od.Order!.PaymentDate.Date >= request.StartDate.Date && od.Order.PaymentDate.Date <= request.EndDate.Date && od.Order.Status == OrderStatus.Completed)
                 );
             }
             else
             {
-                include = i => i.Include(f => f.OrderDetails!);
+                include = i => i.Include(f => f.OrderDetails!.Where(od => od.Order!.Status == OrderStatus.Completed));
             }
             var foodPage = await _repository.GetPageAsync(
                 filters: filters,
@@ -283,5 +292,11 @@ namespace Services.Implements
             //_mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
             return _mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
         }
+        //public async Task<ICollection<GetFoodResponse>> GetFoodsByCategoryAsync(Guid categoryId)
+        //{
+        //    var category = await _categoryService.GetById(categoryId);
+        //    var foods = await _repository.GetListAsync(f => f.CategoryId == categoryId);
+        //    return _mapper.Map<ICollection<GetFoodResponse>>(foods);
+        //}
     }
 }

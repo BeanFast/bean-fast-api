@@ -34,6 +34,12 @@ namespace BeanFastApi.Controllers
             var category = await _categoryService.GetById(id);
             return SuccessResult(category);
         }
+        [HttpGet("topSellers")]
+        public async Task<IActionResult> GetTopSellerCategories([FromQuery] int topCount)
+        {
+            var result = await _categoryService.GetTopSellerCategory(topCount);
+            return SuccessResult(result);
+        }
 
 
         [HttpPost]
