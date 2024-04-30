@@ -2,14 +2,19 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using DataTransferObjects.Models.Category.Request;
+using DataTransferObjects.Models.Category.Response;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
+using System.Linq.Expressions;
 using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Services.Implements
 {
@@ -100,6 +105,53 @@ namespace Services.Implements
         {
             var category = await GetById(id);
             await _repository.DeleteAsync(category!, user);
+        }
+        public async Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount)
+        {
+            Func<IQueryable<Category>, IIncludableQueryable<Category, object>> include;
+            List<Expression<Func<Category, bool>>> filters = new List<Expression<Func<Category, bool>>>()
+            {
+                c => c.Foods!.Any(f => f.OrderDetails!.Count > 0 && f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed))
+            };
+            include = i => i.Include(c => c.Foods!.Where(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed)))
+                .ThenInclude(f => f.OrderDetails!.Where(od => od.Order!.Status == OrderStatus.Completed))
+                .ThenInclude(od => od.Order!);
+            
+            var categoryList = await _repository.GetListAsync(include: include, filters: filters);
+            var totalSoldCount = categoryList.Sum(c => c.Foods!.Sum(f => f.OrderDetails!.Sum(od => od.Quantity)));
+            var data = categoryList.GroupBy(c => c.Name)
+                .Select(c =>
+                {
+                    double totalSold = c.Sum(c => c.Foods!.Sum(f => f.OrderDetails!.Sum(od => od.Quantity)));
+                    return new GetTopSellerCategoryResponse
+                    {
+                        Category = c.Key,
+                        TotalSold = totalSold / totalSoldCount * 100
+                    };
+                })
+                .OrderByDescending(c => c.TotalSold);
+            var topCategories = data.Take(topCount).ToList();
+            if (data.Count() + 1 >= topCount)
+            {
+                topCategories.Add(new GetTopSellerCategoryResponse { Category = "Others", TotalSold = data.Skip(topCount).Sum(x => x.TotalSold)});
+            }
+            // rounded percentage to 1 decimal place
+            var roundedData = topCategories.Select(c => new GetTopSellerCategoryResponse
+            {
+                Category = c.Category,
+                TotalSold = Math.Round(c.TotalSold, 1)
+            }).ToList();
+
+            // Calculate the total after rounding
+            double totalAfterRounding = roundedData.Sum(c => c.TotalSold);
+
+            // Adjust the last category to ensure the total remains 100%
+            if (totalAfterRounding != 100)
+            {
+                roundedData.Last().TotalSold += 100 - totalAfterRounding;
+            }
+
+            return roundedData;
         }
     }
 }
