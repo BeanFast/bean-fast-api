@@ -258,7 +258,7 @@ namespace Services.Implements
             var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
             orderEntity.TotalPrice = totalPriceOfOrderDetail;
 
-            var wallet = profile.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!;
+            var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!;
             if (wallet.Balance - totalPriceOfOrderDetail < 0)
             {
                 throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);

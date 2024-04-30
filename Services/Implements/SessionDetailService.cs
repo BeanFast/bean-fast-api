@@ -80,6 +80,7 @@ namespace Services.Implements
             {
                 (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
                 (sessionDetail) => sessionDetail.Status != BaseEntityStatus.Deleted,
+                (sessionDetail) => sessionDetail.Session!.DeliveryStartTime > TimeUtil.GetCurrentVietNamTime()
             };
 
             var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
