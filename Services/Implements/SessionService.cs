@@ -182,8 +182,7 @@ namespace Services.Implements
             var session = await GetBySessionDetailIdAsync(sessionDetailId);
             var sessions = await _repository.GetListAsync(filters: new()
             {
-                s => s.DeliveryStartTime.Date == session.DeliveryStartTime.Date && s.DeliveryEndTime.Date == session.DeliveryEndTime.Date,
-                s =>!(session.DeliveryStartTime < s.DeliveryEndTime && session.DeliveryEndTime > session.DeliveryStartTime),
+                s => s.DeliveryStartTime < session.DeliveryEndTime && s.DeliveryEndTime > session.DeliveryStartTime
             }, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!).ThenInclude(sdd => sdd.Deliverer!));
             var existedBusyDelivererIdList = session.SessionDetails?.SelectMany(sd =>
             {

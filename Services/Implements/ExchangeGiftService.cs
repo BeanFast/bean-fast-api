@@ -119,6 +119,7 @@ namespace Services.Implements
                 }
             };
             await _giftService.UpdateGiftAsync(gift);
+            await _walletService.UpdateAsync(wallet);
             await _repository.InsertAsync(exchangeGift, user);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());

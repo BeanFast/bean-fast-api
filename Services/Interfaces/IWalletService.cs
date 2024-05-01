@@ -13,6 +13,7 @@ namespace Services.Interfaces
     {
         Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId);
         Task<GetWalletTypeMoneyByCustomerId> GetWalletTypeMoneyByCustomerIdAsync(Guid customerId);
+        Task<Wallet> GetMoneyWalletByUserId(Guid userId);
         Task<Wallet> GetByIdAsync(Guid customerId);
         Task CreateWalletAsync(WalletType type, Wallet wallet);
         Task UpdateAsync(Wallet wallet);

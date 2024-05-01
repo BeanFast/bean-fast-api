@@ -47,7 +47,15 @@ namespace Services.Implements
             await _repository.InsertAsync(wallet);
             await _unitOfWork.CommitAsync();
         }
-
+        public async Task<Wallet> GetMoneyWalletByUserId(Guid userId)
+        {
+            var filters = new List<Expression<Func<Wallet, bool>>>
+            {
+                p => p.UserId == userId && p.Type == WalletType.Money.ToString() && p.ProfileId == null
+            };
+            var result = await _repository.FirstOrDefaultAsync(filters);
+            return result!;
+        }
         public Task<Wallet> GetByIdAsync(Guid walletId)
         {
             var filters = new List<Expression<Func<Wallet, bool>>>

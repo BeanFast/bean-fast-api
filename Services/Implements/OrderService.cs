@@ -65,7 +65,14 @@ namespace Services.Implements
             List<Expression<Func<Order, bool>>> filters = new();
             if (request.Status != null)
             {
-                filters.Add(o => o.Status == request.Status);
+                if (request.Status == 6)
+                {
+                    filters.Add(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.CancelledByCustomer);
+                }
+                else
+                {
+                    filters.Add(o => o.Status == request.Status);
+                }
             }
             return filters;
         }
@@ -96,19 +103,20 @@ namespace Services.Implements
         {
             List<Expression<Func<Order, bool>>> filters = new()
             {
-                (order) => order.Id == id
+                (order) => order.Id == id && order.Status != BaseEntityStatus.Deleted
             };
-            var order = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => 
+            var order = await _repository.FirstOrDefaultAsync(
+                filters: filters, include: queryable =>
                 queryable
                 .Include(o => o.Profile!)
                     .ThenInclude(p => p.Wallets)
                 .Include(o => o.Profile!)
-                    .ThenInclude(p => p.User)
+                    .ThenInclude(p => p.User!)
                 .Include(o => o.SessionDetail!)
                     .ThenInclude(o => o.Session!)
                 .Include(o => o.OrderDetails!)
                 .Include(o => o.OrderActivities!))
+
                 ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
             return order!;
         }
@@ -176,8 +184,16 @@ namespace Services.Implements
         {
             List<Expression<Func<Order, bool>>> filters = new()
             {
-                (order) => order.Status == status
+
             };
+            if (status == 6)
+            {
+                filters.Add(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.CancelledByCustomer);
+            }
+            else
+            {
+                filters.Add(o => o.Status == status);
+            }
             var orders = await _repository.GetListAsync(filters: filters,
                 include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
 
@@ -456,24 +472,25 @@ namespace Services.Implements
         {
             orderEntity.Status = OrderStatus.Cancelled;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
-
             var orderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName  + request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName + request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
             };
             await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, manager);
+            orderEntity.Profile = null;
             await _repository.UpdateAsync(orderEntity, manager);
             await _unitOfWork.CommitAsync();
         }
         public async Task RollbackMoneyAsync(Order orderEntity)
         {
-            var moneyWallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type.ToString()));
+
+            var moneyWallet = await _walletService.GetMoneyWalletByUserId(orderEntity.Profile!.UserId);
             moneyWallet!.Balance += orderEntity.TotalPrice;
             var rollbackMoneyTransaction = new Transaction
             {
@@ -494,7 +511,7 @@ namespace Services.Implements
                 validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
             {
                 // hoan tien
-                var moneyWallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
+                var moneyWallet = orderEntity.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
                 if (moneyWallet != null)
                 {
                     await RollbackMoneyAsync(orderEntity);
@@ -511,7 +528,7 @@ namespace Services.Implements
             };
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, customer);
             orderEntity.Status = OrderStatus.CancelledByCustomer;
-
+            orderEntity.Profile = null;
             await _repository.UpdateAsync(orderEntity, customer);
             await _unitOfWork.CommitAsync();
         }
@@ -606,6 +623,10 @@ namespace Services.Implements
                 if (OrderStatus.Cancelled == order.Status || OrderStatus.CancelledByCustomer == order.Status)
                 {
                     throw new InvalidRequestException("Đơn hàng này đã bị hủy trước đó rồi!");
+                }
+                else if (OrderStatus.Completed == order.Status)
+                {
+                    throw new InvalidRequestException("Đơn hàng này đã hoàn thành rồi!");
                 }
                 await CancelOrderForManagerAsync(order, request, user);
             }

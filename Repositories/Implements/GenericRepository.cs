@@ -193,10 +193,12 @@ namespace Repositories.Implements
 
         public async Task InsertAsync(T entity)
         {
+            entity.Status = BaseEntityStatus.Active;
             await _dbSet.AddAsync(entity);
         }
         public async Task InsertAsync(T entity, User? inserter)
         {
+            entity.Status = BaseEntityStatus.Active;
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.CreatedDate = TimeUtil.GetCurrentVietNamTime();
@@ -216,6 +218,7 @@ namespace Repositories.Implements
         public async Task UpdateAsync(T entity)
         {
             _dbContext.ChangeTracker.Clear();
+            //await _dbContext.SaveChangesAsync();
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
@@ -225,7 +228,8 @@ namespace Repositories.Implements
         }
         public async Task UpdateAsync(T entity, User? updater)
         {
-            
+            _dbContext.ChangeTracker.Clear();
+            //await _dbContext.SaveChangesAsync();
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
