@@ -193,12 +193,12 @@ namespace Repositories.Implements
 
         public async Task InsertAsync(T entity)
         {
-            entity.Status = BaseEntityStatus.Active;
+            if(entity.Status == 0) entity.Status = BaseEntityStatus.Active;
             await _dbSet.AddAsync(entity);
         }
         public async Task InsertAsync(T entity, User? inserter)
         {
-            entity.Status = BaseEntityStatus.Active;
+            if (entity.Status == 0) entity.Status = BaseEntityStatus.Active;
             if (entity is BaseAuditableEntity auditableEntity)
             {
                 auditableEntity.CreatedDate = TimeUtil.GetCurrentVietNamTime();
