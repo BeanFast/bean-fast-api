@@ -60,7 +60,7 @@ namespace Services.Implements
                 await _notificationService.SendNotificationAsync(new CreateNotificationRequest
                 {
                     Body = orderActivity.Name,
-                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(order.Id),
+                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(order.Code),
                     NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
                     {
                         new ()
@@ -135,7 +135,7 @@ namespace Services.Implements
                 await _notificationService.SendNotificationAsync(new CreateNotificationRequest
                 {
                     Body = orderActivity.Name,
-                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(exchangeGift.Id),
+                    Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(exchangeGift.Code),
                     NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
                 {
                     new ()

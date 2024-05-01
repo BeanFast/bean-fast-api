@@ -326,8 +326,8 @@ namespace Utilities.Constants
         }
         public class NotificationMessageConstrant
         {
-            public static string OrderNotificationTitle (Guid id)=> $"Thông báo đơn hàng #{id}";
-            public static string ExchangeGiftNotificationTitle (Guid id)=> $"Thông báo đổi quà #{id}";
+            public static string OrderNotificationTitle (string code) => $"Thông báo đơn hàng #{code}";
+            public static string ExchangeGiftNotificationTitle (string code) => $"Thông báo đổi quà #{code}";
             public static string WelcomeTitle => $"Beanfast chào bạn";
             public static string WelcomeMessage => $"Cảm ơn bạn đã sử dụng dịch vụ của beanfast!";
             //public const string Profile

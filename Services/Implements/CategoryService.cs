@@ -131,7 +131,7 @@ namespace Services.Implements
                 })
                 .OrderByDescending(c => c.TotalSold);
             var topCategories = data.Take(topCount).ToList();
-            if (data.Count() + 1 >= topCount)
+            if (data.Count() > topCount)
             {
                 topCategories.Add(new GetTopSellerCategoryResponse { Category = "Others", TotalSold = data.Skip(topCount).Sum(x => x.TotalSold)});
             }
