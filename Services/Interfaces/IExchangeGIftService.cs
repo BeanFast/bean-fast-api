@@ -19,6 +19,7 @@ namespace Services.Interfaces
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
         Task<List<GetExchangeGiftResponse>> GetValidExchangeGiftResponsesByQRCodeAsync(string qrCode, Guid delivererId);
+        Task<GetExchangeGiftResponse> GetExchangeGiftResponseByIdAsync(Guid id);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId);
     }
 }

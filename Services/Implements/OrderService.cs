@@ -306,7 +306,7 @@ namespace Services.Implements
                     Status = TransactionStatus.Active
                 }
             };
-
+            await _walletService.UpdateAsync(wallet);
             await _repository.InsertAsync(orderEntity, user);
             await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
             await _unitOfWork.CommitAsync();
