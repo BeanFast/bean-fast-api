@@ -484,7 +484,7 @@ namespace Services.Implements
             await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, manager);
             orderEntity.Profile = null;
-            await _repository.UpdateAsync(orderEntity, manager);
+            await _repository.UpdateAsync(orderEntity, manager);    
             await _unitOfWork.CommitAsync();
         }
         public async Task RollbackMoneyAsync(Order orderEntity)
