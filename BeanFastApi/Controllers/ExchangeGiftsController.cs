@@ -34,6 +34,14 @@ namespace BeanFastApi.Controllers
             var result = await _exchangeGiftService.GetExchangeGiftsAsync(filterRequest, paginationRequest);
             return SuccessResult(result);
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetExchangeGiftByIdAsync(
+            [FromRoute] Guid id
+            )
+        {
+            var result = await _exchangeGiftService.GetExchangeGiftResponseByIdAsync(id);
+            return SuccessResult(result);
+        }
         [HttpGet("profiles/{profileId}")]
         public async Task<IActionResult> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(
             [FromQuery] ExchangeGiftFilterRequest filterRequest,

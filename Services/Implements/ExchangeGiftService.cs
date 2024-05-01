@@ -53,7 +53,7 @@ namespace Services.Implements
         public List<Expression<Func<ExchangeGift, bool>>> GetFilterFromFilterRequest(ExchangeGiftFilterRequest filterRequest)
         {
             List<Expression<Func<ExchangeGift, bool>>> expressions = new List<Expression<Func<ExchangeGift, bool>>>();
-            if(filterRequest.Status != null)
+            if (filterRequest.Status != null)
             {
                 expressions.Add(eg => eg.Status == filterRequest.Status);
             }
@@ -71,7 +71,8 @@ namespace Services.Implements
             if (sessionDetail.Session!.OrderEndTime < TimeUtil.GetCurrentVietNamTime())
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
-            }else if (sessionDetail.Session!.OrderStartTime >= TimeUtil.GetCurrentVietNamTime())
+            }
+            else if (sessionDetail.Session!.OrderStartTime >= TimeUtil.GetCurrentVietNamTime())
             {
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
             }
@@ -80,8 +81,8 @@ namespace Services.Implements
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
             }
             gift.InStock -= 1;
-            if(gift.InStock < 0) throw new InvalidRequestException("Món quà này đã hết hàng");
-            
+            if (gift.InStock < 0) throw new InvalidRequestException("Món quà này đã hết hàng");
+
             var exchangeGift = _mapper.Map<ExchangeGift>(request);
             exchangeGift.Id = Guid.NewGuid();
             exchangeGift.Points = gift.Points;
@@ -158,7 +159,7 @@ namespace Services.Implements
             await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(profileId, user.Id);
             var filters = GetFilterFromFilterRequest(filterRequest);
             filters.Add(eg => eg.ProfileId == profileId);
-            IPaginable<GetExchangeGiftResponse> page =  await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
+            IPaginable<GetExchangeGiftResponse> page = await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
             return page;
         }
         public async Task<ICollection<ExchangeGift>> GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId)
@@ -202,7 +203,15 @@ namespace Services.Implements
             //}
             return validExchangeGifts;
         }
-
+        public async Task<GetExchangeGiftResponse> GetExchangeGiftResponseByIdAsync(Guid id)
+        {
+            var filters = new List<Expression<Func<ExchangeGift, bool>>>
+            {
+                (exchangeGift) => exchangeGift.Id == id
+            };
+            var result = await _repository.FirstOrDefaultAsync<GetExchangeGiftResponse>(filters: filters);
+            return result!;
+        }
         public async Task UpdateExchangeGiftToDeliveryStatusAsync(Guid exchangeGiftId)
         {
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
@@ -222,9 +231,29 @@ namespace Services.Implements
         }
 
 
-        public async Task CancelOrderForManagerAsync(ExchangeGift exchangeGift, CancelOrderRequest request, User manager)
+        public async Task CancelExchangeGiftForManagerAsync(ExchangeGift exchangeGift, CancelOrderRequest request, User manager)
         {
             exchangeGift.Status = ExchangeGiftStatus.Cancelled;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+
+            var orderActivity = new OrderActivity
+            {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = request.Reason,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active,
+                OrderId = exchangeGift.Id
+            };
+            await RollbackPointsAsync(exchangeGift);
+            await _orderActivityService.CreateOrderActivityAsync(exchangeGift, orderActivity, manager);
+            await _repository.UpdateAsync(exchangeGift, manager);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task CancelExchangeGiftForCustomerAsync(ExchangeGift exchangeGift, CancelOrderRequest request, User manager)
+        {
+            exchangeGift.Status = ExchangeGiftStatus.CancelledByCustomer;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
             var orderActivity = new OrderActivity
