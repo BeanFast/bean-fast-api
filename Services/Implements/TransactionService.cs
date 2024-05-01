@@ -138,11 +138,13 @@ namespace Services.Implements
                 orderBy: o => o.OrderByDescending(t => t.Time));
             return transactionPage;
         }
-        public async Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(PaginationRequest paginationRequest, TransactionFilterRequest filterRequest, User user)
+        public async Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(
+            PaginationRequest paginationRequest, 
+            TransactionFilterRequest filterRequest, 
+            User user)
         {
             var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
             filters.Add(t =>t.Wallet!.UserId == user.Id);
-            filters.Add(t => t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null);
             var transactionPage = await _repository.GetPageAsync<GetTransactionPageByCurrentUserResponse>(paginationRequest, filters,
                 orderBy: o => o.OrderByDescending(t => t.Time));
             return transactionPage;
