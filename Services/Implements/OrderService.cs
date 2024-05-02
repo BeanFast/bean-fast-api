@@ -476,7 +476,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName + request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCanceledByCustomerActivityName(request.Reason),
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
@@ -507,6 +507,10 @@ namespace Services.Implements
         {
             var validTime = TimeUtil.GetCurrentVietNamTime();
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            if (orderEntity.Profile!.User!.Id != customer.Id)
+            {
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderNotBelongToThisUser);
+            }
             if (validTime >= orderEntity.SessionDetail!.Session!.OrderStartTime &&
                 validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
             {
@@ -522,7 +526,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledByCustomerActivityName + request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCanceledByCustomerActivityName(request.Reason),
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
@@ -607,6 +611,10 @@ namespace Services.Implements
         public async Task CancelOrderAsync(User user, Guid id, CancelOrderRequest request)
         {
             var order = await GetByIdAsync(id);
+            if (OrderStatus.Completed == order.Status)
+            {
+                throw new InvalidRequestException("Đơn hàng này đã hoàn thành rồi!");
+            }
             if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
             {
                 if (order.Status != OrderStatus.Cooking)
@@ -623,10 +631,6 @@ namespace Services.Implements
                 if (OrderStatus.Cancelled == order.Status || OrderStatus.CancelledByCustomer == order.Status)
                 {
                     throw new InvalidRequestException("Đơn hàng này đã bị hủy trước đó rồi!");
-                }
-                else if (OrderStatus.Completed == order.Status)
-                {
-                    throw new InvalidRequestException("Đơn hàng này đã hoàn thành rồi!");
                 }
                 await CancelOrderForManagerAsync(order, request, user);
             }

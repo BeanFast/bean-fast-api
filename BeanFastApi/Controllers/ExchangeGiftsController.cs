@@ -18,13 +18,6 @@ namespace BeanFastApi.Controllers
             _exchangeGiftService = exchangeGiftService;
         }
 
-        [HttpPost]
-        [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreateExchangeGiftAsync([FromBody] CreateExchangeGiftRequest request)
-        {
-            await _exchangeGiftService.CreateExchangeGiftAsync(request, await GetUserAsync());
-            return SuccessResult<object>();
-        }
         [HttpGet]
         public async Task<IActionResult> GetExchangeGiftsAsync(
             [FromQuery] ExchangeGiftFilterRequest filterRequest,
@@ -76,5 +69,27 @@ namespace BeanFastApi.Controllers
             await _exchangeGiftService.CreateOrderActivityAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
+        [HttpPost]
+        [Authorize(RoleName.CUSTOMER)]
+        public async Task<IActionResult> CreateExchangeGiftAsync([FromBody] CreateExchangeGiftRequest request)
+        {
+            await _exchangeGiftService.CreateExchangeGiftAsync(request, await GetUserAsync());
+            return SuccessResult<object>();
+        }
+        [HttpPut("cancel/{id}")]
+        [Authorize(RoleName.CUSTOMER, RoleName.MANAGER)]
+        public async Task<IActionResult> CancelExchangeGiftAsync([FromRoute] Guid id, [FromBody] CancelExchangeGiftRequest request)
+        {
+            await _exchangeGiftService.CancelExchangeGiftAsync(id, request, await GetUserAsync());
+            return SuccessResult<object>();
+        }
+        [HttpPut("complete/{id}")]
+        [Authorize(RoleName.CUSTOMER, RoleName.MANAGER)]
+        public async Task<IActionResult> CompleteExchangeGiftAsync([FromRoute] Guid id)
+        {
+            await _exchangeGiftService.UpdateExchangeGiftCompleteStatusAsync(id, await GetUserAsync());
+            return SuccessResult<object>();
+        }
+
     }
 }

@@ -32,7 +32,6 @@ namespace Services.Implements
         private readonly IVnPayService _vnPayService;
         private readonly IWalletService _walletService;
         private readonly IProfileService _profileService;
-
         private readonly IGameService _gameService;
 
         public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService) : base(unitOfWork, mapper, appSettings)
@@ -171,32 +170,41 @@ namespace Services.Implements
                 Value = (int)group.Sum(t => t.Value)
             }).ToList();
         }
+        public async Task<int> GetPlayedGameCount(User user, Guid profileId)
+        {
+            var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
+            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
+            {
+                t => t.Wallet!.UserId == user.Id && WalletType.Points.ToString().Equals(t.Wallet.Type) && t.Wallet.ProfileId == profileId,
+                t => t.GameId != null && t.OrderId == null && t.ExchangeGiftId == null && t.Value > 0,
+                t => t.Time.Date == currentVietnamDate.Date
+            };
+            var playedGameTransactions = await _repository.GetListAsync(filters: filters);
+            return playedGameTransactions.Count;
+        }
 
         public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
         {
             await _gameService.GetGamesAsync();
-            var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
-            await _profileService.GetByIdAsync(request.ProfileId);
-            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
-            {
-                t => t.Wallet!.UserId == user.Id && WalletType.Points.ToString().Equals(t.Wallet.Type),
-                t => t.GameId == request.GameId && t.OrderId == null && t.ExchangeGiftId == null,
-                t => t.Time.Date == currentVietnamDate.Date
-            };
-            var playedGameTransactions = await _repository.GetListAsync(filters: filters);
-            if (playedGameTransactions.Count >= TransactionConstrant.MaxGameTransactionPerDay)
+            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
+            var playedGameTransactions = await GetPlayedGameCount(user, request.ProfileId);
+            if (playedGameTransactions >= TransactionConstrant.MaxGameTransactionPerDay)
             {
                 throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.GameTransactionIsExceedPermittedAmount);
             }
+            var wallet = await _walletService.GetPointWalletByUserIdAndProfildId(user.Id, request.ProfileId);
+
             var transaction = new Transaction
             {
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1),
                 GameId = request.GameId,
                 Value = request.Points,
                 Time = TimeUtil.GetCurrentVietNamTime(),
-                WalletId = user.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type) && w.ProfileId == request.ProfileId)!.Id,
+                WalletId = wallet.Id,
                 Status = BaseEntityStatus.Active
             };
+            wallet.Balance += request.Points;
+            await _walletService.UpdateAsync(wallet);
             await _repository.InsertAsync(transaction, user);
             await _unitOfWork.CommitAsync();
         }

@@ -9,5 +9,6 @@ namespace Utilities.Constants
     public class TimeConstrant
     {
         public static readonly int NumberOfMinutesBeforeDeliveryStartTime = 60;
+        public const int GapBetweenOrderEndTimeAndDeliveryStartTimeInMinutes = 360;
     }
 }

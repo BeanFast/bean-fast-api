@@ -20,9 +20,10 @@ namespace DataTransferObjects.Models.Profiles.Response
         public bool Gender { get; set; }
         public double? CurrentBMI { get; set; }
         public string BMIStatus { get; set; }
-        public SchoolOfGetProfileResponse School { get; set; } 
+        public SchoolOfGetProfileResponse School { get; set; }
         public WalletOfGetProfileResponse Wallet { get; set; }
-        public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }  
+        public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }
+        public int GameTransaction { get; set; }
         public class SchoolOfGetProfileResponse
         {
             public Guid Id { get; set; }
