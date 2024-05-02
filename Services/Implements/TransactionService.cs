@@ -175,8 +175,8 @@ namespace Services.Implements
             var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
             List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
             {
-                t => t.Wallet!.UserId == user.Id && WalletType.Points.ToString().Equals(t.Wallet.Type) && t.Wallet.ProfileId == profileId,
-                t => t.GameId != null && t.OrderId == null && t.ExchangeGiftId == null && t.Value > 0,
+                t => WalletType.Points.ToString().Equals(t.Wallet!.Type) && t.Wallet.ProfileId == profileId,
+                t => t.GameId != null && t.OrderId == null && t.ExchangeGiftId == null && t.Value >= 0,
                 t => t.Time.Date == currentVietnamDate.Date
             };
             var playedGameTransactions = await _repository.GetListAsync(filters: filters);
