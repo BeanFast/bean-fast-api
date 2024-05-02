@@ -38,7 +38,7 @@ namespace Services.Implements
                 await _storageClient.UploadObjectAsync(firebaseSetting.StorageBucket, $"{folderName}/{id}", file.ContentType, stream);
                 var baseURL = firebaseSetting.BaseUrl;
                 var filePath = $"{folderName}%2F{id}";
-                var url = $"{baseURL}/{firebaseSetting.StorageBucket}/o/{filePath}?alt=media";
+                var url = $"{baseURL}/{firebaseSetting.StorageBucket}/o/{filePath}?alt=media&v={Guid.NewGuid()}";
                 return url;
             }
             catch
