@@ -61,6 +61,13 @@ namespace BeanFastApi.Controllers
             var result = await _orderService.GetOrdersByLastMonthsAsync(request);
             return SuccessResult(result);
         }
+        [HttpGet("countByDay")]
+        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        public async Task<IActionResult> GetOrdersByLastDateAsync([FromQuery] int dateCount)
+        {
+            var result = await _orderService.GetOrdersByLastDatesAsync(dateCount);
+            return SuccessResult(result);
+        }
         //[HttpGet("status/{status}")]
         //[Authorize]
         //public async Task<IActionResult> GetOrdersByStatus(int status)

@@ -28,6 +28,7 @@ namespace Services.Interfaces
         //Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer);
         Task UpdateOrderCompleteStatusAsync(Guid orderId, User user);
         Task UpdateOrderDeliveryStatusAsync(Guid orderId);
+        Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate);
         //Task UpdateOrderCancelStatusAsync(Guid orderId);
         //Task UpdateOrderCancelStatusAsync(Order orderEntity);
         //Task UpdateOrderCancelStatusForCustomerAsync(Order orderEntity);

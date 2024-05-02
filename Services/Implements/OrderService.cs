@@ -23,6 +23,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Collections.Generic;
+using Twilio.TwiML.Messaging;
 
 namespace Services.Implements
 {
@@ -484,7 +485,7 @@ namespace Services.Implements
             await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, manager);
             orderEntity.Profile = null;
-            await _repository.UpdateAsync(orderEntity, manager);    
+            await _repository.UpdateAsync(orderEntity, manager);
             await _unitOfWork.CommitAsync();
         }
         public async Task RollbackMoneyAsync(Order orderEntity)
@@ -515,11 +516,11 @@ namespace Services.Implements
                 validTime < orderEntity.SessionDetail!.Session!.OrderEndTime)
             {
                 // hoan tien
-                var moneyWallet = orderEntity.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
-                if (moneyWallet != null)
-                {
+                //var moneyWallet = orderEntity.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
+                //if (moneyWallet != null)
+                //{
                     await RollbackMoneyAsync(orderEntity);
-                }
+                //}
             }
 
             var orderActivity = new OrderActivity
@@ -678,25 +679,59 @@ namespace Services.Implements
                     }
                 ).ToList();
         }
-        public async Task<bool> CheckMenuDetailOrderableAsync(Guid menuDetailId, Guid sessionDetailId, Guid profileId)
+        public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate)
         {
-            var menuDetail = _menuDetailService.GetByIdAsync(menuDetailId);
-            var sessionDetail = await _sessionDetailService.GetByIdAsync(sessionDetailId);
-            var orderable = false;
-            //foreach (var orderDetail in orderDetails)
+            DateTime yesterday = DateTime.Today.Subtract(TimeSpan.FromDays(1));
+            DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate));
+            var filters = new List<Expression<Func<Order, bool>>>
+            {
+                    order => order.PaymentDate.Date >= pastWeekStart && order.PaymentDate.Date <= yesterday.Date
+            };
+            var orders = await _repository.GetListAsync(
+                filters: filters
+            );
+            List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
+            var data = orders.GroupBy(order => order.PaymentDate.Date)
+                .OrderBy(group => group.Key)
+                .Select(group => new GetOrdersByLastDaysResponse
+                {
+                    DateTime = group.Key,
+                    Day = group.Key.Day + "/" + group.Key.Month,
+                    Count = group.Count(),
+                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
+                })
+                .ToList();
+
+            var allDates = Enumerable.Range(0, numberOfDate).Select(i => pastWeekStart.AddDays(i)).ToList();
+            var missingDates = allDates.Except(data.Select(d => d.DateTime));
+
+            foreach (var date in missingDates)
+            {
+                data.Add(new GetOrdersByLastDaysResponse
+                {
+                    DateTime = date,
+                    Day = date.Day + "/" + date.Month,
+                    Count = 0,
+                    Revenue = 0
+                });
+            }
+
+            return data.OrderBy(d => d.DateTime).ToList();
+            //foreach (var item in dates)
             //{
-            //    var order = await GetByIdAsync(orderDetail.OrderId);
-            //    if (order.Status == OrderStatus.Cooking || order.Status == OrderStatus.Delivering)
+            //    if (!data.Any(d => d.Key == item))
             //    {
-            //        if (order.SessionDetailId == sessionDetailId)
-            //        {
-            //            orderable = false;
-            //            break;
-            //        }
+            //        result.Add(new() { Day = item.Day + "/"  + item.Month, Count = 0, Revenue = 0 });
+            //    }
+            //    else
+            //    {
+            //        result.Add(new() { 
+            //            Day = item.Day + "/" + item.Month, 
+            //            Count = data.Count(), 
+            //            Revenue = int.Parse(data.Sum(order => order).ToString()) 
+            //        });
             //    }
             //}
-            //return orderable;
-            return orderable;
         }
     }
 }
