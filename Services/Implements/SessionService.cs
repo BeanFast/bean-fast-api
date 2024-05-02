@@ -92,14 +92,7 @@ namespace Services.Implements
             var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                if (request.Expired)
-                {
-                    filters.Add(s => s.OrderEndTime < currentVietNamTime);
-                }
-                if (request.Incomming)
-                {
-                    filters.Add(s => s.OrderStartTime > currentVietNamTime);
-                }
+                
                 if (request.Orderable)
                 {
                     filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
@@ -109,8 +102,17 @@ namespace Services.Implements
             {
                 if (request.Orderable)
                 {
-                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime && s.Status == BaseEntityStatus.Active);
+                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
                 }
+                filters.Add(s => s.Status != BaseEntityStatus.Deleted);
+            }
+            if (request.Expired)
+            {
+                filters.Add(s => s.OrderEndTime < currentVietNamTime);
+            }
+            if (request.Incomming)
+            {
+                filters.Add(s => s.OrderStartTime > currentVietNamTime);
             }
             if (request.MenuId != Guid.Empty)
             {
@@ -264,7 +266,14 @@ namespace Services.Implements
                session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
             };
             var sessions = await _repository
-                .GetListAsync(filters: filters, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!).Include(s => s.SessionDetails!).ThenInclude(sd => sd.Orders!));
+                .GetListAsync(filters: filters, 
+                include: i => i
+                .Include(s => s.SessionDetails!)
+                .ThenInclude(sd => sd.SessionDetailDeliverers!)
+                .Include(s => s.SessionDetails!)
+                .ThenInclude(sd => sd.Orders!)
+                .Include(s => s.SessionDetails!)
+                .ThenInclude(sd => sd.ExchangeGifts!));
             foreach (var s in sessions)
             {
                 if (s.Status == SessionStatus.Active || s.Status == SessionStatus.Incoming)

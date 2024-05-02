@@ -55,7 +55,14 @@ namespace Services.Implements
             List<Expression<Func<ExchangeGift, bool>>> expressions = new List<Expression<Func<ExchangeGift, bool>>>();
             if (filterRequest.Status != null)
             {
-                expressions.Add(eg => eg.Status == filterRequest.Status);
+                if(filterRequest.Status == ExchangeGiftStatus.Cancelled)
+                {
+                    expressions.Add(eg => eg.Status == ExchangeGiftStatus.Cancelled || eg.Status == ExchangeGiftStatus.CancelledByCustomer);
+                }
+                else
+                {
+                    expressions.Add(eg => eg.Status == filterRequest.Status);
+                }
             }
             if (!filterRequest.Code.IsNullOrEmpty())
             {
@@ -389,5 +396,6 @@ namespace Services.Implements
             await _walletService.UpdateAsync(pointWallet);
             await _transactionService.CreateTransactionAsync(rollbackPointTransaction);
         }
+       
     }
 }

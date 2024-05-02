@@ -17,6 +17,13 @@ namespace DataTransferObjects.Models.Profiles.Response
         public bool Gender { get; set; }
         public double CurrentBMI { get; set; }
         public SchoolOfGetProfilesByCurrentCustomerResponse School { get; set; }
+        public BmiOfProfile Bmi { get; set; }
+        public class BmiOfProfile
+        {
+            public double Height { get; set; }
+            public double Weight { get; set; }
+            public DateTime RecordDate { get; set; }
+        }
         public class SchoolOfGetProfilesByCurrentCustomerResponse
         {
             public Guid Id { get; set; }

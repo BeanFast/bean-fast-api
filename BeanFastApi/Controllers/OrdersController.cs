@@ -63,9 +63,24 @@ namespace BeanFastApi.Controllers
         }
         [HttpGet("countByDay")]
         [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
-        public async Task<IActionResult> GetOrdersByLastDateAsync([FromQuery] int dateCount)
+        public async Task<IActionResult> GetOrdersByLastDateAsync([FromQuery] int dateCount = 7)
         {
             var result = await _orderService.GetOrdersByLastDatesAsync(dateCount);
+            return SuccessResult(result);
+        }
+        [HttpGet("schools/bestSellers")]
+        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        public async Task<IActionResult> GetTopSchoolBestSellers([FromQuery] int topCount = 10)
+        {
+            var result = await _orderService.GetTopSchoolBestSellers(topCount);
+            return SuccessResult(result);
+        }
+        [HttpGet("kitchens/bestSellers")]
+        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        public async Task<IActionResult> GetTopBestSellerKitchens([FromQuery] int topCount = 10, [FromQuery] bool desc = false)
+        {
+            
+            var result = await _orderService.GetTopBestSellerKitchens(topCount, desc);
             return SuccessResult(result);
         }
         //[HttpGet("status/{status}")]

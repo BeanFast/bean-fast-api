@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace DataTransferObjects.Models.Order.Response
 {
-    public class GetOrdersByLastMonthsResponse
+    public class GetTopSchoolBestSellerResponse
     {
-        public int MonthInt{ get; set; }  
-        public string Month { get; set; } = string.Empty;
+        public string SchoolName { get; set; } = string.Empty;
         public int Count { get; set; }
+        public double Percentage { get; set; }
         public int Revenue { get; set; }
     }
 }
