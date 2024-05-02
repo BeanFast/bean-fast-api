@@ -145,9 +145,37 @@ namespace Services.Implements
             {
                 (exchangeGift) => exchangeGift.Id == exchangeGiftId
             };
-            var result = await _repository.FirstOrDefaultAsync(filters: filters, include: i => i.Include(eg => eg.Profile!).ThenInclude(p => p.User!));
+            var result = await _repository.FirstOrDefaultAsync(filters: filters,
+                include: i => i
+                .Include(eg => eg.Profile!)
+                    .ThenInclude(p => p.User!)
+                .Include(o => o.SessionDetail!)
+                    .ThenInclude(o => o.Session!)
+                .Include(o => o.Activities!)
+                ) ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
             return result!;
         }
+
+        public async Task<ExchangeGift> GetByIdIncludeDeliverersAsync(Guid exchangeGiftId)
+        {
+            var filters = new List<Expression<Func<ExchangeGift, bool>>>
+            {
+                (exchangeGift) => exchangeGift.Id == exchangeGiftId
+            };
+            var result = await _repository.FirstOrDefaultAsync(filters: filters,
+                include: i => i
+                .Include(eg => eg.Profile!)
+                    .ThenInclude(p => p.User!)
+                .Include(o => o.SessionDetail!)
+                    .ThenInclude(sd => sd.SessionDetailDeliverers!)
+                    .ThenInclude(sdd => sdd.Deliverer!)
+                .Include(o => o.SessionDetail!)
+                    .ThenInclude(o => o.Session!)
+                .Include(o => o.Activities!)
+                ) ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
+            return result!;
+        }
+
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest)
         {
             var filters = GetFilterFromFilterRequest(filterRequest);
@@ -230,8 +258,29 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        public async Task CancelExchangeGiftAsync(Guid exchangeGiftId, CancelExchangeGiftRequest request, User user)
+        {
+            var exchangeGift = await GetByIdAsync(exchangeGiftId);
+            if (OrderStatus.Completed == exchangeGift.Status)
+            {
+                throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftCannotBeCancelInCompleteStatus);
+            }
+            if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
+            {
+                await CancelExchangeGiftForCustomerAsync(exchangeGift, request, user);
+            }
+            else if (RoleName.MANAGER.ToString() == user.Role.EnglishName)
+            {
+                if (ExchangeGiftStatus.Cancelled == exchangeGift.Status || ExchangeGiftStatus.CancelledByCustomer == exchangeGift.Status)
+                {
+                    throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftCanceled);
+                }
+                await CancelExchangeGiftForManagerAsync(exchangeGift, request, user);
+            }
+        }
 
-        public async Task CancelExchangeGiftForManagerAsync(ExchangeGift exchangeGift, CancelOrderRequest request, User manager)
+
+        public async Task CancelExchangeGiftForManagerAsync(ExchangeGift exchangeGift, CancelExchangeGiftRequest request, User manager)
         {
             exchangeGift.Status = ExchangeGiftStatus.Cancelled;
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
@@ -240,10 +289,10 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCanceledByCustomerActivityName(request.Reason),//request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
-                OrderId = exchangeGift.Id
+                ExchangeGiftId = exchangeGift.Id
             };
             await RollbackPointsAsync(exchangeGift);
             await _orderActivityService.CreateOrderActivityAsync(exchangeGift, orderActivity, manager);
@@ -251,40 +300,94 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task CancelExchangeGiftForCustomerAsync(ExchangeGift exchangeGift, CancelOrderRequest request, User manager)
+        public async Task CancelExchangeGiftForCustomerAsync(ExchangeGift exchangeGift, CancelExchangeGiftRequest request, User customer)
         {
-            exchangeGift.Status = ExchangeGiftStatus.CancelledByCustomer;
+            var validTime = TimeUtil.GetCurrentVietNamTime();
             var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
-
+            if (exchangeGift.Profile!.User!.Id != customer.Id)
+            {
+                throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotBelongToThisUser);
+            }
+            if (validTime >= exchangeGift.SessionDetail!.Session!.OrderStartTime &&
+                validTime < exchangeGift.SessionDetail!.Session!.OrderEndTime)
+            {
+                // hoan tien
+                //var moneyWallet = exchangeGift.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
+                //if (moneyWallet != null)
+                //{
+                await RollbackPointsAsync(exchangeGift);
+                //}
+            }
             var orderActivity = new OrderActivity
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = request.Reason,
+                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCanceledByCustomerActivityName(request.Reason),
                 Time = TimeUtil.GetCurrentVietNamTime(),
-                Status = OrderActivityStatus.Active,
-                OrderId = exchangeGift.Id
+                Status = OrderActivityStatus.Active
             };
-            await RollbackPointsAsync(exchangeGift);
-            await _orderActivityService.CreateOrderActivityAsync(exchangeGift, orderActivity, manager);
-            await _repository.UpdateAsync(exchangeGift, manager);
+            await _orderActivityService.CreateOrderActivityAsync(exchangeGift, orderActivity, customer);
+            exchangeGift.Status = ExchangeGiftStatus.CancelledByCustomer;
+            exchangeGift.Profile = null;
+            await _repository.UpdateAsync(exchangeGift, customer);
             await _unitOfWork.CommitAsync();
+        }
+        public async Task UpdateExchangeGiftCompleteStatusAsync(Guid exchangeGiftId, User deliverer)
+        {
+            var startTime = DateTime.Now;
+            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            var transactionNumber = await _transactionService.CountAsync() + 1;
+            var exchangeGift = await GetByIdIncludeDeliverersAsync(exchangeGiftId);
+            if (exchangeGift.Status != ExchangeGiftStatus.Delivering)
+            {
+                throw new InvalidRequestException("Bạn chỉ có thể hoàn thành các đơn hàng đang ở trạng thái đang giao");
+            }
+            if (TimeUtil.GetCurrentVietNamTime() > exchangeGift.SessionDetail!.Session!.DeliveryEndTime)
+            {
+                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng");
+            }
+            if (TimeUtil.GetCurrentVietNamTime() < exchangeGift.SessionDetail!.Session!.DeliveryStartTime)
+            {
+                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì chưa đến thời gian giao hàng");
+            }
+            if(!exchangeGift.SessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == deliverer.Id))
+            {
+                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì không phải người giao hàng");
+            }
+            exchangeGift.Status = ExchangeGiftStatus.Completed;
+            exchangeGift.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
+            var newOrderActivity = new OrderActivity
+            {
+                Id = Guid.NewGuid(),
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCompletedActivityName,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                Status = OrderActivityStatus.Active
+            };
+            await _orderActivityService.CreateOrderActivityAsync(exchangeGift, newOrderActivity, deliverer);
+            await _repository.UpdateAsync(exchangeGift);
+            await _unitOfWork.CommitAsync();
+            var endTime = DateTime.Now;
+            var delay = endTime - startTime;
+            Console.WriteLine($"Delay: {delay.TotalMilliseconds} milliseconds");
         }
         //task: update exchange gift status
         public async Task RollbackPointsAsync(ExchangeGift exchangeGift)
         {
-            var moneyWallet = exchangeGift.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type.ToString()));
-            moneyWallet!.Balance += exchangeGift.Points;
-            var rollbackMoneyTransaction = new Transaction
+            //var moneyWallet = exchangeGift.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type.ToString()));
+            //moneyWallet!.Balance += exchangeGift.Points;
+            var pointWallet = await _walletService.GetPointWalletByUserIdAndProfildId(exchangeGift.Profile!.UserId, exchangeGift.Profile!.Id);
+            pointWallet!.Balance += exchangeGift.Points;
+            var rollbackPointTransaction = new Transaction
             {
-                OrderId = exchangeGift.Id,
+                ExchangeGiftId = exchangeGift.Id,
                 Id = Guid.NewGuid(),
                 Value = exchangeGift.Points,
-                WalletId = moneyWallet!.Id,
+                WalletId = pointWallet!.Id,
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.ExchangeGiftTransactionPrefix, await _transactionService.CountAsync() + 1)
             };
-            await _walletService.UpdateAsync(moneyWallet);
-            await _transactionService.CreateTransactionAsync(rollbackMoneyTransaction);
+            await _walletService.UpdateAsync(pointWallet);
+            await _transactionService.CreateTransactionAsync(rollbackPointTransaction);
         }
     }
 }

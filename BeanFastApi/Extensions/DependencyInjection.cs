@@ -138,6 +138,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<ILoyaltyCardService, LoyaltyCardService>();
             services.AddScoped<IVnPayService, VnPayService>();
             services.AddScoped<IGameService, GameService>();
+            services.AddScoped<ISessionDetailDelivererService, SessionDetailDelivererService>();
             return services;
         }
         public static IServiceCollection AddRateLimiting(this IServiceCollection services)

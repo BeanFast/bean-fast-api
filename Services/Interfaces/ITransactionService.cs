@@ -25,5 +25,6 @@ namespace Services.Interfaces
         Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoard(GetTransactionsForDashBoardRequest request);
         Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(PaginationRequest paginationRequest, TransactionFilterRequest filterRequest, User user);
         Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user);
+        Task<int> GetPlayedGameCount(User user, Guid profileId);
     }
 }

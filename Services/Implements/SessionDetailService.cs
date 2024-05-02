@@ -29,6 +29,7 @@ namespace Services.Implements
         private readonly IUserService _userService;
         private readonly ILocationService _locationService;
         private readonly IUserService _delivererService;
+        private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
 
         public SessionDetailService(
             IUnitOfWork<BeanFastContext> unitOfWork,
@@ -36,11 +37,13 @@ namespace Services.Implements
             IOptions<AppSettings> appSettings,
             IUserService userService,
             ILocationService locationService,
-            IUserService delivererService) : base(unitOfWork, mapper, appSettings)
+            IUserService delivererService,
+            ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
             _locationService = locationService;
             _delivererService = delivererService;
+            _sessionDetailDelivererService = sessionDetailDelivererService;
         }
 
         public async Task<SessionDetail> GetByIdAsync(Guid id)
@@ -154,7 +157,7 @@ namespace Services.Implements
             }
             foreach (var item in updateSessionDetailRequest.DelivererIds.ToList())
             {
-                if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException("Người giao này đã nhận trách nhiệm giao một phiên khác rồi!");
+                if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.DelivererAreBusyInAnotherSessionDetail(item));
                 
                 sessionDetailDeliverers.Add(new SessionDetailDeliverer
                 {
@@ -162,9 +165,14 @@ namespace Services.Implements
                     SessionDetailId = sessionDetailId
                 });
             }
-            sessionDetailEntity.SessionDetailDeliverers = sessionDetailDeliverers;
-            await _repository.UpdateAsync(sessionDetailEntity);
-            await _unitOfWork.CommitAsync();
+            if(sessionDetailEntity.SessionDetailDeliverers != null && sessionDetailEntity.SessionDetailDeliverers.Count > 0)
+            {
+                await _sessionDetailDelivererService.HardDeleteAsync(sessionDetailEntity.SessionDetailDeliverers.ToList());
+            }
+            await _sessionDetailDelivererService.InsertListAsync(sessionDetailDeliverers);
+            //sessionDetailEntity.SessionDetailDeliverers = sessionDetailDeliverers;
+            //await _repository.UpdateAsync(sessionDetailEntity);
+            //await _unitOfWork.CommitAsync();
         }
         
 

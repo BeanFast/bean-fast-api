@@ -52,7 +52,6 @@ namespace DataTransferObjects.Models.Order.Response
 
             }
         }
-
         public class SessionDetailOfOrderResponse
         {
             public string? Code { get; set; }

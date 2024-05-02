@@ -203,6 +203,7 @@ namespace Utilities.Constants
             public const string SessionOrderNotStarted = "Thời gian đặt hàng chưa đến, không thể thực hiện thao tác này";
             public const string InvalidSchoolLocation = "Địa điểm không thuộc trường học mà bạn đã đăng ký";
             public static string SessionDetailNotFound(Guid guid) => $"Buổi chi tiết với id: {guid} không tồn tại";
+            public static string DelivererAreBusyInAnotherSessionDetail(Guid guid) => $"Người giao có id: {guid} đã nhận trách nhiệm giao một phiên khác rồi!";
         }
 
         public class LocationMessageConstrant
@@ -268,6 +269,7 @@ namespace Utilities.Constants
             public const string OrderCreateDateInvalid = "Ngày tạo đơn hàng không hợp lệ";
             public const string OrderDeliveryDateInvalid = "Ngày giao đơn hàng không hợp lệ";
             public const string OrderIdRequired = "Order id là bắt buộc";
+            public const string OrderNotBelongToThisUser = "Đơn hàng này không thuộc về bạn, không thể làm hành động này";
             public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
             public const string NotFoundOrders = "Không có đơn hàng nào cần giao trong khoảng thời gian này";
         }
@@ -281,8 +283,10 @@ namespace Utilities.Constants
             public const string OrderCompletedActivityName = "Đơn hàng đã được giao hoàn thành";
             public const string OrderCanceledActivityName = "Đơn hàng đã bị hủy vì lí do: ";
             public const string OrderCanceledByCustomerActivityName = "Đơn hàng đã bị hủy bởi khách hàng với lý do: ";
+            public static string ExchangeGiftCanceledByCustomerActivityName(string reason) => $"Lượt đổi quà đã bị hủy bởi khách hàng với lý do: {reason}";
             public const string ExchangeGiftDeliveringActivityName = "Quà đang được giao";
-            public const string DefaultExchangeGiftCreatedActivityName = "Đang chuẩn bị quà";
+            public const string DefaultExchangeGiftCreatedActivityName = "Quà đang được chuẩn bị";
+            public const string ExchangeGiftCompletedActivityName = "Quà đã được nhận thành công!!";
         }
 
         public class ProfileMessageConstrant
@@ -311,6 +315,10 @@ namespace Utilities.Constants
         public class ExchangeGiftMessageConstrant
         {
             public const string ExchangeGiftIdRequired = "ExchangeGiftId là bắt buộc";
+            public static string ExchangeGiftNotFound(Guid id) => $"Lượt đổi quà với id: {id} không tồn tại!";
+            public static string ExchangeGiftCannotBeCancelInCompleteStatus => $"Bạn chỉ không thể hủy đổi quà vì quà đã được giao thành công";
+            public static string ExchangeGiftCanceled => $"Lượt đổi quà này đã bị hủy trước đó rồi!";
+            public static string ExchangeGiftNotBelongToThisUser => $"Lượt đổi quà không thuộc về bạn";
         }
         public class GameMessageConstrant
         {
@@ -326,8 +334,9 @@ namespace Utilities.Constants
         }
         public class NotificationMessageConstrant
         {
-            public static string OrderNotificationTitle (string code) => $"Thông báo đơn hàng #{code}";
-            public static string ExchangeGiftNotificationTitle (string code) => $"Thông báo đổi quà #{code}";
+            public static string OrderNotificationTitle(string code) => $"Thông báo đơn hàng #{code}";
+            public static string ExchangeGiftNotificationTitle(string code) => $"Thông báo đổi quà #{code}";
+
             public static string WelcomeTitle => $"Beanfast chào bạn";
             public static string WelcomeMessage => $"Cảm ơn bạn đã sử dụng dịch vụ của beanfast!";
             //public const string Profile

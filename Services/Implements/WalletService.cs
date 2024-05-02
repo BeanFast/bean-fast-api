@@ -86,7 +86,7 @@ namespace Services.Implements
             {
                 p => p.UserId == customerId && WalletType.Money.ToString().Equals(p.Type)
             };
-            var wallet = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active, filters: filters);
+            var wallet = await _repository.FirstOrDefaultAsync(filters: filters);
             return _mapper.Map<GetWalletTypeMoneyByCustomerId>(wallet);
         }
 
@@ -94,6 +94,16 @@ namespace Services.Implements
         {
             await _repository.UpdateAsync(wallet);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId, Guid profileId)
+        {
+            List<Expression<Func<Wallet, bool>>> filters = new()
+            {
+                p => p.UserId == userId && WalletType.Points.ToString().Equals(p.Type) && p.ProfileId == profileId
+            };
+            var wallet = await _repository.FirstOrDefaultAsync(filters: filters);
+            return wallet!;
         }
     }
 }

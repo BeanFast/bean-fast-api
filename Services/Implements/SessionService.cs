@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.Order.Request;
 using DataTransferObjects.Models.Session.Request;
 using DataTransferObjects.Models.Session.Response;
@@ -27,12 +28,15 @@ namespace Services.Implements
         private readonly ISessionDetailService _sessionDetailService;
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService) : base(unitOfWork, mapper, appSettings)
+
+        private readonly IExchangeGIftService _exchangeGIftService;
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService, IExchangeGIftService exchangeGIftService) : base(unitOfWork, mapper, appSettings)
         {
             _locationService = locationService;
             _sessionDetailService = sessionDetailService;
             _userService = userService;
             _orderService = orderService;
+            _exchangeGIftService = exchangeGIftService;
         }
 
         public async Task CreateSessionAsync(CreateSessionRequest request, User user)
@@ -271,7 +275,11 @@ namespace Services.Implements
                         var currentTime = TimeUtil.GetCurrentVietNamTime();
                         if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.DeliveryStartTime)
                         {
-                            CancelOrderRequest request = new()
+                            CancelOrderRequest cancelOrderRequest = new()
+                            {
+                                Reason = "chưa có người giao"
+                            };
+                            CancelExchangeGiftRequest cancelExchangeGiftRequest = new()
                             {
                                 Reason = "chưa có người giao"
                             };
@@ -282,22 +290,34 @@ namespace Services.Implements
                                     foreach (var order in sd.Orders!)
                                     {
                                         var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
-                                        await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, request, null!);
+                                        await _orderService.CancelOrderForManagerAsync(orderIncludeWallet, cancelOrderRequest, null!);
                                     }
-
+                                    foreach (var exchangeGift in sd.ExchangeGifts!)
+                                    {
+                                        var exchangeGiftIncludeWallet = await _exchangeGIftService.GetByIdAsync(exchangeGift.Id);
+                                        await _exchangeGIftService.CancelExchangeGiftForManagerAsync(exchangeGiftIncludeWallet, cancelExchangeGiftRequest, null!);
+                                    }
                                 }
                                 else
                                 {
 
-                                    foreach (var order in sd.Orders)
+                                    foreach (var order in sd.Orders!)
                                     {
                                         if (order.Status == OrderStatus.Cooking)
                                         {
                                             await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
                                         }
                                     }
+                                    foreach (var exchangeGift in sd.ExchangeGifts!)
+                                    {
+                                        if (exchangeGift.Status == ExchangeGiftStatus.Active)
+                                        {
+                                            await _exchangeGIftService.UpdateExchangeGiftToDeliveryStatusAsync(exchangeGift.Id);
+                                        }
+                                    }
                                 }
                                 sd.Orders = null;
+                                sd.ExchangeGifts = null;
                             }
                             s.Status = SessionStatus.Incoming;
                             await _repository.UpdateAsync(s);
@@ -312,7 +332,11 @@ namespace Services.Implements
                         {
                             CancelOrderRequest request = new()
                             {
-                                Reason = "Đơn hàng bị hủy do chưa có người nhận"
+                                Reason = "chưa có người nhận"
+                            };
+                            CancelExchangeGiftRequest cancelExchangeGiftRequest = new()
+                            {
+                                Reason = "chưa có người nhận"
                             };
                             foreach (var sd in s.SessionDetails!)
                             {
@@ -322,6 +346,14 @@ namespace Services.Implements
                                     {
                                         var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
                                         await _orderService.CancelOrderForCustomerAsync(order, request, null!);
+                                    }
+                                }
+                                foreach (var eg in sd.ExchangeGifts!)
+                                {
+                                    if (eg.Status == ExchangeGiftStatus.Delivering)
+                                    {
+                                        var exchangeGift = await _exchangeGIftService.GetByIdAsync(eg.Id);
+                                        await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, null!);
                                     }
                                 }
                             }

@@ -56,12 +56,18 @@ namespace BeanFastApi.Controllers
         }
         [HttpPost("games")]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CreatGameTransaction(CreateGameTransactionRequest request)
+        public async Task<IActionResult> CreatGameTransaction([FromBody] CreateGameTransactionRequest request)
         {
             await _transactionService.CreateGameTransactionAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
-
+        [HttpGet("games/count/profiles/{profileId}")]
+        [Authorize(RoleName.CUSTOMER)]
+        public async Task<IActionResult> CountGameTransactionByCurrentUser([FromRoute] Guid profileId)
+        {
+            var gameTransactionCount = await _transactionService.GetPlayedGameCount(await GetUserAsync(), profileId);
+            return SuccessResult<object>(gameTransactionCount);
+        }
 
         [HttpGet()]
         [Authorize(RoleName.CUSTOMER)]

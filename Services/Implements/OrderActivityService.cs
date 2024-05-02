@@ -129,7 +129,7 @@ namespace Services.Implements
 
         public async Task CreateOrderActivityAsync(ExchangeGift exchangeGift, OrderActivity orderActivity, User user)
         {
-            orderActivity.OrderId = exchangeGift.Id;
+            orderActivity.ExchangeGiftId = exchangeGift.Id;
             if (user == null || exchangeGift.Profile!.User!.Id != user.Id)
             {
                 await _notificationService.SendNotificationAsync(new CreateNotificationRequest
@@ -137,12 +137,12 @@ namespace Services.Implements
                     Body = orderActivity.Name,
                     Title = MessageConstants.NotificationMessageConstrant.OrderNotificationTitle(exchangeGift.Code),
                     NotificationDetails = new List<CreateNotificationRequest.NotificationDetailOfCreateNotificationRequest>
-                {
-                    new ()
                     {
-                        UserId = exchangeGift.Profile!.UserId,
+                        new ()
+                        {
+                            UserId = exchangeGift.Profile!.UserId,
+                        }
                     }
-                }
                 });
             }
             await _repository.InsertAsync(orderActivity, user);

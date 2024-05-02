@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataTransferObjects.Models.OrderActivity.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace DataTransferObjects.Models.ExchangeGift.Response
         public GiftOfGetExchangeGiftResponse? Gift { get; set; }
         public SessionDetailOfExchangeGiftResponse? SessionDetail { get; set; }
         public ProfileOfExchangeGiftResponse? Profile { get; set; }
+        public IList<GetOrderActivityResponse> OrderActivities { get; set; }
         public class GiftOfGetExchangeGiftResponse
         {
             public Guid Id { get; set; }
