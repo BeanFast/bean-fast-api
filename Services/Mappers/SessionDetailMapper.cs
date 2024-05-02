@@ -20,9 +20,14 @@ namespace Services.Mappers
             CreateMap<Order, GetSessionDetailResponse.OrderOfSessionDetail>();
             CreateMap<Session, GetSessionDetailResponse.SessionOfSessionDetail>();
             CreateMap<OrderDetail, GetSessionDetailResponse.OrderOfSessionDetail.OrderDetailOfOrder>();
+            CreateMap<Food, GetSessionDetailResponse.OrderOfSessionDetail.OrderDetailOfOrder.FoodOfOrderDetail>();
+
             CreateMap<Location, GetSessionDetailResponse.LocationOfSessionDetail>();
             CreateMap<School, GetSessionDetailResponse.LocationOfSessionDetail.SchoolOfLocation>();
             CreateMap<Area, GetSessionDetailResponse.LocationOfSessionDetail.SchoolOfLocation.AreaOfSchool>();
+            CreateMap<ExchangeGift, GetSessionDetailResponse.ExchangeGiftOfSessionDetail>();
+            CreateMap<Gift, GetSessionDetailResponse.ExchangeGiftOfSessionDetail.GiftOfGetExchangeGiftResponse>();
+            CreateMap<Profile, GetSessionDetailResponse.ProfileGetSessionDetailResponse>();
 
 
             CreateMap<SessionDetail, GetIncommingDeliveringSessionDetails>();
