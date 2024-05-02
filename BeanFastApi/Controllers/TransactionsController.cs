@@ -37,10 +37,13 @@ namespace BeanFastApi.Controllers
             {
                 var walletId = param.Value.Split(":")[1];
                 var amount = queryParams.FirstOrDefault(i => i.Key.Equals("vnp_Amount")).Value;
-                await _transactionService.CreateTopUpTransactionAsync(walletId, amount);
+                var responseCode = queryParams.FirstOrDefault(i => i.Key.Equals("vnp_ResponseCode")).Value;
+                if(responseCode == "00")
+                {
+                    await _transactionService.CreateTopUpTransactionAsync(walletId, amount);
+                }
                 Console.WriteLine(walletId);
             }
-            await Console.Out.WriteLineAsync("12312323");
             return SuccessResult<object>(null);
         }
         [HttpGet("profiles/{profileId}")]
