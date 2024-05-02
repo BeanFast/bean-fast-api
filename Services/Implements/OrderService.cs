@@ -24,6 +24,8 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Collections.Generic;
 using Twilio.TwiML.Messaging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using DataTransferObjects.Models.Category.Response;
 
 namespace Services.Implements
 {
@@ -477,7 +479,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.ExchangeGiftCanceledByCustomerActivityName(request.Reason),
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName + request.Reason,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active,
                 OrderId = orderEntity.Id
@@ -519,7 +521,7 @@ namespace Services.Implements
                 //var moneyWallet = orderEntity.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type));
                 //if (moneyWallet != null)
                 //{
-                    await RollbackMoneyAsync(orderEntity);
+                await RollbackMoneyAsync(orderEntity);
                 //}
             }
 
@@ -614,13 +616,13 @@ namespace Services.Implements
             var order = await GetByIdAsync(id);
             if (OrderStatus.Completed == order.Status)
             {
-                throw new InvalidRequestException("Đơn hàng này đã hoàn thành rồi!");
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderCompletedAlready);
             }
             if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
             {
                 if (order.Status != OrderStatus.Cooking)
                 {
-                    throw new InvalidRequestException("Bạn chỉ có thể hủy đơn hàng khi đơn hàng còn đang ở trạng thái đang nấu");
+                    throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderOnlyCanBeCancelIfInCookingStatus);
                 }
                 else
                 {
@@ -631,7 +633,7 @@ namespace Services.Implements
             {
                 if (OrderStatus.Cancelled == order.Status || OrderStatus.CancelledByCustomer == order.Status)
                 {
-                    throw new InvalidRequestException("Đơn hàng này đã bị hủy trước đó rồi!");
+                    throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderAlreadyCanceled);
                 }
                 await CancelOrderForManagerAsync(order, request, user);
             }
@@ -664,20 +666,38 @@ namespace Services.Implements
                     order => order.PaymentDate.Date >= request.StartDate.Date && order.PaymentDate.Date <= request.EndDate.Date
                 };
             if (request.Status != null) filters.Add(order => order.Status == request.Status.Value);
+            DateTime pastMonthStart = request.StartDate;
+            var allMonths = Enumerable.Range(0, request.EndDate.Month - request.StartDate.Month).Select(i => pastMonthStart.AddMonths(i)).ToList();
 
             var orders = await _repository.GetListAsync(
                 filters: filters
             );
-            return orders.GroupBy(order => order.PaymentDate.Month)
+            var data = orders.GroupBy(order => order.PaymentDate.Month)
                 .OrderBy(group => group.Key)
                 .Select(
                     group => new GetOrdersByLastMonthsResponse
                     {
+                        MonthInt = group.Key,
                         Month = TimeUtil.GetMonthName(group.Key),
                         Count = group.Count(),
                         Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
                     }
                 ).ToList();
+            //var missingDates = allMonths.Except(data.Select(d => d.DateTime));
+            foreach (var month in allMonths)
+            {
+                if (!data.Any(d => d.Month == TimeUtil.GetMonthName(month.Month)))
+                {
+                    data.Add(new GetOrdersByLastMonthsResponse
+                    {
+                        MonthInt = month.Month,
+                        Month = TimeUtil.GetMonthName(month.Month),
+                        Count = 0,
+                        Revenue = 0
+                    });
+                }
+            }
+            return data.OrderBy(d => d.MonthInt).ToList();
         }
         public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate)
         {
@@ -717,21 +737,129 @@ namespace Services.Implements
             }
 
             return data.OrderBy(d => d.DateTime).ToList();
-            //foreach (var item in dates)
-            //{
-            //    if (!data.Any(d => d.Key == item))
-            //    {
-            //        result.Add(new() { Day = item.Day + "/"  + item.Month, Count = 0, Revenue = 0 });
-            //    }
-            //    else
-            //    {
-            //        result.Add(new() { 
-            //            Day = item.Day + "/" + item.Month, 
-            //            Count = data.Count(), 
-            //            Revenue = int.Parse(data.Sum(order => order).ToString()) 
-            //        });
-            //    }
-            //}
+        }
+        public async Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount)
+        {
+            var filters = new List<Expression<Func<Order, bool>>>
+            {
+                order => order.Status == OrderStatus.Completed
+            };
+            var orders = await _repository.GetListAsync(
+                filters: filters,
+                include: queryable => queryable
+                    .Include(o => o.SessionDetail!)
+                        .ThenInclude(sd => sd.Location!)
+                        .ThenInclude(l => l.School!)
+                    .Include(o => o.OrderDetails!)
+            );
+            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
+            var data = orders.GroupBy(order => order.SessionDetail!.Location!.School!.Name)
+                .Select(group => new GetTopSchoolBestSellerResponse
+                {
+
+                    SchoolName = group.Key,
+                    Percentage = group.Sum(order => order.OrderDetails!.Sum(od => od.Quantity)) / (double)totalSoldCount * 100,
+                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString()),
+                    Count = group.Count()
+                })
+                .OrderByDescending(o => o.Percentage)
+                .ToList();
+            var topSchool = data.Take(topCount).ToList();
+            if (data.Count() > topCount)
+            {
+                var otherData = data.Skip(topCount);
+                topSchool.Add(new GetTopSchoolBestSellerResponse
+                {
+                    SchoolName = "Others",
+                    Percentage = otherData.Sum(x => x.Percentage),
+                    Revenue = otherData.Sum(x => x.Revenue),
+                    Count = otherData.Sum(x => x.Count)
+                });
+            }
+            var roundedData = topSchool.Select(s => new GetTopSchoolBestSellerResponse
+            {
+                SchoolName = s.SchoolName,
+                Percentage = Math.Round(s.Percentage, 1),
+                Revenue = s.Revenue,
+                Count = s.Count
+            }).ToList();
+
+            // Calculate the total after rounding
+            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
+
+            if (totalAfterRounding != 100)
+            {
+                roundedData.Last().Percentage += 100 - totalAfterRounding;
+            }
+            return roundedData;
+        }
+
+        public async Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc)
+        {
+            var filters = new List<Expression<Func<Order, bool>>>
+            {
+                order => order.Status == OrderStatus.Completed
+            };
+            var orders = await _repository.GetListAsync(
+                filters: filters,
+                include: queryable => queryable
+                    .Include(o => o.OrderDetails!)
+                            .ThenInclude(od => od.Food!)
+                            .ThenInclude(f => f.MenuDetails!)
+                            .ThenInclude(md => md.Menu!)
+                            .ThenInclude(m => m.Kitchen!)
+                );
+            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
+            var data = orders.SelectMany(order => order.OrderDetails!)
+                .GroupBy(od => od.Food!.MenuDetails!.First().Menu!.Kitchen!.Name) // Group by kitchen name
+                .Select(group => new GetTopBestSellerKitchenResponse
+                {
+                    Name = group.Key,
+                    TotalOrder = group.Count(),
+                    TotalItem = group.Sum(od => od.Quantity),
+                    Percentage = group.Sum(od => od.Quantity) / (double)totalSoldCount * 100
+                })
+                .ToList();
+            if(orderDesc)
+            {
+                data = data.OrderByDescending(o => o.Percentage).ToList();
+            }
+            else
+            {
+                data = data.OrderBy(o => o.Percentage).ToList();
+            }
+            var topKitchen = data.Take(topCount).ToList();
+            if (data.Count() > topCount)
+            {
+                var otherData = data.Skip(topCount);
+                topKitchen.Add(new GetTopBestSellerKitchenResponse
+                {
+                    Name = "Others",
+                    TotalOrder = otherData.Sum(x => x.TotalOrder),
+                    TotalItem = otherData.Sum(x => x.TotalItem),
+                    Percentage = otherData.Sum(x => x.Percentage)
+                });
+            }
+            var roundedData = topKitchen.Select(s => new GetTopBestSellerKitchenResponse
+            {
+                Name = s.Name,
+                TotalOrder = s.TotalOrder,
+                TotalItem = s.TotalItem,
+                Percentage = Math.Round(s.Percentage, 1)
+            }).ToList();
+
+            // Calculate the total after rounding
+            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
+
+            if (totalAfterRounding != 100)
+            {
+                roundedData.Last().Percentage += 100 - totalAfterRounding;
+            }
+            if (!orderDesc)
+            {
+                roundedData.RemoveAll(item => item.Name == "Others");
+            }
+            return roundedData;
         }
     }
 }

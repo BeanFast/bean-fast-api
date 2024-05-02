@@ -24,6 +24,13 @@ namespace DataTransferObjects.Models.Profiles.Response
         public WalletOfGetProfileResponse Wallet { get; set; }
         public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }
         public int GameTransaction { get; set; }
+        public BmiOfProfile Bmi { get; set; }
+        public class BmiOfProfile
+        {
+            public double Height { get; set; }
+            public double Weight { get; set; }
+            public DateTime RecordDate { get; set; }
+        }
         public class SchoolOfGetProfileResponse
         {
             public Guid Id { get; set; }

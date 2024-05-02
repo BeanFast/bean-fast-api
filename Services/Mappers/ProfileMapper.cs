@@ -20,12 +20,18 @@ namespace Services.Mappers
             CreateMap<UpdateProfileRequest, Profile>();
             CreateMap<UpdateProfileRequest.BMIOfProfile, ProfileBodyMassIndex>();
 
-            CreateMap<Profile, GetProfilesByCurrentCustomerResponse>();
+            CreateMap<Profile, GetProfilesByCurrentCustomerResponse>()
+                .ForMember(dest => dest.Bmi, opt => opt.MapFrom(src => src.BMIs!.OrderByDescending(bmi => bmi.RecordDate).FirstOrDefault()))
+                .ForMember(dest => dest.CurrentBMI, opt => opt.MapFrom(src => Math.Round(src.CurrentBMI!.Value, 2)));
             CreateMap<School, GetProfilesByCurrentCustomerResponse.SchoolOfGetProfilesByCurrentCustomerResponse>();
+            CreateMap<ProfileBodyMassIndex, GetProfilesByCurrentCustomerResponse.BmiOfProfile>();
 
             CreateMap<Profile, GetProfileResponse>()
-                .ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.Wallets!.First()));
-                //.ForMember(dest => dest.BMIStatus, opt => opt.MapFrom(src => BmiUltil.GetBMIStatus(src.CurrentBMI!.Value, src.Gender, src.Dob)));
+                .ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.Wallets!.First()))
+                .ForMember(dest => dest.Bmi, opt => opt.MapFrom(src => src.BMIs!.OrderByDescending(bmi => bmi.RecordDate).FirstOrDefault()))
+                .ForMember(dest => dest.CurrentBMI, opt => opt.MapFrom(src => Math.Round(src.CurrentBMI!.Value, 2)));
+            CreateMap<ProfileBodyMassIndex, GetProfileResponse.BmiOfProfile>();
+            //.ForMember(dest => dest.BMIStatus, opt => opt.MapFrom(src => BmiUltil.GetBMIStatus(src.CurrentBMI!.Value, src.Gender, src.Dob)));
             CreateMap<LoyaltyCard, GetProfileResponse.LoyaltyCardOfGetProfileResponse>();
             CreateMap<Wallet, GetProfileResponse.WalletOfGetProfileResponse>() ;
             CreateMap<School, GetProfileResponse.SchoolOfGetProfileResponse>();

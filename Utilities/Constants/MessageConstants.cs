@@ -272,6 +272,9 @@ namespace Utilities.Constants
             public const string OrderNotBelongToThisUser = "Đơn hàng này không thuộc về bạn, không thể làm hành động này";
             public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
             public const string NotFoundOrders = "Không có đơn hàng nào cần giao trong khoảng thời gian này";
+            public const string OrderCompletedAlready = "Đơn hàng này đã hoàn thành rồi!";
+            public const string OrderOnlyCanBeCancelIfInCookingStatus = "Bạn chỉ có thể hủy đơn hàng khi đơn hàng còn đang ở trạng thái đang nấu";
+            public const string OrderAlreadyCanceled = "Đơn hàng này đã bị hủy trước đó rồi!";
         }
 
         public class OrderActivityMessageConstrant

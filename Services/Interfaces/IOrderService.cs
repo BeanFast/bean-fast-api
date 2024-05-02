@@ -42,5 +42,7 @@ namespace Services.Interfaces
         Task CancelOrderForManagerAsync(Order orderEntity, CancelOrderRequest request, User manager);
         Task CancelOrderForCustomerAsync(Order orderEntity, CancelOrderRequest request, User manager);
         Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request);
+        Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount);
+        Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc);
     }
 }
