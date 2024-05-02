@@ -83,20 +83,26 @@ namespace Services.Implements
             {
                 (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
                 (sessionDetail) => sessionDetail.Status != BaseEntityStatus.Deleted,
-                (sessionDetail) => sessionDetail.Session!.DeliveryStartTime > TimeUtil.GetCurrentVietNamTime()
+                (sessionDetail) => TimeUtil.GetCurrentVietNamTime() >= sessionDetail.Session!.DeliveryStartTime && TimeUtil.GetCurrentVietNamTime() < sessionDetail.Session.DeliveryEndTime
             };
 
             var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
                 filters: filters
                 , include: queryable => queryable
-                .Include(sd => sd.Location!).ThenInclude(l => l.School!).ThenInclude(s => s.Area!)
+                .Include(sd => sd.Location!)
+                    .ThenInclude(l => l.School!)
+                    .ThenInclude(s => s.Area!)
                 .Include(sd => sd.Session!)
-                .Include(sd => sd.Orders!).ThenInclude(o => o.OrderDetails!)
+                .Include(sd => sd.Orders!)
+                    .ThenInclude(o => o.OrderDetails!)
                 );
             foreach (var item in sessionDetails)
             {
                 item.Orders = item.Orders!.Where(o => o.Status == OrderStatus.Delivering).ToList();
+                item.ExchangeGifts = item.ExchangeGifts!.Where(eg => eg.Status == ExchangeGiftStatus.Delivering).ToList();
+                await Console.Out.WriteLineAsync(item.ToString());
             }
+
             return sessionDetails;
         }
         public async Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user)
@@ -131,7 +137,7 @@ namespace Services.Implements
             Console.WriteLine("orderable: " + request.Orderable == null);
             if (request.Orderable != null)
             {
-                if(request.Orderable == true)
+                if (request.Orderable == true)
                 {
                     filters.Add(sd => sd.Session!.OrderStartTime >= currentVietnamTime && sd.Session.OrderEndTime < currentVietnamTime);
                 }
@@ -158,14 +164,14 @@ namespace Services.Implements
             foreach (var item in updateSessionDetailRequest.DelivererIds.ToList())
             {
                 if (!availableDelivererIds.Contains(item)) throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.DelivererAreBusyInAnotherSessionDetail(item));
-                
+
                 sessionDetailDeliverers.Add(new SessionDetailDeliverer
                 {
                     DelivererId = item,
                     SessionDetailId = sessionDetailId
                 });
             }
-            if(sessionDetailEntity.SessionDetailDeliverers != null && sessionDetailEntity.SessionDetailDeliverers.Count > 0)
+            if (sessionDetailEntity.SessionDetailDeliverers != null && sessionDetailEntity.SessionDetailDeliverers.Count > 0)
             {
                 await _sessionDetailDelivererService.HardDeleteAsync(sessionDetailEntity.SessionDetailDeliverers.ToList());
             }
@@ -174,7 +180,7 @@ namespace Services.Implements
             //await _repository.UpdateAsync(sessionDetailEntity);
             //await _unitOfWork.CommitAsync();
         }
-        
+
 
     }
 }
