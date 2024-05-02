@@ -15,6 +15,7 @@ namespace Services.Interfaces
         //Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync(Guid sessionId);
         Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds);
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
+        Task<LoginResponse> RefreshTokenAsync(string refreshToken, User user);
         Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest);
         Task SendOtpAsync(string phone);
         Task UpdateCustomerAsync(UpdateCustomerRequest request, User user);

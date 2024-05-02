@@ -7,8 +7,8 @@ public class GetMenuResponse
     public Guid? CreatorId { get; set; }
     public Guid? UpdaterId { get; set; }
     public string Code { get; set; }
-    public DateTime? CreateDate { get; set; }
-    public DateTime? UpdateDate { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
     public ICollection<MenuDetailOfGetMenuResponse> MenuDetails { get; set; }
     public KitchenOfGetMenuResponse Kitchen { get; set; }
     //public ICollection<SessionOfGetMenuResponse> Sessions { get; set; }

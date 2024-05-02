@@ -25,6 +25,13 @@ public class AuthController : BaseController
         LoginResponse loginResponse = await _userService.LoginAsync(loginRequest);
         return SuccessResult(loginResponse);
     }
+    [HttpPost("refresh")]
+    [Authorize]
+    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request)
+    {
+        LoginResponse loginResponse = await _userService.RefreshTokenAsync(request.RefreshToken, await GetUserAsync());
+        return SuccessResult(loginResponse);
+    }
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromForm] RegisterRequest registerRequest)
     {
