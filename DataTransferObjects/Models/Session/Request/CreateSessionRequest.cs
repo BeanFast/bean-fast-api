@@ -16,7 +16,7 @@ namespace DataTransferObjects.Models.Session.Request
         public DateTime OrderStartTime { get; set; }
         [DateTimeGreaterThan("OrderStartTime")]
         public DateTime OrderEndTime { get; set; }
-        [DateTimeGreaterThan("OrderEndTime", additionalHours: TimeConstrant.GapBetweenOrderEndTimeAndDeliveryStartTimeInMinutes)]
+        [DateTimeGreaterThan(comparisonProperty: "OrderEndTime", additionalMinutes: TimeConstrant.GapBetweenOrderEndTimeAndDeliveryStartTimeInMinutes)]
         public DateTime DeliveryStartTime { get; set; }
         [DateTimeGreaterThan("DeliveryStartTime")]
         public DateTime DeliveryEndTime { get; set; }
