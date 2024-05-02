@@ -182,6 +182,11 @@ namespace Services.Implements
             var playedGameTransactions = await _repository.GetListAsync(filters: filters);
             return playedGameTransactions.Count;
         }
+        public async Task<int> GetRemainingPlayGameCount(User user, Guid profileId)
+        {
+            var playedGameCount = await GetPlayedGameCount(user, profileId);
+            return TransactionConstrant.MaxGameTransactionPerDay - playedGameCount;
+        }
 
         public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
         {
