@@ -21,6 +21,8 @@ using DataTransferObjects.Models.User.Request;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using DataTransferObjects.Models.Notification.Request;
+using System.IdentityModel.Tokens.Jwt;
+using Twilio.Jwt.AccessToken;
 
 namespace Services.Implements
 {
@@ -140,16 +142,41 @@ namespace Services.Implements
             if (!loginRequest.DeviceToken.IsNullOrEmpty())
             {
                 user.DeviceToken = loginRequest.DeviceToken;
-                await _repository.UpdateAsync(user);
-                await _unitOfWork.CommitAsync();
+                
             }
-
+            
+            var refreshToken = JwtUtil.GenerateRefreshToken(user);
+            user.RefreshToken = refreshToken;
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
             return new LoginResponse
             {
-                AccessToken = JwtUtil.GenerateToken(user)
+                AccessToken = JwtUtil.GenerateToken(user),
+                RefreshToken = refreshToken
             };
         }
 
+        public async Task<LoginResponse> RefreshTokenAsync(string refreshToken, User user)
+        {
+            if(user.RefreshToken != refreshToken)
+            {
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.InvalidRefreshToken);
+            }
+            var tokenValidated = JwtUtil.ValidateRefreshToken(refreshToken);
+            if (!tokenValidated)
+            {
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.InvalidRefreshToken);
+            }
+            var newRefreshToken = JwtUtil.GenerateRefreshToken(user);
+            user.RefreshToken = newRefreshToken;
+            await _repository.UpdateAsync(user);
+            await _unitOfWork.CommitAsync();
+            return new LoginResponse
+            {
+                AccessToken = JwtUtil.GenerateToken(user),
+                RefreshToken = refreshToken
+            };
+        }
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             var customer = _mapper.Map<User>(registerRequest);

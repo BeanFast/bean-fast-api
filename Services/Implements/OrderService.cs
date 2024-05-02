@@ -21,12 +21,6 @@ using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Collections.Generic;
-using Twilio.TwiML.Messaging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using DataTransferObjects.Models.Category.Response;
-
 namespace Services.Implements
 {
     public class OrderService : BaseService<Order>, IOrderService
@@ -225,94 +219,105 @@ namespace Services.Implements
 
         public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
-            var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
-            var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
-
-            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
-            var transactionNumber = await _transactionService.CountAsync() + 1;
-            var orderNumber = await _repository.CountAsync() + 1;
-
-            var orderId = Guid.NewGuid();
-            var orderEntity = _mapper.Map<Order>(request);
-            orderEntity.Id = orderId;
-            orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
-            orderEntity.Status = OrderStatus.Cooking;
-
-            orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
-
-            if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
-            }
-            if (TimeUtil.GetCurrentVietNamTime() >= sessionDetail.Session!.OrderEndTime)
-            {
-                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
-            }
-            else if (TimeUtil.GetCurrentVietNamTime() < sessionDetail.Session!.OrderStartTime)
-            {
-                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
-            }
-            if (sessionDetail.Location!.SchoolId != profile.SchoolId)
-            {
-                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
-            }
+                var profile = await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
+                var sessionDetail = await _sessionDetailService.GetByIdAsync(request.SessionDetailId);
 
-            var orderDetailEntityList = new List<OrderDetail>();
+                var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+                var transactionNumber = await _transactionService.CountAsync() + 1;
+                var orderNumber = await _repository.CountAsync() + 1;
 
-            foreach (var orderDetailModel in request.OrderDetails!)
-            {
-                var orderDetailEntity = _mapper.Map<OrderDetail>(orderDetailModel);
-                var menuDetail = await _menuDetailService.GetByIdAsync(orderDetailModel.MenuDetailId);
-                var food = await _foodService.GetByIdAsync(menuDetail.FoodId);
-                orderDetailEntity.OrderId = orderId;
-                orderDetailEntity.FoodId = menuDetail.FoodId;
-                orderDetailEntity.Price = menuDetail.Price;
-                orderDetailEntity.Status = OrderDetailStatus.Active;
-                orderDetailEntityList.Add(orderDetailEntity);
+                var orderId = Guid.NewGuid();
+                var orderEntity = _mapper.Map<Order>(request);
+                orderEntity.Id = orderId;
+                orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
+                orderEntity.Status = OrderStatus.Cooking;
 
-                // food?
-            }
-            orderEntity.OrderDetails?.Clear();
+                orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
-            var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
-            orderEntity.TotalPrice = totalPriceOfOrderDetail;
-
-            var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!;
-            if (wallet.Balance - totalPriceOfOrderDetail < 0)
-            {
-                throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
-            }
-            wallet.Balance -= totalPriceOfOrderDetail;
-            orderEntity.OrderActivities = new List<OrderActivity>
-            {
-
-                new OrderActivity
+                if (!(orderEntity.PaymentDate >= sessionDetail.Session!.OrderStartTime && orderEntity.PaymentDate < sessionDetail.Session!.OrderEndTime))
                 {
-                    Id = Guid.NewGuid(),
-                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
-                    Time = TimeUtil.GetCurrentVietNamTime(),
-                    Status = OrderActivityStatus.Active
+                    throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
                 }
-            };
-
-            orderEntity.Transactions = new List<Transaction>
-            {
-                new Transaction
+                if (TimeUtil.GetCurrentVietNamTime() >= sessionDetail.Session!.OrderEndTime)
                 {
-                    OrderId = orderId,
-                    ExchangeGiftId = null,
-                    WalletId = wallet.Id,
-                    Value = - orderEntity.TotalPrice,
-                    Time = TimeUtil.GetCurrentVietNamTime(),
-                    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
-                    Status = TransactionStatus.Active
+                    throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderClosed);
                 }
-            };
-            await _walletService.UpdateAsync(wallet);
-            await _repository.InsertAsync(orderEntity, user);
-            await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-            await _unitOfWork.CommitAsync();
+                else if (TimeUtil.GetCurrentVietNamTime() < sessionDetail.Session!.OrderStartTime)
+                {
+                    throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.SessionOrderNotStarted);
+                }
+                if (sessionDetail.Location!.SchoolId != profile.SchoolId)
+                {
+                    throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
+                }
+
+                var orderDetailEntityList = new List<OrderDetail>();
+
+                foreach (var orderDetailModel in request.OrderDetails!)
+                {
+                    var orderDetailEntity = _mapper.Map<OrderDetail>(orderDetailModel);
+                    var menuDetail = await _menuDetailService.GetByIdAsync(orderDetailModel.MenuDetailId);
+                    var food = await _foodService.GetByIdAsync(menuDetail.FoodId);
+                    orderDetailEntity.OrderId = orderId;
+                    orderDetailEntity.FoodId = menuDetail.FoodId;
+                    orderDetailEntity.Price = menuDetail.Price;
+                    orderDetailEntity.Status = OrderDetailStatus.Active;
+                    orderDetailEntityList.Add(orderDetailEntity);
+
+                    // food?
+                }
+                orderEntity.OrderDetails?.Clear();
+
+                var totalPriceOfOrderDetail = orderDetailEntityList.Sum(od => od.Quantity * od.Price);
+                orderEntity.TotalPrice = totalPriceOfOrderDetail;
+
+                var wallet = user.Wallets!.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!;
+                if (wallet.Balance - totalPriceOfOrderDetail < 0)
+                {
+                    throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughMoney);
+                }
+                wallet.Balance -= totalPriceOfOrderDetail;
+                orderEntity.OrderActivities = new List<OrderActivity>
+                {
+
+                    new OrderActivity
+                    {
+                        Id = Guid.NewGuid(),
+                        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                        Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
+                        Time = TimeUtil.GetCurrentVietNamTime(),
+                        Status = OrderActivityStatus.Active
+                    }
+                };
+
+                orderEntity.Transactions = new List<Transaction>
+                {
+                    new Transaction
+                    {
+                        OrderId = orderId,
+                        ExchangeGiftId = null,
+                        WalletId = wallet.Id,
+                        Value = - orderEntity.TotalPrice,
+                        Time = TimeUtil.GetCurrentVietNamTime(),
+                        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, transactionNumber),
+                        Status = TransactionStatus.Active
+                    }
+                };
+                await _walletService.UpdateAsync(wallet);
+                await _repository.InsertAsync(orderEntity, user);
+                await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+                await _unitOfWork.CommitAsync();
+                await transaction.CommitAsync();
+            }catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                await Console.Out.WriteLineAsync(ex.Message.ToString());
+                //if (ex is BeanFastApplicationException)
+                throw;
+            }
         }
 
         public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
@@ -545,33 +550,46 @@ namespace Services.Implements
             bool isUpdated = false;
             var realTime = TimeUtil.GetCurrentVietNamTime();
             var listOrderWithDeliveringStatus = await _repository.GetListAsync(status: OrderStatus.Delivering);
-
-            foreach (var order in listOrderWithDeliveringStatus)
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                if (realTime > order.SessionDetail!.Session!.DeliveryEndTime)
+                foreach (var order in listOrderWithDeliveringStatus)
                 {
-                    order.Status = OrderStatus.Cancelled;
-                    var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
-
-                    var orderActivity = new OrderActivity
+                    if (realTime > order.SessionDetail!.Session!.DeliveryEndTime)
                     {
-                        Id = Guid.NewGuid(),
-                        Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                        Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
-                        Time = TimeUtil.GetCurrentVietNamTime(),
-                        Status = OrderActivityStatus.Active
-                    };
-                    await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, null);
-                    await _repository.UpdateAsync(order);
-                    await _unitOfWork.CommitAsync();
-                    isUpdated = true;
-                }
+                        order.Status = OrderStatus.Cancelled;
+                        var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
-                if (!isUpdated)
-                {
-                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
+                        var orderActivity = new OrderActivity
+                        {
+                            Id = Guid.NewGuid(),
+                            Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+                            Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+                            Time = TimeUtil.GetCurrentVietNamTime(),
+                            Status = OrderActivityStatus.Active
+                        };
+                        await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, null);
+                        await _repository.UpdateAsync(order);
+                        await _unitOfWork.CommitAsync();
+                        isUpdated = true;
+                    }
+
+                    if (!isUpdated)
+                    {
+                        throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                await transaction.RollbackAsync();
+                if (ex is BeanFastApplicationException beanfastException)
+                {
+                    throw;
+                }
+            }
+
         }
 
         public async Task FeedbackOrderAsync(Guid orderId, FeedbackOrderRequest request)
@@ -653,8 +671,18 @@ namespace Services.Implements
                 Status = OrderActivityStatus.Active,
                 OrderId = order.Id
             };
-            await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
-            await _repository.UpdateAsync(order);
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
+                await _repository.UpdateAsync(order);
+            }
+            catch(Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                await transaction.RollbackAsync();
+            }
             await _unitOfWork.CommitAsync();
         }
 

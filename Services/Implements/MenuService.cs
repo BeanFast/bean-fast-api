@@ -51,11 +51,11 @@ public class MenuService : BaseService<Menu>, IMenuService
 
         if (filterRequest.CreateDate != null)
         {
-            filters.Add(f => f.CreateDate!.Value.Date == filterRequest.CreateDate.Value.Date);
+            filters.Add(f => f.CreatedDate!.Value.Date == filterRequest.CreateDate.Value.Date);
         }
         if (filterRequest.UpdateDate != null)
         {
-            filters.Add(f => f.UpdateDate!.Value.Date == filterRequest.UpdateDate.Value.Date);
+            filters.Add(f => f.UpdatedDate!.Value.Date == filterRequest.UpdateDate.Value.Date);
         }
         if (filterRequest.Status != null)
         {
@@ -69,7 +69,7 @@ public class MenuService : BaseService<Menu>, IMenuService
                     s.OrderStartTime.CompareTo(filterRequest.OrderStartTime.Value) == 0
                     && s.Status == BaseEntityStatus.Active).Any());
         }
-        if (RoleName.ADMIN.ToString().Equals(userRole))
+        if (RoleName.MANAGER.ToString().Equals(userRole))
         {
             if (filterRequest.SessionExpired)
             {

@@ -46,7 +46,21 @@ namespace Services.Implements
             sessionEntity.Id = Guid.NewGuid();
             HashSet<Guid> uniqueLocationIds = new();
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
+            var sessionsHasDeliveryTimeOverlap = await _repository.GetListAsync(filters: new()
+            {
+                s => s.DeliveryStartTime < sessionEntity.DeliveryEndTime && s.DeliveryEndTime > sessionEntity.DeliveryStartTime
+            }, include: i => i.Include(s => s.SessionDetails!));
+            foreach (var item in sessionsHasDeliveryTimeOverlap)
+            {
+                
+                var matchingSessionDetail = request.SessionDetails.FirstOrDefault(rsd => item.SessionDetails!.Any(sd => rsd.LocationId == sd.LocationId));
 
+                if (matchingSessionDetail != null)
+                {
+                    throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.OverlappedSessionHasExistedLocationId(item.DeliveryStartTime, item.DeliveryEndTime, matchingSessionDetail.LocationId));
+                }
+                
+            }
             foreach (var sessionDetail in sessionEntity.SessionDetails!)
             {
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
