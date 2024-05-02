@@ -68,7 +68,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.CUSTOMER)]
         public async Task<IActionResult> CountGameTransactionByCurrentUser([FromRoute] Guid profileId)
         {
-            var gameTransactionCount = await _transactionService.GetPlayedGameCount(await GetUserAsync(), profileId);
+            var gameTransactionCount = await _transactionService.GetRemainingPlayGameCount(await GetUserAsync(), profileId);
             return SuccessResult<object>(gameTransactionCount);
         }
 
