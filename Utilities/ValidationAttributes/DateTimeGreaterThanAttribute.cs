@@ -12,15 +12,17 @@ namespace Utilities.ValidationAttributes
     public class DateTimeGreaterThanAttribute : ValidationAttribute
     {
         private readonly string? _comparisonProperty;
-        private readonly int _additionalHours;
+        private readonly int _additionalMinutes;
         private readonly DateTime? _comparisionTime;
-        public DateTimeGreaterThanAttribute(DateTime comparisionTime, int additionalHours = 0)
+        //public DateTimeGreaterThanAttribute(DateTime comparisionTime, int additionalHours = 0)
+        //{
+        //    _comparisionTime = comparisionTime;
+        //    _additionalHours = additionalHours;
+        //}
+        public DateTimeGreaterThanAttribute(string comparisonProperty, int additionalMinutes = 0)
         {
-            _comparisionTime = comparisionTime;
-            _additionalHours = additionalHours;
-        }
-        public DateTimeGreaterThanAttribute(string comparisonProperty, int additionalHours = 0)
-        {
+            Console.WriteLine(_comparisonProperty);
+
             if (comparisonProperty != "Now")
             {
                 _comparisonProperty = comparisonProperty;
@@ -31,16 +33,18 @@ namespace Utilities.ValidationAttributes
                 _comparisonProperty = null;
                 _comparisionTime = TimeUtil.GetCurrentVietNamTime();
             }
-            _additionalHours = additionalHours;
+            _additionalMinutes = additionalMinutes;
         }
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             Console.WriteLine(_comparisonProperty);
-            Console.WriteLine(_comparisionTime.ToString());
+            //Console.WriteLine(currentValue);
+            Console.WriteLine(_comparisionTime);
             var currentValue = (DateTime)value!;
 
             if (_comparisonProperty != null)
             {
+                //Console.WriteLine(_comparisionTime!.Value.AddHours(_additionalHours));
 
                 var property = validationContext.ObjectType.GetProperty(_comparisonProperty);
 
@@ -49,14 +53,15 @@ namespace Utilities.ValidationAttributes
 
                 var comparisonValue = (DateTime)property.GetValue(validationContext.ObjectInstance)!;
 
-                if (currentValue <= comparisonValue.AddHours(_additionalHours))
+                if (currentValue <= comparisonValue.AddMinutes(_additionalMinutes))
                     return new ValidationResult(ErrorMessage);
 
                 return ValidationResult.Success;
             }
             else
             {
-                if (currentValue <= _comparisionTime!.Value.AddHours(_additionalHours))
+                
+                if (currentValue <= _comparisionTime!.Value.AddHours(_additionalMinutes))
                     return new ValidationResult(ErrorMessage);
 
                 return ValidationResult.Success;
