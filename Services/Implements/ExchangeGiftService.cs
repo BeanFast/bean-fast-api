@@ -88,7 +88,7 @@ namespace Services.Implements
                 throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.InvalidSchoolLocation);
             }
             gift.InStock -= 1;
-            if (gift.InStock < 0) throw new InvalidRequestException("Món quà này đã hết hàng");
+            if (gift.InStock < 0) throw new InvalidRequestException(MessageConstants.ExchangeGiftMessageConstrant.GiftOutOfStock);
 
             var exchangeGift = _mapper.Map<ExchangeGift>(request);
             exchangeGift.Id = Guid.NewGuid();
@@ -286,7 +286,6 @@ namespace Services.Implements
             }
         }
 
-
         public async Task CancelExchangeGiftForManagerAsync(ExchangeGift exchangeGift, CancelExchangeGiftRequest request, User manager)
         {
             exchangeGift.Status = ExchangeGiftStatus.Cancelled;
@@ -347,19 +346,19 @@ namespace Services.Implements
             var exchangeGift = await GetByIdIncludeDeliverersAsync(exchangeGiftId);
             if (exchangeGift.Status != ExchangeGiftStatus.Delivering)
             {
-                throw new InvalidRequestException("Bạn chỉ có thể hoàn thành các đơn hàng đang ở trạng thái đang giao");
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderNotInDeliveryStatus);
             }
             if (TimeUtil.GetCurrentVietNamTime() > exchangeGift.SessionDetail!.Session!.DeliveryEndTime)
             {
-                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng");
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderOutOfDeliveryTime);
             }
             if (TimeUtil.GetCurrentVietNamTime() < exchangeGift.SessionDetail!.Session!.DeliveryStartTime)
             {
-                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì chưa đến thời gian giao hàng");
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderNotInDeliveryTime);
             }
             if(!exchangeGift.SessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == deliverer.Id))
             {
-                throw new InvalidRequestException("Bạn không thể hoàn thành đơn hàng này vì không phải người giao hàng");
+                throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.CurrentUserAreNotDeliverer);
             }
             exchangeGift.Status = ExchangeGiftStatus.Completed;
             exchangeGift.DeliveryDate = TimeUtil.GetCurrentVietNamTime();

@@ -9,5 +9,7 @@ namespace Utilities.Constants
     public class TransactionConstrant
     {
         public static int MaxGameTransactionPerDay = 5;
+
+        public static int RewardPointDivideRate = 1000;
     }
 }

@@ -273,10 +273,16 @@ namespace Utilities.Constants
             public const string OrderIdRequired = "Order id là bắt buộc";
             public const string OrderNotBelongToThisUser = "Đơn hàng này không thuộc về bạn, không thể làm hành động này";
             public const string NoDeliveryOrders = "Bạn không có đơn hàng nào để giao cho khách hàng này";
+            public const string NoDeliverer = "chưa có người giao";
+            public const string NoReceiver = "chưa có người nhận";
             public const string NotFoundOrders = "Không có đơn hàng nào cần giao trong khoảng thời gian này";
             public const string OrderCompletedAlready = "Đơn hàng này đã hoàn thành rồi!";
             public const string OrderOnlyCanBeCancelIfInCookingStatus = "Bạn chỉ có thể hủy đơn hàng khi đơn hàng còn đang ở trạng thái đang nấu";
             public const string OrderAlreadyCanceled = "Đơn hàng này đã bị hủy trước đó rồi!";
+            public const string OrderNotInDeliveryStatus = "Bạn chỉ có thể hoàn thành các đơn hàng đang ở trạng thái đang giao";
+            public const string OrderOutOfDeliveryTime = "Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng";
+            public const string OrderNotInDeliveryTime = "Bạn không thể hoàn thành đơn hàng này vì chưa đến thời gian giao hàng";
+            public const string CurrentUserAreNotDeliverer = "Bạn không thể hoàn thành đơn hàng này vì không phải người giao hàng";
         }
 
         public class OrderActivityMessageConstrant
@@ -324,6 +330,7 @@ namespace Utilities.Constants
             public static string ExchangeGiftCannotBeCancelInCompleteStatus => $"Bạn chỉ không thể hủy đổi quà vì quà đã được giao thành công";
             public static string ExchangeGiftCanceled => $"Lượt đổi quà này đã bị hủy trước đó rồi!";
             public static string ExchangeGiftNotBelongToThisUser => $"Lượt đổi quà không thuộc về bạn";
+            public static string GiftOutOfStock => $"Món quà này đã hết hàng";
         }
         public class GameMessageConstrant
         {

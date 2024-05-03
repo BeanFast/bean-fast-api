@@ -300,11 +300,11 @@ namespace Services.Implements
                         {
                             CancelOrderRequest cancelOrderRequest = new()
                             {
-                                Reason = "chưa có người giao"
+                                Reason = MessageConstants.OrderMessageConstrant.NoDeliverer
                             };
                             CancelExchangeGiftRequest cancelExchangeGiftRequest = new()
                             {
-                                Reason = "chưa có người giao"
+                                Reason = MessageConstants.OrderMessageConstrant.NoDeliverer
                             };
                             foreach (var sd in s.SessionDetails!)
                             {
@@ -355,11 +355,11 @@ namespace Services.Implements
                         {
                             CancelOrderRequest request = new()
                             {
-                                Reason = "chưa có người nhận"
+                                Reason = MessageConstants.OrderMessageConstrant.NoReceiver
                             };
                             CancelExchangeGiftRequest cancelExchangeGiftRequest = new()
                             {
-                                Reason = "chưa có người nhận"
+                                Reason = MessageConstants.OrderMessageConstrant.NoReceiver
                             };
                             foreach (var sd in s.SessionDetails!)
                             {
