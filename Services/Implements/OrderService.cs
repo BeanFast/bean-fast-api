@@ -183,7 +183,7 @@ namespace Services.Implements
             {
 
             };
-            if (status == 6)
+            if (status == OrderStatus.Cancelled)
             {
                 filters.Add(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.CancelledByCustomer);
             }
@@ -609,7 +609,7 @@ namespace Services.Implements
 
         public static int CalculateRewardPoints(double totalOrderPrice)
         {
-            double points = totalOrderPrice / 1000;
+            double points = totalOrderPrice / TransactionConstrant.RewardPointDivideRate;
             return (int)Math.Round(points, MidpointRounding.AwayFromZero);
         }
 
