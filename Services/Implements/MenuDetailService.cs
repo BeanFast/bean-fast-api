@@ -19,8 +19,10 @@ namespace Services.Implements
 {
     public class MenuDetailService : BaseService<MenuDetail>, IMenuDetailService
     {
-        public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IMenuDetailRepository _repository;
+        public MenuDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IMenuDetailRepository repository) : base(unitOfWork, mapper, appSettings)
         {
+            _repository = repository;
         }
 
 

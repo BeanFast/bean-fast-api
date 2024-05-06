@@ -22,6 +22,7 @@ namespace Services.Implements
 {
     public class GameService : BaseService<Game>, IGameService
     {
+        private readonly IGameRepository _repository;
         public GameService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }

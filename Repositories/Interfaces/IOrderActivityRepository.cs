@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface IOrderActivityRepositotory
+namespace Repositories.Interfaces;
+
+public interface IOrderActivityRepository : IGenericRepository<OrderActivity>
 {
     
 }

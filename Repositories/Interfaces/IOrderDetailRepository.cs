@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface IOrderDetailRepository
+namespace Repositories.Interfaces;
+
+public interface IOrderDetailRepository : IGenericRepository<OrderDetail>
 {
     
 }

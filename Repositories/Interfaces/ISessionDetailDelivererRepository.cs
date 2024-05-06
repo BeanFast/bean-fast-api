@@ -2,7 +2,7 @@
 
 namespace Repositories.Interfaces;
 
-public interface ISessionDetailRepository : IGenericRepository<SessionDetailDeliverer>
+public interface ISessionDetailDelivererRepository : IGenericRepository<SessionDetailDeliverer>
 {
     
 }

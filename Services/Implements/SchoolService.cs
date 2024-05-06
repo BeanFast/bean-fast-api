@@ -6,15 +6,9 @@ using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
@@ -28,13 +22,15 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
         private readonly IAreaService _areaService;
         private readonly ILocationService _locationService;
+        private readonly ISchoolRepository _repository;
         //private readonly I
-        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, ILocationService locationService) : base(unitOfWork, mapper, appSettings)
+        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, ILocationService locationService, ISchoolRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _appSettings = appSettings.Value;
             _areaService = areaService;
             _locationService = locationService;
+            _repository = repository;
         }
         private List<Expression<Func<School, bool>>> GetSchoolFilterFromFilterRequest(SchoolFilterRequest filterRequest)
         {
@@ -60,7 +56,7 @@ namespace Services.Implements
             var page = await _repository.GetPageAsync<GetSchoolIncludeAreaAndLocationResponse>(
                     filters: filters,
                     paginationRequest: paginationRequest,
-                    include: s => s.Include(s => s.Area).Include(s => s.Locations!)
+                    include: s => s.Include(s => s.Area).Include(school => school.Locations!)
                 );
             //var page = _repository.GetPageAsync(
 
@@ -190,10 +186,9 @@ namespace Services.Implements
         public async Task<GetSchoolIncludeAreaAndLocationResponse> GetSchoolIncludeAreaAndLocationResponseByIdAsync(Guid id)
         {
             var school = await _repository.FirstOrDefaultAsync<GetSchoolIncludeAreaAndLocationResponse>(
-                status: BaseEntityStatus.Active, 
                 filters: new()
                     {
-                        s => s.Id == id
+                        s => s.Id == id && s.Status == BaseEntityStatus.Active
                     }, 
                 include: i => i.Include(s => s.Area).Include(s => s.Locations!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
             return school!;

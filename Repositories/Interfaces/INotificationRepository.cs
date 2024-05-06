@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface INotificationRepository
+namespace Repositories.Interfaces;
+
+public interface INotificationRepository : IGenericRepository<Notification>
 {
     
 }

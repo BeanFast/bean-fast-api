@@ -26,11 +26,10 @@ namespace Services.Implements
 {
     public class SessionDetailService : BaseService<SessionDetail>, ISessionDetailService
     {
-        private readonly IUserService _userService;
         private readonly ILocationService _locationService;
-        private readonly IUserService _delivererService;
+        private readonly IUserService _userService;
         private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
-
+        private readonly ISessionDetailRepository _repository;
         public SessionDetailService(
             IUnitOfWork<BeanFastContext> unitOfWork,
             IMapper mapper,
@@ -38,12 +37,13 @@ namespace Services.Implements
             IUserService userService,
             ILocationService locationService,
             IUserService delivererService,
-            ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
+            ISessionDetailDelivererService sessionDetailDelivererService, ISessionDetailRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
             _locationService = locationService;
-            _delivererService = delivererService;
+            _userService = delivererService;
             _sessionDetailDelivererService = sessionDetailDelivererService;
+            _repository = repository;
         }
 
         public async Task<SessionDetail> GetByIdAsync(Guid id)
@@ -121,7 +121,7 @@ namespace Services.Implements
             var sessionDetailEntity = _mapper.Map<SessionDetail>(request);
             sessionDetailEntity.Id = sessionDetailId;
             await _locationService.GetByIdAsync(request.LocationId);
-            await _delivererService.GetByIdAsync(request.DelivererId);
+            await _userService.GetByIdAsync(request.DelivererId);
             var sessionDetailNumber = await _repository.CountAsync() + 1;
             sessionDetailEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
             sessionDetailEntity.Status = BaseEntityStatus.Active;

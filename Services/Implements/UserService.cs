@@ -32,9 +32,11 @@ namespace Services.Implements
         private readonly IRoleService _roleService;
         private readonly ISmsOtpService _smsOtpService;
         private readonly IWalletService _walletService;
+        private readonly IUserRepository _repository;
         //private readonly INotificationService _notificationService;
         public UserService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
             ICloudStorageService cloudStorageService, IRoleService roleService, ISmsOtpService smsOtpService, IWalletService walletService
+, IUserRepository repository
             //, INotificationService notificationService
             ) : base(
             unitOfWork, mapper, appSettings)
@@ -43,6 +45,7 @@ namespace Services.Implements
             _roleService = roleService;
             _smsOtpService = smsOtpService;
             _walletService = walletService;
+            _repository = repository;
             //_notificationService = notificationService;
         }
 
@@ -57,9 +60,9 @@ namespace Services.Implements
             var user = await _repository.FirstOrDefaultAsync(filters: filters,
                 include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
-            if(UserStatus.NotVerified == user.Status) 
+            if (UserStatus.NotVerified == user.Status)
             {
-                throw new NotVerifiedAccountException();    
+                throw new NotVerifiedAccountException();
             }
             if (UserStatus.Deleted == user.Status)
             {
@@ -135,16 +138,17 @@ namespace Services.Implements
             if (user.Status == BaseEntityStatus.Deleted)
             {
                 throw new BannedAccountException();
-            }else if (user.Status == UserStatus.NotVerified)
+            }
+            else if (user.Status == UserStatus.NotVerified)
             {
                 throw new NotVerifiedAccountException();
             }
             if (!loginRequest.DeviceToken.IsNullOrEmpty())
             {
                 user.DeviceToken = loginRequest.DeviceToken;
-                
+
             }
-            
+
             var refreshToken = JwtUtil.GenerateRefreshToken(user);
             user.RefreshToken = refreshToken;
             await _repository.UpdateAsync(user);
@@ -158,7 +162,7 @@ namespace Services.Implements
 
         public async Task<LoginResponse> RefreshTokenAsync(string refreshToken, User user)
         {
-            if(user.RefreshToken != refreshToken)
+            if (user.RefreshToken != refreshToken)
             {
                 throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.InvalidRefreshToken);
             }
@@ -239,7 +243,7 @@ namespace Services.Implements
                 user.Status = UserStatus.Active;
                 await _repository.UpdateAsync(user);
                 await _unitOfWork.CommitAsync();
-                
+
             }
             else
             {
@@ -329,7 +333,7 @@ namespace Services.Implements
 
         public Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId)
         {
-            var result = _repository.FirstOrDefaultAsync<GetUserResponse>(filters: new ()
+            var result = _repository.FirstOrDefaultAsync<GetUserResponse>(filters: new()
             {
                 u => u.Id == userId
             });
@@ -340,7 +344,7 @@ namespace Services.Implements
         public Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request)
         {
             var filters = new List<Expression<Func<User, bool>>>();
-            if(request.RoleId != null && request.RoleId != Guid.Empty)
+            if (request.RoleId != null && request.RoleId != Guid.Empty)
             {
                 filters.Add(u => u.RoleId == request.RoleId);
             }
@@ -354,11 +358,11 @@ namespace Services.Implements
             {
                 u => u.Id == id
             }) ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(id));
-            if(request.IsActive)
+            if (request.IsActive)
             {
                 user.Status = UserStatus.Active;
             }
-            else if(!request.IsActive)
+            else if (!request.IsActive)
             {
                 user.Status = UserStatus.Deleted;
             }

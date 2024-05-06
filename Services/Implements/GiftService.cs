@@ -26,6 +26,8 @@ namespace Services.Implements
     {
 
         private readonly ICloudStorageService _cloudStorageService;
+        private readonly IGiftRepository _repository;
+
         public GiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;

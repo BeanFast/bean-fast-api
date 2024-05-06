@@ -102,6 +102,41 @@ namespace BeanFastApi.Extensions
             });
             return services;
         }
+        public static IServiceCollection AddRepositories(this IServiceCollection services)
+        {
+            //services.AddScoped<IGenericRepository, GenericRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IFoodRepository, FoodRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IMenuRepository, MenuRepository>();
+            services.AddScoped<IKitchenRepository, KitchenRepository>();
+            services.AddScoped<IAreaRepository, AreaRepository>();
+            services.AddScoped<ISchoolRepository, SchoolRepository>();
+            services.AddScoped<IComboRepository, ComboRepository>();
+            // services.AddScoped<ICardTypeRepository, CardTypeRepository>();
+            services.AddScoped<IGiftRepository, GiftRepository>();
+            services.AddScoped<IProfileRepository, ProfileRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderActivityRepository, OrderActivityRepository>();
+            services.AddScoped<ISessionDetailRepository, SessionDetailRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+            services.AddScoped<ISessionRepository, SessionRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
+            services.AddScoped<IWalletRepository, WalletRepository>();
+            services.AddScoped<ISmsRepository, SmsRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ISessionRepository, SessionRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IExchangeGiftRepository, ExchangeGiftRepository>();
+            services.AddScoped<IMenuDetailRepository, MenuDetailRepository>();
+            services.AddScoped<ISmsRepository, SmsRepository>();
+            services.AddScoped<IOrderActivityRepository, OrderActivityRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<ISessionDetailDelivererRepository, SessionDetailDelivererRepository>();
+            return services;
+        }
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
@@ -115,7 +150,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IAreaService, AreaService>();
             services.AddScoped<ISchoolService, SchoolService>();
             services.AddScoped<IComboService, ComboService>();
-            services.AddScoped<ICardTypeService, CardTypeService>();
+            // services.AddScoped<ICardTypeService, CardTypeService>();
             services.AddScoped<IGiftService, GiftService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IOrderService, OrderService>();
@@ -135,7 +170,7 @@ namespace BeanFastApi.Extensions
             services.AddScoped<IOrderActivityService, OrderActivityService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<ILoyaltyCardService, LoyaltyCardService>();
+            // services.AddScoped<ILoyaltyCardService, LoyaltyCardService>();
             services.AddScoped<IVnPayService, VnPayService>();
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<ISessionDetailDelivererService, SessionDetailDelivererService>();

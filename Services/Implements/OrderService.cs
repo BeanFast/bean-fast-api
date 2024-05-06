@@ -32,9 +32,9 @@ namespace Services.Implements
         private readonly IMenuDetailService _menuDetailService;
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
-        private readonly ILoyaltyCardService _loyaltyCardService;
         private readonly IFoodService _foodService;
         private readonly IUserService _userService;
+        private readonly IOrderRepository _repository;
 
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
            IProfileService profileService,
@@ -44,7 +44,7 @@ namespace Services.Implements
            IMenuDetailService menuDetailService,
            ITransactionService transactionService,
            IWalletService walletService,
-           ILoyaltyCardService loyaltyCardService, IFoodService foodService, IUserService userService) : base(unitOfWork, mapper, appSettings)
+           IFoodService foodService, IUserService userService, IOrderRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -53,9 +53,9 @@ namespace Services.Implements
             _menuDetailService = menuDetailService;
             _transactionService = transactionService;
             _walletService = walletService;
-            _loyaltyCardService = loyaltyCardService;
             _foodService = foodService;
             _userService = userService;
+            _repository = repository;
         }
         private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
         {
@@ -355,7 +355,8 @@ namespace Services.Implements
             var orders = await _repository.GetListAsync(
                 filters: filters,
                 include: queryable => queryable
-                .Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!)
+                .Include(o => o.SessionDetail!)
+                    .ThenInclude(sd => sd.Session!)
                 .Include(o => o.OrderDetails!)
             );
             return orders!;

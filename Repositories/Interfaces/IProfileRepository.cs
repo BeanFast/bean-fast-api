@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface IProfileRepository
+namespace Repositories.Interfaces;
+
+public interface IProfileRepository : IGenericRepository<Profile>
 {
     
 }

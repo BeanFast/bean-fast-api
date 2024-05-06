@@ -15,20 +15,21 @@ namespace Services.Implements
 {
     public class SessionDetailDelivererService : BaseService<SessionDetailDeliverer>, ISessionDetailDelivererService
     {
+        private readonly ISessionDetailDelivererRepository _delivererRepository;
         public SessionDetailDelivererService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }
 
         public async Task HardDeleteAsync(List<SessionDetailDeliverer> sessionDetailDeliverers)
         {
-            await _repository.HardDeleteRangeAsync(sessionDetailDeliverers);
+            await _delivererRepository.HardDeleteRangeAsync(sessionDetailDeliverers);
         }
 
         public async Task InsertListAsync(List<SessionDetailDeliverer> sessionDetailDeliverers)
         {
             foreach (var item in sessionDetailDeliverers)
             {
-                await _repository.InsertAsync(item);
+                await _delivererRepository.InsertAsync(item);
             }
             await _unitOfWork.CommitAsync();
         }

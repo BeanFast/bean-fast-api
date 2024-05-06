@@ -22,8 +22,11 @@ namespace Services.Implements
 {
     public class WalletService : BaseService<Wallet>, IWalletService
     {
-        public WalletService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+
+        private readonly IWalletRepository _repository;
+        public WalletService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IWalletRepository repository) : base(unitOfWork, mapper, appSettings)
         {
+            _repository = repository;
         }
 
         public async Task CreateWalletAsync(WalletType type, Wallet wallet)
@@ -105,5 +108,7 @@ namespace Services.Implements
             var wallet = await _repository.FirstOrDefaultAsync(filters: filters);
             return wallet!;
         }
+
+
     }
 }

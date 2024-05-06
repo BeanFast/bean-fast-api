@@ -13,6 +13,7 @@ namespace Services.Implements
     public class SmsOtpService : BaseService<SmsOtp>, ISmsOtpService
     {
         private readonly ISmsService _smsService;
+        private readonly ISmsRepository _repository;
         public SmsOtpService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISmsService smsService) : base(unitOfWork, mapper, appSettings)
         {
             _smsService = smsService;

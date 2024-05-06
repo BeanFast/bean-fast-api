@@ -10,6 +10,7 @@ namespace Repositories.Interfaces
     {
 
         Task<int> CountAsync();
+        Task<int> CountAsync(List<Expression<Func<T, bool>>>? filters = null);
         Task<T?> FirstOrDefaultAsync(
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,

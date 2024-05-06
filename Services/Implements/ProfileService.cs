@@ -28,6 +28,7 @@ namespace Services.Implements
         private readonly ISchoolService _schoolService;
         private readonly IWalletService _wallletService;
         private readonly ICloudStorageService _cloudStorageService;
+        private readonly IProfileRepository _repository;
         public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService, IWalletService wallletService) : base(unitOfWork, mapper, appSettings)
         {
             _schoolService = schoolService;

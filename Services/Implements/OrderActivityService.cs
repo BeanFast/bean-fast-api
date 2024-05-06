@@ -29,10 +29,12 @@ namespace Services.Implements
     {
         private readonly ICloudStorageService _cloudStorageService;
         private readonly INotificationService _notificationService;
-        public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, INotificationService notificationService) : base(unitOfWork, mapper, appSettings)
+        private readonly IOrderActivityRepository _repository;
+        public OrderActivityService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, INotificationService notificationService, IOrderActivityRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _notificationService = notificationService;
+            _repository = repository;
         }
 
         public async Task<OrderActivity> GetByIdAsync(Guid id)

@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface ISmsRepository
+namespace Repositories.Interfaces;
+
+public interface ISmsRepository : IGenericRepository<SmsOtp>
 {
     
 }

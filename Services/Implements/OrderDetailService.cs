@@ -17,6 +17,7 @@ namespace Services.Implements
 {
     public class OrderDetailService : BaseService<OrderDetail>, IOrderDetailService
     {
+        private readonly IOrderDetailRepository _repository;
         public OrderDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
         {
         }

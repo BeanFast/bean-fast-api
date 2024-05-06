@@ -13,15 +13,17 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Utilities.Statuses;
 using System.Net.NetworkInformation;
 using Utilities.Utils;
+using BusinessObjects;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Repositories.Implements
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-        protected readonly DbContext _dbContext;
+        protected readonly BeanFastContext _dbContext;
         protected readonly DbSet<T> _dbSet;
         protected readonly IMapper _mapper;
-        public GenericRepository(DbContext context, IMapper mapper)
+        public GenericRepository(BeanFastContext context, IMapper mapper)
         {
             _dbContext = context;
             _dbSet = context.Set<T>();
@@ -189,7 +191,12 @@ namespace Repositories.Implements
             var result = await _dbSet.CountAsync();
             return result;
         }
-
+        public async Task<int> CountAsync(List<Expression<Func<T, bool>>>? filters = null)
+        {
+            IQueryable<T> query = _dbSet;
+            filters?.ForEach(filter => query = query.Where(filter));
+            return await query.CountAsync();
+        }
 
         public async Task InsertAsync(T entity)
         {
@@ -280,6 +287,6 @@ namespace Repositories.Implements
             await _dbContext.SaveChangesAsync();
         }
 
-
+        
     }
 }

@@ -24,13 +24,15 @@ public class MenuService : BaseService<Menu>, IMenuService
     private readonly IKitchenService _kitchenService;
     private readonly IFoodService _foodService;
     private readonly IMenuDetailService _menuDetailService;
-    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting, IFoodService foodService, IMenuDetailService menuDetailService) : base(unitOfWork, mapper, appSetting)
+    private readonly IMenuRepository _repository;
+    public MenuService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IKitchenService kitchenService, IOptions<AppSettings> appSetting, IFoodService foodService, IMenuDetailService menuDetailService, IMenuRepository repository) : base(unitOfWork, mapper, appSetting)
     {
         _kitchenService = kitchenService;
         _foodService = foodService;
         _menuDetailService = menuDetailService;
+        _repository = repository;
     }
-    private List<Expression<Func<Menu, bool>>> getFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
+    private List<Expression<Func<Menu, bool>>> GetFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
     {
         List<Expression<Func<Menu, bool>>> filters = new();
 
@@ -64,33 +66,25 @@ public class MenuService : BaseService<Menu>, IMenuService
         if (filterRequest.OrderStartTime != null)
         {
             filters.Add(
-                f => f.Sessions!
-                .Where(s =>
-                    s.OrderStartTime.CompareTo(filterRequest.OrderStartTime.Value) == 0
-                    && s.Status == BaseEntityStatus.Active).Any());
+                f => f.Sessions!.Any(s => s.OrderStartTime.CompareTo(filterRequest.OrderStartTime.Value) == 0
+                                          && s.Status == BaseEntityStatus.Active));
         }
         if (RoleName.MANAGER.ToString().Equals(userRole))
         {
             if (filterRequest.SessionExpired)
             {
                 filters.Add(
-                    m => m.Sessions!.Where(
-                            s => s.OrderEndTime < TimeUtil.GetCurrentVietNamTime()
-                        ).Any());
+                    m => m.Sessions!.Any(s => s.OrderEndTime < TimeUtil.GetCurrentVietNamTime()));
             }
             if (filterRequest.SessonIncomming)
             {
                 filters.Add(
-                    m => m.Sessions!.Where(
-                            s => s.OrderStartTime > TimeUtil.GetCurrentVietNamTime()
-                        ).Any());
+                    m => m.Sessions!.Any(s => s.OrderStartTime > TimeUtil.GetCurrentVietNamTime()));
             }
             if (filterRequest.SessionOrderable)
             {
                 filters.Add(
-                    m => m.Sessions!.Where(
-                            s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
-                        ).Any());
+                    m => m.Sessions!.Any(s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()));
             }
         }
         else
@@ -98,11 +92,9 @@ public class MenuService : BaseService<Menu>, IMenuService
             if (filterRequest.SessionOrderable)
             {
                 filters.Add(
-                    m => m.Sessions!.Where(
-                            s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime()
-                                && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
-                                && s.Status == BaseEntityStatus.Active
-                        ).Any());
+                    m => m.Sessions!.Any(s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime()
+                                              && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
+                                              && s.Status == BaseEntityStatus.Active));
             }
 
         }
@@ -145,7 +137,7 @@ public class MenuService : BaseService<Menu>, IMenuService
 
     public async Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest)
     {
-        var filters = getFilterFromFilterRequest(userRole, menuFilterRequest);
+        var filters = GetFilterFromFilterRequest(userRole, menuFilterRequest);
         Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include =
             (menu) => menu.Include(menu => menu.Kitchen!)
             .Include(menu => menu.Sessions!)

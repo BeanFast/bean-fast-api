@@ -29,14 +29,17 @@ namespace Services.Implements
         private readonly ICategoryService _categoryService;
         private readonly IComboService _comboService;
 
+        private readonly IFoodRepository _repository;
+
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
             ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings,
-            ICategoryService categoryService, IComboService comboService) : base(unitOfWork, mapper, appSettings)
+            ICategoryService categoryService, IComboService comboService, IFoodRepository repository) : base(unitOfWork, mapper, appSettings)
         {
 
             _cloudStorageService = cloudStorageService;
             _categoryService = categoryService;
             _comboService = comboService;
+            _repository = repository;
         }
 
         private List<Expression<Func<Food, bool>>> GetFilterFromFilterRequest(FoodFilterRequest filterRequest)
@@ -66,15 +69,15 @@ namespace Services.Implements
             {
                 filters.Add(f => f.Price <= filterRequest.MaxPrice);
             }
-            if(filterRequest.IsCombo != null)
+            if (filterRequest.IsCombo != null)
             {
                 filters.Add(f => f.IsCombo == filterRequest.IsCombo);
             }
-            if(filterRequest.CreateStartDate != null)
+            if (filterRequest.CreateStartDate != null)
             {
                 filters.Add(f => f.CreatedDate!.Value.Date >= filterRequest.CreateStartDate.Value.Date);
             }
-            if(filterRequest.CreateEndDate != null)
+            if (filterRequest.CreateEndDate != null)
             {
                 filters.Add(f => f.CreatedDate!.Value.Date <= filterRequest.CreateEndDate!.Value.Date);
             }

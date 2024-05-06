@@ -33,13 +33,15 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IProfileService _profileService;
         private readonly IGameService _gameService;
+        private readonly ITransactionRepository _repository;
 
-        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService) : base(unitOfWork, mapper, appSettings)
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService, ITransactionRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _vnPayService = vnPayService;
             _walletService = walletService;
             _profileService = profileService;
             _gameService = gameService;
+            _repository = repository;
         }
         public async Task CreateTransactionAsync(Transaction transaction)
         {

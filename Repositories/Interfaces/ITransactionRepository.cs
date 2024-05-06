@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface ITransactionRepository
+namespace Repositories.Interfaces;
+
+public interface ITransactionRepository : IGenericRepository<Transaction>
 {
     
 }

@@ -20,12 +20,14 @@ namespace Services.Implements
 {
     public class CategoryService : BaseService<Category>, ICategoryService
     {
-
+        private readonly ICategoryRepository _repository;
         private readonly ICloudStorageService _cloudStorageService;
-        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+
+        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, ICategoryRepository repository) : base(unitOfWork, mapper, appSettings)
         {
-            _repository = unitOfWork.GetRepository<Category>();
+            //_repository = unitOfWork.GetRepository<Category>();
             _cloudStorageService = cloudStorageService;
+            _repository = repository;
         }
 
         public Task<ICollection<Category>> GetAll(string? role)

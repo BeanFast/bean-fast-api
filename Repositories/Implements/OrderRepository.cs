@@ -1,6 +1,14 @@
-﻿namespace Repositories.Implements;
+﻿using AutoMapper;
+using BusinessObjects;
+using BusinessObjects.Models;
+using Repositories.Interfaces;
 
-public class OrderRepository
+namespace Repositories.Implements;
+
+public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
-    
+    public OrderRepository(BeanFastContext context, IMapper mapper) : base(context, mapper)
+    {
+
+    }
 }

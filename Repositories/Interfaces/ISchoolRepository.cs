@@ -1,6 +1,8 @@
-﻿namespace Repositories.Interfaces;
+﻿using BusinessObjects.Models;
 
-public interface ISchoolRepository
+namespace Repositories.Interfaces;
+
+public interface ISchoolRepository : IGenericRepository<School>
 {
     
 }

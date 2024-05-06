@@ -23,20 +23,21 @@ namespace Services.Implements
 {
     public class SessionService : BaseService<Session>, ISessionService
     {
+        private readonly ISessionRepository _repository;
 
         private readonly ILocationService _locationService;
         private readonly ISessionDetailService _sessionDetailService;
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
-
         private readonly IExchangeGIftService _exchangeGIftService;
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService, IExchangeGIftService exchangeGIftService) : base(unitOfWork, mapper, appSettings)
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService, IExchangeGIftService exchangeGIftService, ISessionRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _locationService = locationService;
             _sessionDetailService = sessionDetailService;
             _userService = userService;
             _orderService = orderService;
             _exchangeGIftService = exchangeGIftService;
+            _repository = repository;
         }
 
         public async Task CreateSessionAsync(CreateSessionRequest request, User user)
@@ -368,7 +369,7 @@ namespace Services.Implements
                                     if (order.Status == OrderStatus.Delivering)
                                     {
                                         var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
-                                        //await _orderService.CancelOrderForCustomerAsync(order, request, null!);
+                                        await _orderService.CancelOrderForCustomerAsync(orderIncludeWallet, request, orderIncludeWallet!.Profile!.User!);
                                     }
                                 }
                                 foreach (var eg in sd.ExchangeGifts!)

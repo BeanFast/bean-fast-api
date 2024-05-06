@@ -28,11 +28,13 @@ namespace Services.Implements
     public class LocationService : BaseService<Location>, ILocationService
     {
         private readonly ICloudStorageService _cloudStorageService;
-        private readonly ISchoolService _schoolService;
+        //private readonly ISchoolService _schoolService;
+        private readonly ILocationRepository _repository;
         public LocationService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
-            ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+            ICloudStorageService cloudStorageService, ILocationRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
+            _repository = repository;
         }
 
         public async Task<ICollection<GetLocationResponse>> GetAllLocationAsync()

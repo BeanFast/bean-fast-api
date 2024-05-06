@@ -24,10 +24,12 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
 {
     private readonly ICloudStorageService _cloudStorageService;
     private readonly IAreaService _areaService;
-    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
+    private readonly IKitchenRepository _repository;
+    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, IKitchenRepository repository) : base(unitOfWork, mapper, appSettings)
     {
         _cloudStorageService = cloudStorageService;
         _areaService = areaService;
+        _repository = repository;
     }
     private List<Expression<Func<Kitchen, bool>>> GetKitchenFilterFromFilterRequest(KitchenFilterRequest filterRequest)
     {
