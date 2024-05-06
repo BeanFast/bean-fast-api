@@ -368,7 +368,7 @@ namespace Services.Implements
                                     if (order.Status == OrderStatus.Delivering)
                                     {
                                         var orderIncludeWallet = await _orderService.GetByIdAsync(order.Id);
-                                        await _orderService.CancelOrderForCustomerAsync(order, request, null!);
+                                        //await _orderService.CancelOrderForCustomerAsync(order, request, null!);
                                     }
                                 }
                                 foreach (var eg in sd.ExchangeGifts!)
@@ -376,7 +376,7 @@ namespace Services.Implements
                                     if (eg.Status == ExchangeGiftStatus.Delivering)
                                     {
                                         var exchangeGift = await _exchangeGIftService.GetByIdAsync(eg.Id);
-                                        await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, null!);
+                                        //await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, null!);
                                     }
                                 }
                             }
