@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utilities.Statuses;
-
-namespace Utilities.Enums
+﻿namespace Utilities.Statuses
 {
     public class OrderStatus : BaseEntityStatus
     {
