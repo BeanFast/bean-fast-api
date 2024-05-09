@@ -9,5 +9,6 @@ namespace Repositories.Interfaces
 {
     public interface IMenuDetailRepository : IGenericRepository<MenuDetail>
     {
+        Task<MenuDetail> GetByIdAsync(Guid id);
     }
 }

@@ -18,8 +18,9 @@ namespace Services.Implements
     public class OrderDetailService : BaseService<OrderDetail>, IOrderDetailService
     {
         private readonly IOrderDetailRepository _repository;
-        public OrderDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public OrderDetailService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IOrderDetailRepository repository) : base(unitOfWork, mapper, appSettings)
         {
+            _repository = repository;
         }
 
         public async Task CreateOrderDetailAsync(OrderDetail orderDetail)

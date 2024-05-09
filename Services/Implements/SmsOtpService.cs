@@ -14,9 +14,10 @@ namespace Services.Implements
     {
         private readonly ISmsService _smsService;
         private readonly ISmsRepository _repository;
-        public SmsOtpService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISmsService smsService) : base(unitOfWork, mapper, appSettings)
+        public SmsOtpService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISmsService smsService, ISmsRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _smsService = smsService;
+            _repository = repository;
         }
         private string generateOtpValue()
         {
@@ -44,13 +45,7 @@ namespace Services.Implements
         }
         public async Task<bool> VerifyOtpAsync(SmsOtpVerificationRequest request, User user)
         {
-            var otp = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                otp => otp.Value == request.OtpValue,
-                otp => otp.UserId == user.Id,
-            }, orderBy: o => o.OrderByDescending(otp => otp.CreateAt));
-            if (otp == null || otp.ExpiredAt < TimeUtil.GetCurrentVietNamTime()) return false;
-            return true; 
+            return await _repository.VerifyOtpAsync(request, user);
         }
     }
 }

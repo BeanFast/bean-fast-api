@@ -29,13 +29,49 @@ namespace Services.Implements
         private readonly IWalletService _wallletService;
         private readonly ICloudStorageService _cloudStorageService;
         private readonly IProfileRepository _repository;
-        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService, IWalletService wallletService) : base(unitOfWork, mapper, appSettings)
+        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService, IWalletService wallletService, IProfileRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _schoolService = schoolService;
             _cloudStorageService = cloudStorageService;
             _wallletService = wallletService;
+            _repository = repository;
         }
 
+        
+        public async Task<Profile> GetProfileByIdAsync(int status, Guid id)
+        {
+            return await _repository.GetProfileByIdAsync(status, id);
+        }
+        public async Task<Profile> GetProfileByIdAsync(Guid id)
+        {
+            return await _repository.GetProfileByIdAsync(id);
+        }
+        
+        public async Task<Profile> GetProfileByIdForUpdateProfileAsync(Guid id)
+        {
+            return await _repository.GetProfileByIdForUpdateProfileAsync(id);
+        }
+        
+        public async Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        {
+            return await _repository.GetProfilesByCustomerIdAsync(customerId);
+        }
+
+        public async Task<Profile> GetByIdAsync(Guid id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+
+        public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user)
+        {
+            return await _repository.GetProfileResponseByIdAsync(id, user);
+        }
+
+        public async Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId)
+        {
+            return await _repository.GetProfileByIdAndCurrentCustomerIdAsync(profileId, customerId);
+        }
         public async Task CreateProfileAsync(CreateProfileRequest request, Guid userId, User user)
         {
             var profileEntity = _mapper.Map<Profile>(request);
@@ -52,7 +88,7 @@ namespace Services.Implements
             var imagePath = await _cloudStorageService.UploadFileAsync(profileId, _appSettings.Firebase.FolderNames.Profile, request.Image);
             profileEntity.AvatarPath = imagePath;
             profileEntity.Id = profileId;
-            profileEntity.Status = Utilities.Statuses.BaseEntityStatus.Active;
+            profileEntity.Status = BaseEntityStatus.Active;
             profileEntity.CurrentBMI = currentBMI.Weight / (currentBMI.Height * currentBMI.Height);
             currentBMI.RecordDate = TimeUtil.GetCurrentVietNamTime();
             var pointsWallet = new Wallet
@@ -67,43 +103,12 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
             await _wallletService.CreateWalletAsync(WalletType.Points, pointsWallet);
         }
-        public async Task<Profile> GetProfileByIdAsync(int status, Guid id)
-        {
-            var profile = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                s => s.Id == id,
-                s => s.Status == status
-            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
-            return profile;
-        }
-        public async Task<Profile> GetProfileByIdAsync(Guid id)
-        {
-            var profile = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                s => s.Id == id
-            }) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
-            return profile;
-        }
-        public async Task DeleteProfileAsync(Guid id)
-        {
-            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
-            await _repository.DeleteAsync(profile);
-            await _unitOfWork.CommitAsync();
-        }
-        public async Task<Profile> GetProfileByIdForUpdateProfileAsync(Guid id)
-        {
-            var profile = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                s => s.Id == id,
-                s => s.Status == BaseEntityStatus.Active
-            }, include: i => i.Include(p => p.BMIs!)) ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
-            return profile;
-        }
+
         public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request, User user)
         {
             var profile = await GetProfileByIdForUpdateProfileAsync(id);
             await _schoolService.GetSchoolByIdAsync(request.SchoolId);
-            if(profile.UserId != user.Id)
+            if (profile.UserId != user.Id)
             {
                 throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
             }
@@ -112,7 +117,7 @@ namespace Services.Implements
             profile.Gender = request.Gender;
             profile.Dob = request.Dob;
             profile.FullName = request.FullName;
-            if(request.Image != null)
+            if (request.Image != null)
             {
                 var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Profile, request.Image);
                 profile.AvatarPath = imagePath;
@@ -125,79 +130,11 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<ICollection<GetProfileResponse>> GetProfilesByCustomerIdAsync(Guid customerId)
+        public async Task DeleteProfileAsync(Guid id)
         {
-            var profiles = await _repository.GetListAsync<GetProfileResponse>(
-                filters: new()
-                {
-                    p => p.UserId == customerId,
-                    p => p.Status ==BaseEntityStatus.Active
-                }, include: i => i.Include(p => p.School!)
-                    .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
-                    .Include(p => p.Wallets!
-                            .Where(w => w.Status == BaseEntityStatus.Active
-                                && WalletType.Points.ToString().Equals(w.Type)
-                             )
-                        ));
-            //foreach (var profile in profiles)
-            //{
-            //    profile.SchoolName = profile.Schoo
-            //}
-            return profiles;
-        }
-
-        public async Task<Profile> GetByIdAsync(Guid id)
-        {
-            List<Expression<Func<Profile, bool>>> filters = new()
-            {
-                (profile) => profile.Id == id
-            };
-            var profile = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable
-                .Include(p => p.School!)
-                .ThenInclude(s => s.Kitchen)
-                .ThenInclude(k => k.Menus!.Where(m => m.Status == BaseEntityStatus.Active))
-                .ThenInclude(m => m.MenuDetails!.Where(md => md.Status == BaseEntityStatus.Active)))
-                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
-            return profile;
-        }
-
-
-        public async Task<GetProfileResponse> GetProfileResponseByIdAsync(Guid id, User user)
-        {
-            List<Expression<Func<Profile, bool>>> filters = new()
-            {
-                (profile) => profile.Id == id
-            };
-            if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
-            {
-                filters.Add(p => p.UserId == user.Id);
-            }
-
-            var profile = await _repository.FirstOrDefaultAsync<GetProfileResponse>(
-                status: BaseEntityStatus.Active,
-                filters: filters,
-                include: queryable => queryable
-                    .Include(p => p.School!)
-                    .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
-                    .Include(p => p.Wallets!
-                            .Where(w => w.Status == BaseEntityStatus.Active
-                                && WalletType.Points.ToString().Equals(w.Type)
-                             )
-                        )
-                )
-                ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
-            return profile;
-        }
-
-        public async Task<Profile> GetProfileByIdAndCurrentCustomerIdAsync(Guid profileId, Guid customerId)
-        {
-            var profile = await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
-            {
-                p => p.Id == profileId,
-                p => p.UserId == customerId
-            }, include: i => i.Include(p => p.Wallets!.Where(w => w.Status == BaseEntityStatus.Active)));
-            return profile ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
+            var profile = await GetProfileByIdAsync(BaseEntityStatus.Active, id);
+            await _repository.DeleteAsync(profile);
+            await _unitOfWork.CommitAsync();
         }
     }
 }

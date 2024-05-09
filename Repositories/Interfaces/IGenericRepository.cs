@@ -16,33 +16,33 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<T?> FirstOrDefaultAsync(
-            int status,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<T?> FirstOrDefaultAsync(
+        //    int status,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
 
         Task<TResult?> FirstOrDefaultAsync<TResult>(
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
-        Task<TResult?> FirstOrDefaultAsync<TResult>(
-            int status,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<TResult?> FirstOrDefaultAsync<TResult>(
+        //    int status,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
         Task<ICollection<T>> GetListAsync(
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<ICollection<T>> GetListAsync(
-            int status,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<ICollection<T>> GetListAsync(
+        //    int status,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
         Task<ICollection<TResult>> GetListAsync<TResult>(
             Expression<Func<T, TResult>> selector,
             List<Expression<Func<T, bool>>>? filters = null,
@@ -55,18 +55,18 @@ namespace Repositories.Interfaces
             List<Expression<Func<T, bool>>>? filters = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
-        Task<ICollection<TResult>> GetListAsync<TResult>(
-            int status,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<ICollection<TResult>> GetListAsync<TResult>(
+        //    int status,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<IPaginable<T>> GetPageAsync(
-            int status,
-            PaginationRequest paginationRequest,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<IPaginable<T>> GetPageAsync(
+        //    int status,
+        //    PaginationRequest paginationRequest,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
         Task<IPaginable<T>> GetPageAsync(
             PaginationRequest paginationRequest,
             List<Expression<Func<T, bool>>>? filters = null,
@@ -85,12 +85,12 @@ namespace Repositories.Interfaces
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
-        Task<IPaginable<TResult>> GetPageAsync<TResult>(
-            int status,
-            PaginationRequest paginationRequest,
-            List<Expression<Func<T, bool>>>? filters = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
+        //Task<IPaginable<TResult>> GetPageAsync<TResult>(
+        //    int status,
+        //    PaginationRequest paginationRequest,
+        //    List<Expression<Func<T, bool>>>? filters = null,
+        //    Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        //    Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 
 
 

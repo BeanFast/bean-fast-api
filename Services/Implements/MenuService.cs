@@ -32,126 +32,35 @@ public class MenuService : BaseService<Menu>, IMenuService
         _menuDetailService = menuDetailService;
         _repository = repository;
     }
-    private List<Expression<Func<Menu, bool>>> GetFilterFromFilterRequest(string userRole, MenuFilterRequest filterRequest)
-    {
-        List<Expression<Func<Menu, bool>>> filters = new();
 
-        if (filterRequest.KitchenId != Guid.Empty && filterRequest.KitchenId != null)
-        {
-            filters.Add((f) => f.KitchenId == filterRequest.KitchenId);
-        }
-
-        if (filterRequest.Code != null)
-        {
-            filters.Add(f => f.Code == filterRequest.Code);
-        }
-
-        if (filterRequest.CreaterId != Guid.Empty && filterRequest.CreaterId != null)
-        {
-            filters.Add(f => f.CreatorId == filterRequest.CreaterId);
-        }
-
-        if (filterRequest.CreateDate != null)
-        {
-            filters.Add(f => f.CreatedDate!.Value.Date == filterRequest.CreateDate.Value.Date);
-        }
-        if (filterRequest.UpdateDate != null)
-        {
-            filters.Add(f => f.UpdatedDate!.Value.Date == filterRequest.UpdateDate.Value.Date);
-        }
-        if (filterRequest.Status != null)
-        {
-
-        }
-        if (filterRequest.OrderStartTime != null)
-        {
-            filters.Add(
-                f => f.Sessions!.Any(s => s.OrderStartTime.CompareTo(filterRequest.OrderStartTime.Value) == 0
-                                          && s.Status == BaseEntityStatus.Active));
-        }
-        if (RoleName.MANAGER.ToString().Equals(userRole))
-        {
-            if (filterRequest.SessionExpired)
-            {
-                filters.Add(
-                    m => m.Sessions!.Any(s => s.OrderEndTime < TimeUtil.GetCurrentVietNamTime()));
-            }
-            if (filterRequest.SessonIncomming)
-            {
-                filters.Add(
-                    m => m.Sessions!.Any(s => s.OrderStartTime > TimeUtil.GetCurrentVietNamTime()));
-            }
-            if (filterRequest.SessionOrderable)
-            {
-                filters.Add(
-                    m => m.Sessions!.Any(s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()));
-            }
-        }
-        else
-        {
-            if (filterRequest.SessionOrderable)
-            {
-                filters.Add(
-                    m => m.Sessions!.Any(s => s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime()
-                                              && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime()
-                                              && s.Status == BaseEntityStatus.Active));
-            }
-
-        }
-        if (filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
-        {
-            filters.Add(m => m.Kitchen!.PrimarySchools!.Any(s => s.Id == filterRequest.SchoolId));
-        }
-
-        return filters;
-    }
 
     public async Task<Menu> GetByIdAsync(Guid id)
     {
-        List<Expression<Func<Menu, bool>>> filters = new()
-            {
-                (menu) => menu.Id == id
-            };
-        var menu = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-            filters: filters, include: queryable => queryable
-            .Include(m => m.Kitchen!)
-            .Include(m => m.MenuDetails!)
-            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id)));
-        return menu;
+        return await _repository.GetByIdAsync(id);
     }
 
     public async Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest)
     {
-        IPaginable<GetMenuResponse>? menuPage = null;
-        if (userRole == RoleName.ADMIN.ToString())
-        {
-            menuPage = await _repository.GetPageAsync<GetMenuResponse>(
-                paginationRequest: request,
-                include: i => i.Include(menu => menu.Kitchen!).Include(m => m.Sessions!)
-                    .ThenInclude(s => s.SessionDetails!)
-                    .ThenInclude(sd => sd.Location!)
-            );
-        }
-        return menuPage!;
+        return await _repository.GetPageAsync(request, userRole, menuFilterRequest);
     }
 
     public async Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest)
     {
-        var filters = GetFilterFromFilterRequest(userRole, menuFilterRequest);
-        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include =
-            (menu) => menu.Include(menu => menu.Kitchen!)
-            .Include(menu => menu.Sessions!)
-            .ThenInclude(session => session.SessionDetails!)
-            .ThenInclude(sd => sd.Location!);
-        return await _repository.GetListAsync<GetMenuResponse>(filters: filters, include: include);
+        return await _repository.GetAllAsync(userRole, menuFilterRequest);
 
     }
+    public async Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id)
+    {
+        return await _repository.GetGetMenuResponseByIdAsync(id);
+    }
+
+
     public async Task CreateMenuAsync(CreateMenuRequest createMenuRequest, User creator)
     {
         await _kitchenService.GetByIdAsync(BaseEntityStatus.Active, createMenuRequest.KitchenId);
         var menuId = Guid.NewGuid();
         var menuEntity = _mapper.Map<Menu>(createMenuRequest);
- 
+
         menuEntity.Id = menuId;
         var menuNumber = await _repository.CountAsync() + 1;
         menuEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.MenuCodeConstrant.MenuPrefix, menuNumber);
@@ -207,20 +116,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         await _repository.DeleteAsync(menu);
         await _unitOfWork.CommitAsync();
     }
-
-    public async Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id)
-    {
-        List<Expression<Func<Menu, bool>>> filters = new()
-            {
-                (menu) => menu.Id == id
-            };
-        var menu = await _repository.FirstOrDefaultAsync<GetMenuResponse>(status: BaseEntityStatus.Active,
-            filters: filters, include: queryable => queryable
-            .Include(m => m.Kitchen!)
-            .Include(m => m.MenuDetails!).ThenInclude(md => md.Food!))
-            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
-        return menu;
-    }
+    
 
     public async Task UpdateMenuAsync(UpdateMenuRequest request, Guid guid, User updater)
     {
@@ -241,7 +137,7 @@ public class MenuService : BaseService<Menu>, IMenuService
                 Status = BaseEntityStatus.Active,
                 FoodId = item.FoodId,
                 Price = item.Price,
-            }) ;
+            });
         }
         menuEntity.MenuDetails = new List<MenuDetail>();
         using (var transaction = await _unitOfWork.BeginTransactionAsync())

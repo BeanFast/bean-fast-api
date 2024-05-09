@@ -14,7 +14,7 @@ namespace Services.Interfaces
     {
         Task CreateGiftAsync(CreateGiftRequest request, User user);
         Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest);
-        Task<Gift> GetGiftByIdAsync(int status, Guid id);
+        Task<Gift> GetGiftByIdAsync(Guid id, int status);
         Task<Gift> GetGiftByIdAsync(Guid id);
         Task UpdateGiftAsync(Guid id, UpdateGiftRequest request, User user);
         Task UpdateGiftAsync(Gift gift);

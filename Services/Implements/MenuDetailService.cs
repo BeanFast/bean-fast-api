@@ -28,13 +28,7 @@ namespace Services.Implements
 
         public async Task<MenuDetail> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<MenuDetail, bool>>> filters = new()
-            {
-                (menuDetail) => menuDetail.Id == id
-            };
-            var menuDetail = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active, filters: filters)
-                ?? throw new EntityNotFoundException(MessageConstants.MenuDetailMessageConstrant.MenuDetailNotFound(id));
-            return menuDetail;
+            return await _repository.GetByIdAsync(id);
         }
 
         public async Task HardDeleteAsync(List<MenuDetail> menuDetails)

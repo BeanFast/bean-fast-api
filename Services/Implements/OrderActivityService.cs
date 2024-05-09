@@ -39,19 +39,22 @@ namespace Services.Implements
 
         public async Task<OrderActivity> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<OrderActivity, bool>>> filters = new()
-            {
-                (orderActivity) => orderActivity.Id == id
-            };
-            var orderActivity = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters)
-                ?? throw new EntityNotFoundException(MessageConstants.OrderActivityMessageConstrant.OrderActivityNotFound(id));
-            return orderActivity;
+            return await _repository.GetByIdAsync(id);
         }
 
         public async Task<GetOrderActivityResponse> GetOrderActivityResponseByIdAsync(Guid id)
         {
             return _mapper.Map<GetOrderActivityResponse>(await GetByIdAsync(id));
+        }
+
+        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user)
+        {
+            return await _repository.GetOrderActivitiesByOrderIdAsync(orderId, user);
+        }
+
+        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user)
+        {
+            return await _repository.GetOrderActivitiesByExchangeGiftIdAsync(exchangeGiftId, user);
         }
         public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user)
         {
@@ -99,34 +102,6 @@ namespace Services.Implements
             orderActivity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber);
             await _repository.InsertAsync(orderActivity, user);
             await _unitOfWork.CommitAsync();
-        }
-
-
-        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user)
-        {
-            var roleName = user.Role!.EnglishName;
-            List<Expression<Func<OrderActivity, bool>>> filters = new();
-            if (RoleName.CUSTOMER.ToString().Equals(roleName))
-            {
-                filters.Add(oa => oa.Order!.Profile!.UserId == user.Id);
-            }
-            filters.Add(oa => oa.OrderId == orderId);
-            var result = await _repository.GetListAsync<GetOrderActivityResponse>(filters: filters);
-            return result;
-            //await _repository.GetListAsync()
-        }
-
-        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user)
-        {
-            var roleName = user.Role!.EnglishName;
-            List<Expression<Func<OrderActivity, bool>>> filters = new();
-            if (RoleName.CUSTOMER.ToString().Equals(roleName))
-            {
-                filters.Add(oa => oa.Order!.Profile!.UserId == user.Id);
-            }
-            filters.Add(oa => oa.ExchangeGiftId == exchangeGiftId);
-            var result = await _repository.GetListAsync<GetOrderActivityResponse>(filters: filters);
-            return result;
         }
 
         public async Task CreateOrderActivityAsync(ExchangeGift exchangeGift, OrderActivity orderActivity, User user)

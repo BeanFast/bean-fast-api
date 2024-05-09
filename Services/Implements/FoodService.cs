@@ -28,7 +28,6 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
         private readonly ICategoryService _categoryService;
         private readonly IComboService _comboService;
-
         private readonly IFoodRepository _repository;
 
         public FoodService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper,
@@ -42,79 +41,16 @@ namespace Services.Implements
             _repository = repository;
         }
 
-        private List<Expression<Func<Food, bool>>> GetFilterFromFilterRequest(FoodFilterRequest filterRequest)
-        {
-            List<Expression<Func<Food, bool>>> filters = new();
-
-            if (filterRequest.CategoryId != null && filterRequest.CategoryId != Guid.Empty)
-            {
-                filters.Add((f) => f.CategoryId == filterRequest.CategoryId);
-            }
-
-            if (filterRequest.Code != null)
-            {
-                filters.Add(f => f.Code == filterRequest.Code);
-            }
-
-            if (filterRequest.Name is { Length: > 0 })
-            {
-                filters.Add(f => f.Name.ToLower().Contains(filterRequest.Name.ToLower()));
-            }
-
-            if (filterRequest.MinPrice > 0)
-            {
-                filters.Add(f => f.Price >= filterRequest.MinPrice);
-            }
-            if (filterRequest.MaxPrice > 0)
-            {
-                filters.Add(f => f.Price <= filterRequest.MaxPrice);
-            }
-            if (filterRequest.IsCombo != null)
-            {
-                filters.Add(f => f.IsCombo == filterRequest.IsCombo);
-            }
-            if (filterRequest.CreateStartDate != null)
-            {
-                filters.Add(f => f.CreatedDate!.Value.Date >= filterRequest.CreateStartDate.Value.Date);
-            }
-            if (filterRequest.CreateEndDate != null)
-            {
-                filters.Add(f => f.CreatedDate!.Value.Date <= filterRequest.CreateEndDate!.Value.Date);
-            }
-
-            return filters;
-        }
+        
         public async Task<ICollection<GetFoodResponse>> GetAllAsync(string? userRole, FoodFilterRequest filterRequest)
         {
-
-            Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include = (f) => f.Include(f => f.Category!);
-            var filters = GetFilterFromFilterRequest(filterRequest);
-            if (RoleName.ADMIN.ToString().Equals(userRole))
-            {
-                return await _repository.GetListAsync<GetFoodResponse>(include: include, filters: filters);
-            }
-
-            return await _repository.GetListAsync<GetFoodResponse>(BaseEntityStatus.Active, include: include, filters: filters);
+            return await _repository.GetAllFoodsAsync(userRole, filterRequest);
         }
 
         public async Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest,
             PaginationRequest request)
         {
-            Expression<Func<Food, GetFoodResponse>> selector = (f => _mapper.Map<GetFoodResponse>(f));
-            Func<IQueryable<Food>, IOrderedQueryable<Food>> orderBy = o => o.OrderBy(f => f.Name);
-            IPaginable<GetFoodResponse>? page = null;
-            if (RoleName.ADMIN.ToString().Equals(userRole))
-            {
-                page = await _repository.GetPageAsync<GetFoodResponse>(paginationRequest: request, orderBy: orderBy);
-            }
-            else
-            {
-                page = await _repository.GetPageAsync<GetFoodResponse>(
-                    status: BaseEntityStatus.Active,
-                    paginationRequest: request, orderBy: orderBy);
-            }
-
-            return page;
+            return await _repository.GetPageAsync(userRole, filterRequest, request);
         }
 
         public async Task<GetFoodResponse> GetFoodResponseByIdAsync(Guid id)
@@ -124,54 +60,25 @@ namespace Services.Implements
 
         public async Task<Food> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<Food, bool>>> filters = new()
-            {
-                (food) => food.Id == id,
-            };
-
-            var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!))
-                ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
-            return food;
+            return await _repository.GetByIdAsync(id) ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
         }
         public async Task<Food> GetByIdForUpdateActionAsync(Guid id)
         {
-            List<Expression<Func<Food, bool>>> filters = new()
-            {
-                (food) => food.Id == id,
-            };
-
-            var food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!).Include(f => f.MenuDetails!).ThenInclude(md => md.Menu!))
-                ?? throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
+            var food = await _repository.GetByIdAsync(id);
+            if (food is null || food.Status == BaseEntityStatus.Deleted) throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
             return food;
         }
-        public async Task<Food> GetByIdAsync(Guid id, string roleName)
-        {
-            Food? food = null;
-            List<Expression<Func<Food, bool>>> filters = new()
-            {
-                (food) => food.Id == id,
-            };
-            if (roleName.Equals(RoleName.ADMIN.ToString()))
-            {
-                food = await _repository.FirstOrDefaultAsync(
-                    filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
-            }
-            else
-            {
-                food = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: f => f.Include(f => f.Category!).Include(f => f.Combos!));
-            }
+        //public async Task<Food> GetByIdAsync(Guid id, string roleName)
+        //{
+        //    Food? food = await _repository.GetByIdAsync(id);
 
 
-            if (food is null) throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
-            return food;
-        }
+        //    if (food is null) throw new EntityNotFoundException(MessageConstants.FoodMessageConstrant.FoodNotFound(id));
+        //    return food;
+        //}
 
         public async Task CreateFoodAsync(CreateFoodRequest request, User user)
         {
-            Console.WriteLine(request);
             var masterFoodId = Guid.NewGuid();
             string imagePath = await _cloudStorageService.UploadFileAsync(masterFoodId,
                 _appSettings.Firebase.FolderNames.Food, request.Image);
@@ -269,30 +176,9 @@ namespace Services.Implements
 
         public async Task<ICollection<GetBestSellerFoodsResponse>> GetBestSellerFoodsAsync(GetBestSellerFoodsRequest request)
         {
-            var filters = new List<Expression<Func<Food, bool>>>();
-            Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include;
-            filters.Add(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed) && f.Status == BaseEntityStatus.Active);
-            if (request.StartDate != DateTime.MinValue && request.EndDate != DateTime.MinValue)
-            {
-                include = i => i
-                .Include(f => f.OrderDetails!
-                    .Where(od => od.Order!.PaymentDate.Date >= request.StartDate.Date && od.Order.PaymentDate.Date <= request.EndDate.Date && od.Order.Status == OrderStatus.Completed)
-                );
-            }
-            else
-            {
-                include = i => i.Include(f => f.OrderDetails!.Where(od => od.Order!.Status == OrderStatus.Completed));
-            }
-            var foodPage = await _repository.GetPageAsync(
-                filters: filters,
-                include: include,
-                orderBy: o => o.OrderByDescending(f => f.OrderDetails!.Count),
-                paginationRequest: new PaginationRequest
-                {
-                    Page = 1,
-                    Size = request.Number
-                });
+
             //_mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
+            var foodPage = await _repository.GetBestSellerFoodsPageAsync(request);
             return _mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
         }
         //public async Task<ICollection<GetFoodResponse>> GetFoodsByCategoryAsync(Guid categoryId)

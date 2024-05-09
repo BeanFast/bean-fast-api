@@ -154,57 +154,59 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
         {
-            var filters = getFiltersFromSessionFilterRequest(filterRequest, userRole!);
-            return await _repository.GetListAsync<GetSessionForDeliveryResponse>(filters: filters);
+            return await _repository.GetAllAsync(userRole, filterRequest);
         }
 
         public async Task<Session> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<Session, bool>>> filters = new()
-            {
-                (session) => session.Id == id,
-                (session) => session.Status != BaseEntityStatus.Deleted
-            };
-            var session = await _repository.FirstOrDefaultAsync(
-                filters: filters,
-                include: i => i.Include(s => s.SessionDetails!))
-                ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
-            return session;
+            return await _repository.GetByIdAsync(id);
         }
         public async Task<Session> GetBySessionDetailIdAsync(Guid sesionDetailId)
         {
-            List<Expression<Func<Session, bool>>> filters = new()
-            {
-                (session) => session.SessionDetails!.Where(sd => sd.Id == sesionDetailId).Any(),
-                (session) => session.Status != BaseEntityStatus.Deleted
-            };
-            var session = await _repository.FirstOrDefaultAsync(
-                filters: filters,
-                include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!))
-                ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(sesionDetailId));
-            return session;
+            return await _repository.GetBySessionDetailIdAsync(sesionDetailId);
         }
 
         public async Task<GetSessionForDeliveryResponse> GetSessionResponseByIdAsync(Guid id)
         {
             return _mapper.Map<GetSessionForDeliveryResponse>(await GetByIdAsync(id));
         }
-        //public async Task CreateSessionAsync(CreateSessionRequest request)
-        //{
-        //    var session = _mapper.Map<Session>(request);
-        //    await _repository.InsertAsync(session);
-        //    await _unitOfWork.CommitAsync();
-        //}
-        
+        public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)
+        {
+            return await _repository.GetSessionForDeliveryResponseByIdAsync(id, request, userRole);
+        }
+
+        public async Task<bool> CheckOrderable(Guid menuDetailId, Guid profileId, Guid sessionId)
+        {
+            var session = await _repository.GetSessionByMenuDetailIdAndProfileIdAndSessionIdAsync(menuDetailId, profileId, sessionId);
+            if (session == null || session.Menu == null || session.SessionDetails!.Count == 0 || session.Menu!.MenuDetails!.Count == 0)
+            {
+                return false;
+            }
+            bool profileIdIsInSchoolOfSession = false;
+            bool menuDetailIdIsInMenuOfSession = false;
+            foreach (var sessionDetail in session.SessionDetails!)
+            {
+                if (sessionDetail.Location!.School!.Profiles!.Any(p => p.Id == profileId))
+                {
+                    profileIdIsInSchoolOfSession = true;
+                }
+            }
+            foreach (var menuDetail in session.Menu.MenuDetails)
+            {
+                if (menuDetail.Id == menuDetailId)
+                {
+                    menuDetailIdIsInMenuOfSession = true;
+                }
+            }
+            return menuDetailIdIsInMenuOfSession && profileIdIsInSchoolOfSession;
+        }
+
         public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(Guid sessionDetailId)
         {
             ICollection<GetDelivererResponse> list = new List<GetDelivererResponse>();
 
             var session = await GetBySessionDetailIdAsync(sessionDetailId);
-            var sessions = await _repository.GetListAsync(filters: new()
-            {
-                s => s.DeliveryStartTime < session.DeliveryEndTime && s.DeliveryEndTime > session.DeliveryStartTime
-            }, include: i => i.Include(s => s.SessionDetails!).ThenInclude(sd => sd.SessionDetailDeliverers!).ThenInclude(sdd => sdd.Deliverer!));
+            var sessions = await _repository.GetOverlappedDeliveryTimeSessions(session.DeliveryStartTime, session.DeliveryEndTime);
             var existedBusyDelivererIdList = session.SessionDetails?.SelectMany(sd =>
             {
                 return sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId);
@@ -230,18 +232,7 @@ namespace Services.Implements
 
         public async Task DeleteAsync(Guid guid, User user)
         {
-            var session = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                session => session.Id == guid,
-                session => session.Status == BaseEntityStatus.Active
-            }, include: i => i
-                .Include(s => s.SessionDetails!)
-                .ThenInclude(sd => sd.Orders!)
-                .ThenInclude(s => s.OrderActivities!)
-                .Include(s => s.SessionDetails!)
-                .ThenInclude(sd => sd.Orders!)
-                .ThenInclude(o => o.Profile!)
-                .ThenInclude(p => p.Wallets!));
+            var session = await _repository.GetByIdForDelete(guid);
             if (session == null) throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionNotFound(guid));
             var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
 
@@ -259,21 +250,14 @@ namespace Services.Implements
                     }
                 }
                 sessionDetail.Status = BaseEntityStatus.Deleted;
+                sessionDetail.Orders = null;
             }
             await _repository.DeleteAsync(session, user);
             await _unitOfWork.CommitAsync();
 
         }
 
-        public async Task<GetSessionForDeliveryResponse> GetSessionForDeliveryResponseByIdAsync(Guid id, SessionFilterRequest request, string? userRole)
-        {
-            var filters = getFiltersFromSessionFilterRequest(request, userRole!);
-            filters.Add((session) => session.Id == id && session.Status != BaseEntityStatus.Deleted);
-            var result = await _repository.FirstOrDefaultAsync<GetSessionForDeliveryResponse>(filters: filters)
-                 ?? throw new EntityNotFoundException(MessageConstants.SessionMessageConstrant.SessionNotFound(id));
-            return result!;
-        }
-
+        
         public async Task UpdateOrdersStatusAutoAsync()
         {
             var filters = new List<Expression<Func<Session, bool>>>()
@@ -396,45 +380,6 @@ namespace Services.Implements
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
             await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList());
         }
-        public async Task<bool> CheckOrderable(Guid menuDetailId, Guid profileId, Guid sessionId)
-        {
-            var filters = new List<Expression<Func<Session, bool>>>()
-            {
-                s => s.Id == sessionId,
-                s => s.Status != BaseEntityStatus.Deleted,
-                s => s.Menu!.MenuDetails!.Any(md => md.Id == menuDetailId),
-            };
-            bool profileIdIsInSchoolOfSession = false;
-            bool menuDetailIdIsInMenuOfSession = false;
-            var session = await _repository.FirstOrDefaultAsync(
-                filters: filters,
-                include: i =>
-                    i.Include(s => s.SessionDetails!)
-                        .ThenInclude(sd => sd.Location!)
-                        .ThenInclude(l => l.School!)
-                        .ThenInclude(s => s.Profiles!.Where(p => p.Id == profileId && p.Status != BaseEntityStatus.Deleted))
-                    .Include(s => s.Menu!)
-                        .ThenInclude(m => m.MenuDetails!.Where(md => md.Id == menuDetailId))
-            );
-            if(session == null || session.Menu == null || session.SessionDetails!.Count == 0 || session.Menu!.MenuDetails!.Count == 0)
-            {
-                return false;
-            }
-            foreach(var sessionDetail in session.SessionDetails!)
-            {
-                if(sessionDetail.Location!.School!.Profiles!.Any(p => p.Id == profileId))
-                {
-                    profileIdIsInSchoolOfSession = true;
-                }
-            }
-            foreach(var menuDetail in session.Menu.MenuDetails)
-            {
-                if(menuDetail.Id == menuDetailId)
-                {
-                    menuDetailIdIsInMenuOfSession = true;
-                }
-            }
-            return menuDetailIdIsInMenuOfSession && profileIdIsInSchoolOfSession;
-        }
+        
     }
 }

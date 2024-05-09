@@ -186,10 +186,9 @@ namespace Services.Implements
             var customer = _mapper.Map<User>(registerRequest);
             List<Expression<Func<User, bool>>> filters = new()
             {
-                (user) => user.Phone == registerRequest.Phone
+                (user) => user.Phone == registerRequest.Phone && user.Status != UserStatus.Deleted
             };
             var existedData = await _repository.FirstOrDefaultAsync(
-                status: BaseEntityStatus.Active,
                 filters: filters
             );
             if (existedData is not null)
@@ -289,10 +288,11 @@ namespace Services.Implements
                 (user) => user.Id == userId
             };
 
-            var user = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
+            var user = await _repository.FirstOrDefaultAsync(
                 filters: filters,
                 include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
                 ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
+            if (user.Status == UserStatus.Deleted) throw new BannedAccountException();
             return user;
         }
         public async Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId)

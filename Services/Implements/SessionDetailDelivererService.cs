@@ -16,8 +16,9 @@ namespace Services.Implements
     public class SessionDetailDelivererService : BaseService<SessionDetailDeliverer>, ISessionDetailDelivererService
     {
         private readonly ISessionDetailDelivererRepository _delivererRepository;
-        public SessionDetailDelivererService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        public SessionDetailDelivererService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISessionDetailDelivererRepository delivererRepository) : base(unitOfWork, mapper, appSettings)
         {
+            _delivererRepository = delivererRepository;
         }
 
         public async Task HardDeleteAsync(List<SessionDetailDeliverer> sessionDetailDeliverers)

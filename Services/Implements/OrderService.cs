@@ -57,165 +57,280 @@ namespace Services.Implements
             _userService = userService;
             _repository = repository;
         }
-        private List<Expression<Func<Order, bool>>> GetFiltersFromOrderRequest(OrderFilterRequest request)
-        {
-            List<Expression<Func<Order, bool>>> filters = new();
-            if (request.Status != null)
-            {
-                if (request.Status == 6)
-                {
-                    filters.Add(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.CancelledByCustomer);
-                }
-                else
-                {
-                    filters.Add(o => o.Status == request.Status);
-                }
-            }
-            return filters;
-        }
+        
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user)
         {
-            var filters = GetFiltersFromOrderRequest(request);
-            Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
-
-            if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
-            {
-                //filters.Add()
-            }
-            else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
-            {
-                filters.Add(o => o.Profile!.UserId == user.Id);
-            }
-            else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
-            {
-                filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
-            }
-
-            return await _repository.GetListAsync<GetOrderResponse>(filters: filters, include: include);
-
+            return await _repository.GetAllAsync(request, user);
         }
 
         public async Task<Order> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<Order, bool>>> filters = new()
-            {
-                (order) => order.Id == id && order.Status != BaseEntityStatus.Deleted
-            };
-            var order = await _repository.FirstOrDefaultAsync(
-                filters: filters, include: queryable =>
-                queryable
-                .Include(o => o.Profile!)
-                    .ThenInclude(p => p.Wallets)
-                .Include(o => o.Profile!)
-                    .ThenInclude(p => p.User!)
-                .Include(o => o.SessionDetail!)
-                    .ThenInclude(o => o.Session!)
-                .Include(o => o.OrderDetails!)
-                .Include(o => o.OrderActivities!))
-
-                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
-            return order!;
+            return await _repository.GetByIdAsync(id);
         }
 
         public async Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id)
         {
-            Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
-                (o) => o.Include(o => o.Profile!)
-                .Include(o => o.SessionDetail!)
-                .ThenInclude(sd => sd.Session!)
-                .Include(o => o.SessionDetail!)
-                .ThenInclude(sd => sd.Location!)
-                .ThenInclude(l => l.School!)
-                .ThenInclude(school => school.Area!);
-            List<Expression<Func<Order, bool>>> filters = new()
-            {
-                (order) => order.Id == id,
-                //(order) => order.Status == BaseEntityStatus.Active
-            };
-            var result = await _repository.FirstOrDefaultAsync<GetOrderByIdResponse>(
-                filters: filters, include: include)
-                ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
-            return result!;
+            return await _repository.GetOderResponseByIdAsync(id);
         }
 
         public async Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request)
         {
-            Expression<Func<Order, GetOrderResponse>> selector = (o => _mapper.Map<GetOrderResponse>(o));
-            Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = o => o.OrderBy(o => o.DeliveryDate);
-            IPaginable<GetOrderResponse>? page = null;
-            if (RoleName.ADMIN.ToString().Equals(userRole))
-            {
-                page = await _repository.GetPageAsync<GetOrderResponse>(
-                    paginationRequest: request, orderBy: orderBy);
-            }
-            else
-            {
-                page = await _repository.GetPageAsync<GetOrderResponse>(BaseEntityStatus.Active,
-                    paginationRequest: request, orderBy: orderBy);
-            }
-            return page;
+            return await _repository.GetPageAsync(userRole, request);
         }
 
-        public async Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId)
-        {
-            var profile = await _profileService.GetByIdAsync(profileId);
+        //public async Task<ICollection<GetOrderResponse>> GetOrdersByProfileIdAsync(Guid profileId, Guid userId)
+        //{
+        //    var profile = await _profileService.GetByIdAsync(profileId);
 
-            if (profile.UserId != userId)
-            {
-                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
-            }
+        //    if (profile.UserId != userId)
+        //    {
+        //        throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
+        //    }
 
-            List<Expression<Func<Order, bool>>> filters = new()
-            {
-                (order) => order.ProfileId == profileId
-            };
+        //    List<Expression<Func<Order, bool>>> filters = new()
+        //    {
+        //        (order) => order.ProfileId == profileId
+        //    };
 
-            var orders = await _repository.GetListAsync(filters: filters,
-                include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
+        //    var orders = await _repository.GetListAsync(filters: filters,
+        //        include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
 
-            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
-        }
+        //    return _mapper.Map<ICollection<GetOrderResponse>>(orders);
+        //}
 
         public async Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status)
         {
-            List<Expression<Func<Order, bool>>> filters = new()
-            {
+            return await _repository.GetOrdersByStatusAsync(status);
+        }
 
-            };
-            if (status == OrderStatus.Cancelled)
+        public  Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
+        {
+            //List<Expression<Func<Order, bool>>> filters = new()
+            //{
+            //    (order) => order.ProfileId! == profileId
+            //    && order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
+            //    && order.Status == OrderStatus.Delivering
+            //};
+            //Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
+            //    (order) => order.Include(o => o.OrderDetails!).Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!);
+
+            ////var orders = await _repository.GetListAsync(filters: filters,
+            ////    status: OrderStatus.Delivering, include: queryable => queryable
+            ////    .Include(o => o.SessionDetail!)
+            ////    .ThenInclude(sd => sd.Session!))
+            ////    ?? throw new EntityNotFoundException("Không có order nào đang giao hết");
+            //var orders = await _repository.GetListAsync(include: include, filters: filters);
+            //return _mapper.Map<ICollection<GetOrderResponse>>(orders);
+            return null;
+        }
+        public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
+        {
+            var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
+            var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
+            if (orders.IsNullOrEmpty())
             {
-                filters.Add(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.CancelledByCustomer);
+                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
+            }
+            var timeScanning = TimeUtil.GetCurrentVietNamTime();
+            var validOrders = new List<GetOrderResponse>();
+            foreach (var order in orders)
+            {
+                if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
+                {
+
+                    validOrders.Add(_mapper.Map<GetOrderResponse>(order));
+                }
+            }
+            if (validOrders.Count == 0)
+            {
+                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NotFoundOrders);
+            }
+            return validOrders;
+        }
+        public async Task<ICollection<Order>> GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId)
+        {
+            return await _repository.GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customerId);
+        }
+
+        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user)
+        {
+            var orderActivities = await _orderActivityService.GetOrderActivitiesByOrderIdAsync(orderId, user);
+            return orderActivities;
+        }
+        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request)
+        {
+            //var today = TimeUtil.GetCurrentVietNamTime();
+
+            DateTime pastMonthStart = request.StartDate;
+            var allMonths = Enumerable.Range(0, request.EndDate.Month - request.StartDate.Month).Select(i => pastMonthStart.AddMonths(i)).ToList();
+
+            var orders = await _repository.GetOrdersAsync(
+                request.StartDate,
+                request.EndDate,
+                request.Status
+            );
+            var data = orders.GroupBy(order => order.PaymentDate.Month)
+                .OrderBy(group => group.Key)
+                .Select(
+                    group => new GetOrdersByLastMonthsResponse
+                    {
+                        MonthInt = group.Key,
+                        Month = TimeUtil.GetMonthName(group.Key),
+                        Count = group.Count(),
+                        Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
+                    }
+                ).ToList();
+            //var missingDates = allMonths.Except(data.Select(d => d.DateTime));
+            foreach (var month in allMonths)
+            {
+                if (!data.Any(d => d.Month == TimeUtil.GetMonthName(month.Month)))
+                {
+                    data.Add(new GetOrdersByLastMonthsResponse
+                    {
+                        MonthInt = month.Month,
+                        Month = TimeUtil.GetMonthName(month.Month),
+                        Count = 0,
+                        Revenue = 0
+                    });
+                }
+            }
+            return data.OrderBy(d => d.MonthInt).ToList();
+        }
+        public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate)
+        {
+            DateTime yesterday = DateTime.Today.Subtract(TimeSpan.FromDays(1));
+            DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate));
+            var orders = await _repository.GetOrdersAsync(pastWeekStart, yesterday, OrderStatus.Completed);
+            List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
+            var data = orders.GroupBy(order => order.PaymentDate.Date)
+                .OrderBy(group => group.Key)
+                .Select(group => new GetOrdersByLastDaysResponse
+                {
+                    DateTime = group.Key,
+                    Day = group.Key.Day + "/" + group.Key.Month,
+                    Count = group.Count(),
+                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
+                })
+                .ToList();
+
+            var allDates = Enumerable.Range(0, numberOfDate).Select(i => pastWeekStart.AddDays(i)).ToList();
+            var missingDates = allDates.Except(data.Select(d => d.DateTime));
+
+            foreach (var date in missingDates)
+            {
+                data.Add(new GetOrdersByLastDaysResponse
+                {
+                    DateTime = date,
+                    Day = date.Day + "/" + date.Month,
+                    Count = 0,
+                    Revenue = 0
+                });
+            }
+
+            return data.OrderBy(d => d.DateTime).ToList();
+        }
+        public async Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount)
+        {
+            var orders = await _repository.GetCompletedOrderIncludeSchoolAsync();
+            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
+            var data = orders.GroupBy(order => order.SessionDetail!.Location!.School!.Name)
+                .Select(group => new GetTopSchoolBestSellerResponse
+                {
+
+                    SchoolName = group.Key,
+                    Percentage = group.Sum(order => order.OrderDetails!.Sum(od => od.Quantity)) / (double)totalSoldCount * 100,
+                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString()),
+                    Count = group.Count()
+                })
+                .OrderByDescending(o => o.Percentage)
+                .ToList();
+            var topSchool = data.Take(topCount).ToList();
+            if (data.Count() > topCount)
+            {
+                var otherData = data.Skip(topCount);
+                topSchool.Add(new GetTopSchoolBestSellerResponse
+                {
+                    SchoolName = "Others",
+                    Percentage = otherData.Sum(x => x.Percentage),
+                    Revenue = otherData.Sum(x => x.Revenue),
+                    Count = otherData.Sum(x => x.Count)
+                });
+            }
+            var roundedData = topSchool.Select(s => new GetTopSchoolBestSellerResponse
+            {
+                SchoolName = s.SchoolName,
+                Percentage = Math.Round(s.Percentage, 1),
+                Revenue = s.Revenue,
+                Count = s.Count
+            }).ToList();
+
+            // Calculate the total after rounding
+            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
+
+            if (totalAfterRounding != 100)
+            {
+                roundedData.Last().Percentage += 100 - totalAfterRounding;
+            }
+            return roundedData;
+        }
+
+        public async Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc)
+        {
+            var orders = await _repository.GetCompletedOrderIncludeKitchenAsync();
+            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
+            var data = orders.SelectMany(order => order.OrderDetails!)
+                .GroupBy(od => od.Food!.MenuDetails!.First().Menu!.Kitchen!.Name) // Group by kitchen name
+                .Select(group => new GetTopBestSellerKitchenResponse
+                {
+                    Name = group.Key,
+                    TotalOrder = group.Count(),
+                    TotalItem = group.Sum(od => od.Quantity),
+                    Percentage = group.Sum(od => od.Quantity) / (double)totalSoldCount * 100
+                })
+                .ToList();
+            if (orderDesc)
+            {
+                data = data.OrderByDescending(o => o.Percentage).ToList();
             }
             else
             {
-                filters.Add(o => o.Status == status);
+                data = data.OrderBy(o => o.Percentage).ToList();
             }
-            var orders = await _repository.GetListAsync(filters: filters,
-                include: queryable => queryable.Include(o => o.Profile!).Include(o => o.SessionDetail!));
-
-            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
-        }
-
-        public async Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
-        {
-            List<Expression<Func<Order, bool>>> filters = new()
+            var topKitchen = data.Take(topCount).ToList();
+            if (data.Count() > topCount)
             {
-                (order) => order.ProfileId! == profileId
-                && order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
-                && order.Status == OrderStatus.Delivering
-            };
-            Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
-                (order) => order.Include(o => o.OrderDetails!).Include(o => o.SessionDetail!).ThenInclude(sd => sd.Session!);
+                var otherData = data.Skip(topCount);
+                topKitchen.Add(new GetTopBestSellerKitchenResponse
+                {
+                    Name = "Others",
+                    TotalOrder = otherData.Sum(x => x.TotalOrder),
+                    TotalItem = otherData.Sum(x => x.TotalItem),
+                    Percentage = otherData.Sum(x => x.Percentage)
+                });
+            }
+            var roundedData = topKitchen.Select(s => new GetTopBestSellerKitchenResponse
+            {
+                Name = s.Name,
+                TotalOrder = s.TotalOrder,
+                TotalItem = s.TotalItem,
+                Percentage = Math.Round(s.Percentage, 1)
+            }).ToList();
 
-            //var orders = await _repository.GetListAsync(filters: filters,
-            //    status: OrderStatus.Delivering, include: queryable => queryable
-            //    .Include(o => o.SessionDetail!)
-            //    .ThenInclude(sd => sd.Session!))
-            //    ?? throw new EntityNotFoundException("Không có order nào đang giao hết");
-            var orders = await _repository.GetListAsync(include: include, filters: filters);
-            return _mapper.Map<ICollection<GetOrderResponse>>(orders);
+            // Calculate the total after rounding
+            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
+
+            if (totalAfterRounding != 100)
+            {
+                roundedData.Last().Percentage += 100 - totalAfterRounding;
+            }
+            if (!orderDesc)
+            {
+                roundedData.RemoveAll(item => item.Name == "Others");
+            }
+            return roundedData;
         }
+
 
         public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
@@ -311,7 +426,8 @@ namespace Services.Implements
                 await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
                 await _unitOfWork.CommitAsync();
                 await transaction.CommitAsync();
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 await Console.Out.WriteLineAsync(ex.Message.ToString());
@@ -320,47 +436,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId)
-        {
-            var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
-            var orders = await GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
-            if (orders.IsNullOrEmpty())
-            {
-                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
-            }
-            var timeScanning = TimeUtil.GetCurrentVietNamTime();
-            var validOrders = new List<GetOrderResponse>();
-            foreach (var order in orders)
-            {
-                if (timeScanning >= order.SessionDetail!.Session!.DeliveryStartTime && timeScanning < order.SessionDetail!.Session!.DeliveryEndTime)
-                {
 
-                    validOrders.Add(_mapper.Map<GetOrderResponse>(order));
-                }
-            }
-            if (validOrders.Count == 0)
-            {
-                throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NotFoundOrders);
-            }
-            return validOrders;
-        }
-        public async Task<ICollection<Order>> GetDeliveringOrdersByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId)
-        {
-            List<Expression<Func<Order, bool>>> filters = new()
-            {
-                (order) => order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
-                && order.Profile!.UserId == customerId
-                && order.Status == OrderStatus.Delivering
-            };
-            var orders = await _repository.GetListAsync(
-                filters: filters,
-                include: queryable => queryable
-                .Include(o => o.SessionDetail!)
-                    .ThenInclude(sd => sd.Session!)
-                .Include(o => o.OrderDetails!)
-            );
-            return orders!;
-        }
         //public async Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer)
         //{
         //    bool isUpdated = false;
@@ -432,28 +508,28 @@ namespace Services.Implements
             var delay = endTime - startTime;
             Console.WriteLine($"Delay: {delay.TotalMilliseconds} milliseconds");
         }
+        //public async Task UpdateOrderDeliveringFromCompleteStatusAsync(Guid orderId)
+        //{
+        //    //var orderActivityNumber = await _repository.CountAsync() + 1;
+        //    //var orderEntity = await GetByIdAsync(orderId);
+        //    //orderEntity.Status = OrderStatus.Delivering;
+        //    //orderEntity.DeliveryDate = null;
+        //    //orderEntity.RewardPoints = 0;
+        //    //var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+        //    //wallet.Balance += orderEntity.RewardPoints;
+        //    //var newOrderActivity = new OrderActivity
+        //    //{   
+        //    //    Id = Guid.NewGuid(),
+        //    //    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+        //    //    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+        //    //    Time = TimeUtil.GetCurrentVietNamTime(),
+        //    //    Status = OrderActivityStatus.Active
+        //    //};
+        //    //await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
+        //    //await _repository.UpdateAsync(orderEntity);
+        //    //await _unitOfWork.CommitAsync();
+        //}
 
-        public async Task UpdateOrderDeliveringFromCompleteStatusAsync(Guid orderId)
-        {
-            //var orderActivityNumber = await _repository.CountAsync() + 1;
-            //var orderEntity = await GetByIdAsync(orderId);
-            //orderEntity.Status = OrderStatus.Delivering;
-            //orderEntity.DeliveryDate = null;
-            //orderEntity.RewardPoints = 0;
-            //var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
-            //wallet.Balance += orderEntity.RewardPoints;
-            //var newOrderActivity = new OrderActivity
-            //{   
-            //    Id = Guid.NewGuid(),
-            //    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-            //    Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
-            //    Time = TimeUtil.GetCurrentVietNamTime(),
-            //    Status = OrderActivityStatus.Active
-            //};
-            //await _orderActivityService.CreateOrderActivityAsync(orderEntity, newOrderActivity);
-            //await _repository.UpdateAsync(orderEntity);
-            //await _unitOfWork.CommitAsync();
-        }
 
 
         public async Task UpdateOrderDeliveryStatusAsync(Guid orderId)
@@ -550,7 +626,10 @@ namespace Services.Implements
         {
             bool isUpdated = false;
             var realTime = TimeUtil.GetCurrentVietNamTime();
-            var listOrderWithDeliveringStatus = await _repository.GetListAsync(status: OrderStatus.Delivering);
+            var listOrderWithDeliveringStatus = await _repository.GetListAsync(filters: new List<Expression<Func<Order, bool>>>
+            {
+                order => order.Status == OrderStatus.Delivering
+            });
             var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -614,11 +693,7 @@ namespace Services.Implements
             return (int)Math.Round(points, MidpointRounding.AwayFromZero);
         }
 
-        public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByOrderIdAsync(Guid orderId, User user)
-        {
-            var orderActivities = await _orderActivityService.GetOrderActivitiesByOrderIdAsync(orderId, user);
-            return orderActivities;
-        }
+
 
         public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user)
         {
@@ -679,7 +754,7 @@ namespace Services.Implements
                 await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
                 await _repository.UpdateAsync(order);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
                 await transaction.RollbackAsync();
@@ -687,208 +762,5 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request)
-        {
-            //var today = TimeUtil.GetCurrentVietNamTime();
-            var filters = new List<Expression<Func<Order, bool>>>
-                {
-                    order => order.PaymentDate.Date >= request.StartDate.Date && order.PaymentDate.Date <= request.EndDate.Date
-                };
-            if (request.Status != null) filters.Add(order => order.Status == request.Status.Value);
-            DateTime pastMonthStart = request.StartDate;
-            var allMonths = Enumerable.Range(0, request.EndDate.Month - request.StartDate.Month).Select(i => pastMonthStart.AddMonths(i)).ToList();
-
-            var orders = await _repository.GetListAsync(
-                filters: filters
-            );
-            var data = orders.GroupBy(order => order.PaymentDate.Month)
-                .OrderBy(group => group.Key)
-                .Select(
-                    group => new GetOrdersByLastMonthsResponse
-                    {
-                        MonthInt = group.Key,
-                        Month = TimeUtil.GetMonthName(group.Key),
-                        Count = group.Count(),
-                        Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
-                    }
-                ).ToList();
-            //var missingDates = allMonths.Except(data.Select(d => d.DateTime));
-            foreach (var month in allMonths)
-            {
-                if (!data.Any(d => d.Month == TimeUtil.GetMonthName(month.Month)))
-                {
-                    data.Add(new GetOrdersByLastMonthsResponse
-                    {
-                        MonthInt = month.Month,
-                        Month = TimeUtil.GetMonthName(month.Month),
-                        Count = 0,
-                        Revenue = 0
-                    });
-                }
-            }
-            return data.OrderBy(d => d.MonthInt).ToList();
-        }
-        public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate)
-        {
-            DateTime yesterday = DateTime.Today.Subtract(TimeSpan.FromDays(1));
-            DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate));
-            var filters = new List<Expression<Func<Order, bool>>>
-            {
-                    order => order.PaymentDate.Date >= pastWeekStart && order.PaymentDate.Date <= yesterday.Date
-            };
-            var orders = await _repository.GetListAsync(
-                filters: filters
-            );
-            List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
-            var data = orders.GroupBy(order => order.PaymentDate.Date)
-                .OrderBy(group => group.Key)
-                .Select(group => new GetOrdersByLastDaysResponse
-                {
-                    DateTime = group.Key,
-                    Day = group.Key.Day + "/" + group.Key.Month,
-                    Count = group.Count(),
-                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString())
-                })
-                .ToList();
-
-            var allDates = Enumerable.Range(0, numberOfDate).Select(i => pastWeekStart.AddDays(i)).ToList();
-            var missingDates = allDates.Except(data.Select(d => d.DateTime));
-
-            foreach (var date in missingDates)
-            {
-                data.Add(new GetOrdersByLastDaysResponse
-                {
-                    DateTime = date,
-                    Day = date.Day + "/" + date.Month,
-                    Count = 0,
-                    Revenue = 0
-                });
-            }
-
-            return data.OrderBy(d => d.DateTime).ToList();
-        }
-        public async Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount)
-        {
-            var filters = new List<Expression<Func<Order, bool>>>
-            {
-                order => order.Status == OrderStatus.Completed
-            };
-            var orders = await _repository.GetListAsync(
-                filters: filters,
-                include: queryable => queryable
-                    .Include(o => o.SessionDetail!)
-                        .ThenInclude(sd => sd.Location!)
-                        .ThenInclude(l => l.School!)
-                    .Include(o => o.OrderDetails!)
-            );
-            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
-            var data = orders.GroupBy(order => order.SessionDetail!.Location!.School!.Name)
-                .Select(group => new GetTopSchoolBestSellerResponse
-                {
-
-                    SchoolName = group.Key,
-                    Percentage = group.Sum(order => order.OrderDetails!.Sum(od => od.Quantity)) / (double)totalSoldCount * 100,
-                    Revenue = int.Parse(group.Sum(order => order.TotalPrice).ToString()),
-                    Count = group.Count()
-                })
-                .OrderByDescending(o => o.Percentage)
-                .ToList();
-            var topSchool = data.Take(topCount).ToList();
-            if (data.Count() > topCount)
-            {
-                var otherData = data.Skip(topCount);
-                topSchool.Add(new GetTopSchoolBestSellerResponse
-                {
-                    SchoolName = "Others",
-                    Percentage = otherData.Sum(x => x.Percentage),
-                    Revenue = otherData.Sum(x => x.Revenue),
-                    Count = otherData.Sum(x => x.Count)
-                });
-            }
-            var roundedData = topSchool.Select(s => new GetTopSchoolBestSellerResponse
-            {
-                SchoolName = s.SchoolName,
-                Percentage = Math.Round(s.Percentage, 1),
-                Revenue = s.Revenue,
-                Count = s.Count
-            }).ToList();
-
-            // Calculate the total after rounding
-            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
-
-            if (totalAfterRounding != 100)
-            {
-                roundedData.Last().Percentage += 100 - totalAfterRounding;
-            }
-            return roundedData;
-        }
-
-        public async Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc)
-        {
-            var filters = new List<Expression<Func<Order, bool>>>
-            {
-                order => order.Status == OrderStatus.Completed
-            };
-            var orders = await _repository.GetListAsync(
-                filters: filters,
-                include: queryable => queryable
-                    .Include(o => o.OrderDetails!)
-                            .ThenInclude(od => od.Food!)
-                            .ThenInclude(f => f.MenuDetails!)
-                            .ThenInclude(md => md.Menu!)
-                            .ThenInclude(m => m.Kitchen!)
-                );
-            var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
-            var data = orders.SelectMany(order => order.OrderDetails!)
-                .GroupBy(od => od.Food!.MenuDetails!.First().Menu!.Kitchen!.Name) // Group by kitchen name
-                .Select(group => new GetTopBestSellerKitchenResponse
-                {
-                    Name = group.Key,
-                    TotalOrder = group.Count(),
-                    TotalItem = group.Sum(od => od.Quantity),
-                    Percentage = group.Sum(od => od.Quantity) / (double)totalSoldCount * 100
-                })
-                .ToList();
-            if(orderDesc)
-            {
-                data = data.OrderByDescending(o => o.Percentage).ToList();
-            }
-            else
-            {
-                data = data.OrderBy(o => o.Percentage).ToList();
-            }
-            var topKitchen = data.Take(topCount).ToList();
-            if (data.Count() > topCount)
-            {
-                var otherData = data.Skip(topCount);
-                topKitchen.Add(new GetTopBestSellerKitchenResponse
-                {
-                    Name = "Others",
-                    TotalOrder = otherData.Sum(x => x.TotalOrder),
-                    TotalItem = otherData.Sum(x => x.TotalItem),
-                    Percentage = otherData.Sum(x => x.Percentage)
-                });
-            }
-            var roundedData = topKitchen.Select(s => new GetTopBestSellerKitchenResponse
-            {
-                Name = s.Name,
-                TotalOrder = s.TotalOrder,
-                TotalItem = s.TotalItem,
-                Percentage = Math.Round(s.Percentage, 1)
-            }).ToList();
-
-            // Calculate the total after rounding
-            double totalAfterRounding = roundedData.Sum(c => c.Percentage);
-
-            if (totalAfterRounding != 100)
-            {
-                roundedData.Last().Percentage += 100 - totalAfterRounding;
-            }
-            if (!orderDesc)
-            {
-                roundedData.RemoveAll(item => item.Name == "Others");
-            }
-            return roundedData;
-        }
     }
 }
