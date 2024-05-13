@@ -26,9 +26,12 @@ namespace Services.Implements
     {
 
         private readonly ICloudStorageService _cloudStorageService;
-        public GiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+        private readonly IGiftRepository _repository;
+
+        public GiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, IGiftRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
+            _repository = repository;
         }
 
         public async Task CreateGiftAsync(CreateGiftRequest request, User user)
@@ -45,73 +48,18 @@ namespace Services.Implements
             await _repository.InsertAsync(giftEntity, user);
             await _unitOfWork.CommitAsync();
         }
-        private List<Expression<Func<Gift, bool>>> getFiltersFromFGiftFilterRequest(GiftFilterRequest filterRequest)
-        {
-            List<Expression<Func<Gift, bool>>> filters = new();
-
-            if (filterRequest.Code != null)
-            {
-                filters.Add(f => f.Code == filterRequest.Code);
-            }
-
-            if (filterRequest.Name is { Length: > 0 })
-            {
-                filters.Add(f => f.Name.ToLower().Contains(filterRequest.Name.ToLower()));
-            }
-
-            //if (filterRequest.Points > 0)
-            //{
-            //    filters.Add(f => f.Points >= filterRequest.Points);
-            //}
-
-            return filters;
-        }
+        
         public async Task<IPaginable<GetGiftResponse>> GetGiftPageAsync(PaginationRequest paginationRequest, GiftFilterRequest filterRequest)
         {
-            var filters = getFiltersFromFGiftFilterRequest(filterRequest);
-            var page = await _repository.GetPageAsync<GetGiftResponse>(
-                    status: BaseEntityStatus.Active, 
-                    paginationRequest: paginationRequest,filters: filters);
-            return page;
+            return await _repository.GetGiftPageAsync(paginationRequest, filterRequest);
         }
         public async Task<Gift> GetGiftByIdAsync(Guid id, int status)
         {
-            List<Expression<Func<Gift, bool>>> filters = new()
-            {
-                f => f.Id == id,
-            };
-            var gift =  await _repository.FirstOrDefaultAsync(status: status, filters: filters);
-            if(gift == null)
-            {
-                throw new EntityNotFoundException(MessageConstants.GiftMessageConstrant.GiftNotFound(id));
-            }
-            return gift;    
+            return await _repository.GetGiftByIdAsync(id, status);
         }
         public async Task<Gift> GetGiftByIdAsync(Guid id)
         {
-            List<Expression<Func<Gift, bool>>> filters = new()
-            {
-                f => f.Id == id,
-            };
-            var gift = await _repository.FirstOrDefaultAsync(filters: filters);
-            if (gift == null)
-            {
-                throw new EntityNotFoundException(MessageConstants.GiftMessageConstrant.GiftNotFound(id));
-            }
-            return gift;
-        }
-        public async Task<Gift> GetGiftByIdAsync(int status, Guid id)
-        {
-            List<Expression<Func<Gift, bool>>> filters = new()
-            {
-                f => f.Id == id,
-            };
-            var gift = await _repository.FirstOrDefaultAsync(status: status, filters: filters);
-            if (gift == null)
-            {
-                throw new EntityNotFoundException(MessageConstants.GiftMessageConstrant.GiftNotFound(id));
-            }
-            return gift;
+            return await _repository.GetGiftByIdAsync(id);
         }
 
         public async Task UpdateGiftAsync(Guid id, UpdateGiftRequest request, User user)
@@ -120,7 +68,7 @@ namespace Services.Implements
             gift.Name = request.Name;
             gift.Points = request.Points;
             gift.InStock = request.InStock;
-            if(request.Image != null)
+            if (request.Image != null)
             {
                 await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Gift, request.Image);
             }
@@ -140,6 +88,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        
+
     }
 }

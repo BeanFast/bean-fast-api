@@ -13,28 +13,32 @@ using Utilities.Constants;
 using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Settings;
-using Utilities.Statuses;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Services.Implements
 {
     public class CategoryService : BaseService<Category>, ICategoryService
     {
-
+        private readonly ICategoryRepository _repository;
         private readonly ICloudStorageService _cloudStorageService;
-        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService) : base(unitOfWork, mapper, appSettings)
+
+        public CategoryService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ICloudStorageService cloudStorageService, ICategoryRepository repository) : base(unitOfWork, mapper, appSettings)
         {
-            _repository = unitOfWork.GetRepository<Category>();
+            //_repository = unitOfWork.GetRepository<Category>();
             _cloudStorageService = cloudStorageService;
+            _repository = repository;
         }
 
         public Task<ICollection<Category>> GetAll(string? role)
         {
-            if (role is not null && role == RoleName.ADMIN.ToString())
-            {
-                return _repository.GetListAsync();
-            }
-            return _repository.GetListAsync(BaseEntityStatus.Active);
+            //if (role is not null && role == RoleName.ADMIN.ToString())
+            //{
+            //    return _repository.GetListAsync();
+            //}
+            //return _repository.GetListAsync(filters: new List<Expression<Func<Category, bool>>>
+            //{
+            //    c => c.Status != BaseEntityStatus.Deleted
+            //});
+            return _repository.GetListAsync();
         }
 
         public async Task<Category?> GetById(Guid id)
@@ -50,13 +54,7 @@ namespace Services.Implements
 
         public async Task<Category?> GetById(Guid id, int status)
         {
-            var category = await _repository.FirstOrDefaultAsync(status, filters: new() { c => c.Id == id });
-            if (category is null)
-            {
-                throw new EntityNotFoundException(MessageConstants.CategoryMessageConstrant.CategoryNotFound);
-            }
-
-            return category!;
+            return await _repository.GetById(id, status);
         }
 
         public async Task CreateCategory(CreateCategoryRequest category, User user)
@@ -64,11 +62,7 @@ namespace Services.Implements
             var categoryEntity = _mapper.Map<Category>(category);
             categoryEntity.Id = Guid.NewGuid();
             var checkExistList =
-                await _repository.GetListAsync(filters: new()
-                {
-                    c =>
-                        c.Name == category.Name
-                });
+                await _repository.GetByName(category.Name);
             if (checkExistList.Count > 0)
             {
                 throw new InvalidRequestException(MessageConstants.CategoryMessageConstrant.CategoryNameExisted);
@@ -77,6 +71,7 @@ namespace Services.Implements
             categoryEntity.ImagePath = imagePath;
 
             await _repository.InsertAsync(categoryEntity, user);
+            await _unitOfWork.CommitAsync();
             return;
         }
 
@@ -108,16 +103,7 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount)
         {
-            Func<IQueryable<Category>, IIncludableQueryable<Category, object>> include;
-            List<Expression<Func<Category, bool>>> filters = new List<Expression<Func<Category, bool>>>()
-            {
-                c => c.Foods!.Any(f => f.OrderDetails!.Count > 0 && f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed))
-            };
-            include = i => i.Include(c => c.Foods!.Where(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed)))
-                .ThenInclude(f => f.OrderDetails!.Where(od => od.Order!.Status == OrderStatus.Completed))
-                .ThenInclude(od => od.Order!);
-            
-            var categoryList = await _repository.GetListAsync(include: include, filters: filters);
+            var categoryList = await _repository.GetCategoriesForDashboard();
             var totalSoldCount = categoryList.Sum(c => c.Foods!.Sum(f => f.OrderDetails!.Sum(od => od.Quantity)));
             var data = categoryList.GroupBy(c => c.Name)
                 .Select(c =>

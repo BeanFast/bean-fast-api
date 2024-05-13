@@ -24,67 +24,29 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
 {
     private readonly ICloudStorageService _cloudStorageService;
     private readonly IAreaService _areaService;
-    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService) : base(unitOfWork, mapper, appSettings)
+    private readonly IKitchenRepository _repository;
+    public KitchenService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, IKitchenRepository repository) : base(unitOfWork, mapper, appSettings)
     {
         _cloudStorageService = cloudStorageService;
         _areaService = areaService;
+        _repository = repository;
     }
-    private List<Expression<Func<Kitchen, bool>>> GetKitchenFilterFromFilterRequest(KitchenFilterRequest filterRequest)
-    {
-        List<Expression<Func<Kitchen, bool>>> filters = new();
-        if (filterRequest.Code != null)
-        {
-            filters.Add(p => p.Code == filterRequest.Code);
-        }
-        if (filterRequest.Name != null)
-        {
-            filters.Add(k => k.Name.ToLower() == filterRequest.Name.ToLower());
-        }
-        if (filterRequest.AreaId != Guid.Empty && filterRequest.AreaId != null)
-        {
-            filters.Add(k => k.AreaId == filterRequest.AreaId);
-        }
-        return filters;
-    }
+    
 
     public async Task<IPaginable<GetKitchenResponse>> GetKitchenPageAsync(PaginationRequest paginationRequest, KitchenFilterRequest filterRequest, string? userRole)
 
     {
-        var filters = GetKitchenFilterFromFilterRequest(filterRequest);
-        IPaginable<GetKitchenResponse> page = default!;
-        if (RoleName.ADMIN.ToString().Equals(userRole))
-        {
-            page = await _repository.GetPageAsync<GetKitchenResponse>(
-                paginationRequest: paginationRequest, filters: filters);
-        }
-        else
-        {
-            page = await _repository.GetPageAsync<GetKitchenResponse>(
-                status: BaseEntityStatus.Active,
-                paginationRequest: paginationRequest, filters: filters);
-        }
-        foreach (var item in page.Items)
-        {
-            item.SchoolCount = await CountSchoolByKitchenIdAsync(item.Id);
-        }
-        return page;
+       return await _repository.GetKitchenPageAsync(paginationRequest, filterRequest, userRole);
     }
 
     public async Task<Kitchen> GetByIdAsync(Guid id)
     {
-        return await _repository.FirstOrDefaultAsync(filters: new()
-        {
-            kitchen => kitchen.Id == id
-        }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
+        return await _repository.GetByIdAsync(id);
     }
 
     public async Task<Kitchen> GetByIdAsync(int status, Guid id)
     {
-        return await _repository.FirstOrDefaultAsync(filters: new()
-        {
-            kitchen => kitchen.Id == id,
-            kitchen => kitchen.Status == status
-        }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
+        return await _repository.GetByIdAsync(status, id);
     }
 
     public async Task CreateKitchenAsync(CreateKitchenRequest request, User user)
@@ -109,17 +71,12 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     }
     public async Task<Kitchen> GetByIdIncludePrimarySchoolsAsync(Guid id)
     {
-        return await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
-        {
-            kitchen => kitchen.Id == id
-        }, include: i => i.Include(k => k.PrimarySchools!)) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
+        return await _repository.GetByIdIncludePrimarySchoolsAsync(id);
     }
 
     public async Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId)
     {
-        var kitchenEntity = await GetByIdIncludePrimarySchoolsAsync(kitchentId);
-
-        return kitchenEntity.PrimarySchools!.Count;
+        return await _repository.CountSchoolByKitchenIdAsync(kitchentId);
     }
 
     public async Task UpdateKitchenAsync(Guid id, UpdateKitchentRequest request, User user)
@@ -141,23 +98,6 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
 
     public async Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest)
     {
-        var filters = GetKitchenFilterFromFilterRequest(filterRequest);
-        ICollection<GetKitchenResponse> kitchens = default!;
-        if (RoleName.ADMIN.ToString().Equals(userRole))
-        {
-            kitchens = await _repository.GetListAsync<GetKitchenResponse>(
-                filters: filters);
-        }
-        else
-        {
-            kitchens = await _repository.GetListAsync<GetKitchenResponse>(
-                status: BaseEntityStatus.Active,
-                filters: filters);
-        }
-        foreach (var item in kitchens)
-        {
-            item.SchoolCount = await CountSchoolByKitchenIdAsync(item.Id);
-        }
-        return kitchens;
+        return await _repository.GetAllAsync(userRole, filterRequest);
     }
 }

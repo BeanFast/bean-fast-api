@@ -16,9 +16,11 @@ namespace Services.Implements;
 
 public class ComboService : BaseService<Combo>, IComboService
 {
-    public ComboService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+
+    private readonly IComboRepository _repository;
+    public ComboService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IComboRepository comboRepository) : base(unitOfWork, mapper, appSettings)
     {
-        
+        _repository = comboRepository;
     }
 
     public async Task CreateComboAsync(Combo combo, User user)

@@ -26,11 +26,10 @@ namespace Services.Implements
 {
     public class SessionDetailService : BaseService<SessionDetail>, ISessionDetailService
     {
-        private readonly IUserService _userService;
         private readonly ILocationService _locationService;
-        private readonly IUserService _delivererService;
+        private readonly IUserService _userService;
         private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
-
+        private readonly ISessionDetailRepository _repository;
         public SessionDetailService(
             IUnitOfWork<BeanFastContext> unitOfWork,
             IMapper mapper,
@@ -38,24 +37,18 @@ namespace Services.Implements
             IUserService userService,
             ILocationService locationService,
             IUserService delivererService,
-            ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
+            ISessionDetailDelivererService sessionDetailDelivererService, ISessionDetailRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
             _locationService = locationService;
-            _delivererService = delivererService;
+            _userService = delivererService;
             _sessionDetailDelivererService = sessionDetailDelivererService;
+            _repository = repository;
         }
 
         public async Task<SessionDetail> GetByIdAsync(Guid id)
         {
-            List<Expression<Func<SessionDetail, bool>>> filters = new()
-            {
-                (sessionDetail) => sessionDetail.Id == id
-            };
-            var sessionDetail = await _repository.FirstOrDefaultAsync(status: BaseEntityStatus.Active,
-                filters: filters, include: queryable => queryable.Include(sd => sd.SessionDetailDeliverers!).ThenInclude(sdd => sdd.Deliverer).Include(sd => sd.Location!).Include(sd => sd.Session!))
-                ?? throw new EntityNotFoundException(MessageConstants.SessionDetailMessageConstrant.SessionDetailNotFound(id));
-            return sessionDetail;
+            return await _repository.GetByIdAsync(id);
         }
 
         public async Task<GetSessionDetailResponse> GetSessionDetailResponseByIdAsync(Guid id)
@@ -78,42 +71,12 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(User user)
         {
-
-            List<Expression<Func<SessionDetail, bool>>> filters = new()
-            {
-                (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
-                (sessionDetail) => sessionDetail.Status != BaseEntityStatus.Deleted,
-                (sessionDetail) => TimeUtil.GetCurrentVietNamTime() >= sessionDetail.Session!.DeliveryStartTime && TimeUtil.GetCurrentVietNamTime() < sessionDetail.Session.DeliveryEndTime
-            };
-
-            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(
-                filters: filters
-                , include: queryable => queryable
-                .Include(sd => sd.Location!)
-                    .ThenInclude(l => l.School!)
-                    .ThenInclude(s => s.Area!)
-                .Include(sd => sd.Session!)
-                .Include(sd => sd.Orders!)
-                    .ThenInclude(o => o.OrderDetails!)
-                );
-            foreach (var item in sessionDetails)
-            {
-                item.Orders = item.Orders!.Where(o => o.Status == OrderStatus.Delivering).ToList();
-                item.ExchangeGifts = item.ExchangeGifts!.Where(eg => eg.Status == ExchangeGiftStatus.Delivering).ToList();
-                await Console.Out.WriteLineAsync(item.ToString());
-            }
-
+            var sessionDetails = await _repository.GetSessionDetailByDelivererIdAsync(user);
             return sessionDetails;
         }
         public async Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user)
         {
-            List<Expression<Func<SessionDetail, bool>>> filters = new()
-            {
-                (sessionDetail) => sessionDetail.Session!.DeliveryStartTime > TimeUtil.GetCurrentVietNamTime()
-            };
-            var sessionDetails = await _repository.GetListAsync<GetSessionDetailResponse>(status: BaseEntityStatus.Active,
-                filters: filters);
-            return sessionDetails;
+            return await _repository.GetIncommingDeliveringSessionDetailsAsync(user);
         }
         public async Task CreateSessionDetailAsync(CreateSessionDetailRequest request)
         {
@@ -121,7 +84,7 @@ namespace Services.Implements
             var sessionDetailEntity = _mapper.Map<SessionDetail>(request);
             sessionDetailEntity.Id = sessionDetailId;
             await _locationService.GetByIdAsync(request.LocationId);
-            await _delivererService.GetByIdAsync(request.DelivererId);
+            await _userService.GetByIdAsync(request.DelivererId);
             var sessionDetailNumber = await _repository.CountAsync() + 1;
             sessionDetailEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.SessionDetailCodeConstrant.SessionDetailPrefix, sessionDetailNumber);
             sessionDetailEntity.Status = BaseEntityStatus.Active;
@@ -129,27 +92,7 @@ namespace Services.Implements
             await _repository.InsertAsync(sessionDetailEntity);
             await _unitOfWork.CommitAsync();
         }
-        public async Task<bool> CheckSessionDetailAsync(CheckSessionDetailRequest request, Guid sessionDetailId)
-        {
-            var filters = new List<Expression<Func<SessionDetail, bool>>>();
-            var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
-            filters.Add(sd => sd.Id == sessionDetailId && sd.Status == BaseEntityStatus.Active);
-            Console.WriteLine("orderable: " + request.Orderable == null);
-            if (request.Orderable != null)
-            {
-                if (request.Orderable == true)
-                {
-                    filters.Add(sd => sd.Session!.OrderStartTime >= currentVietnamTime && sd.Session.OrderEndTime < currentVietnamTime);
-                }
-                else
-                {
-                    filters.Add(sd => sd.Session!.OrderStartTime < currentVietnamTime || sd.Session.OrderEndTime >= currentVietnamTime);
-                }
-            }
-            var sessionDetail = await _repository.FirstOrDefaultAsync(filters: filters);
-            if (sessionDetail == null) return false;
-            return true;
-        }
+        
 
         public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest, List<Guid> availableDelivererIds)
         {

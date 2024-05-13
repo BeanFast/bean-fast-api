@@ -30,11 +30,23 @@ namespace BeanFastApi.Controllers
         // GET: api/Orders
         [HttpGet]
         [Authorize(RoleName.MANAGER, RoleName.CUSTOMER, RoleName.DELIVERER)]
-        public async Task<IActionResult> GetAllOrdersAsync([FromQuery] OrderFilterRequest request)
+        public async Task<IActionResult> GetAllOrdersAsync(
+            [FromQuery] OrderFilterRequest request,
+            [FromQuery] PaginationRequest paginationRequest
+            )
         {
             object orders;
             var user = await GetUserAsync();
-            orders = await _orderService.GetAllAsync(request, user);
+            
+            if (paginationRequest is { Page: 0, Size: 0 })
+            {
+                orders = await _orderService.GetAllAsync(request, user);
+
+            }
+            else
+            {
+                orders = await _orderService.GetPageAsync(paginationRequest, request, user);
+            }
             return SuccessResult(orders);
         }
         [HttpGet("{id}")]

@@ -25,7 +25,6 @@ using Utilities.Exceptions;
 using Utilities.Settings;
 using Utilities.Statuses;
 using Utilities.Utils;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Services.Implements
 {
@@ -39,8 +38,9 @@ namespace Services.Implements
         private readonly IOrderActivityService _orderActivityService;
         private readonly IUserService _userService;
         private readonly IWalletService _walletService;
+        private readonly IExchangeGiftRepository _repository;
 
-        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService) : base(unitOfWork, mapper, appSettings)
+        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService, IExchangeGiftRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _giftService = giftService;
             _profileService = profileService;
@@ -49,27 +49,9 @@ namespace Services.Implements
             _orderActivityService = orderActivityService;
             _userService = userService;
             _walletService = walletService;
+            _repository = repository;
         }
-        public List<Expression<Func<ExchangeGift, bool>>> GetFilterFromFilterRequest(ExchangeGiftFilterRequest filterRequest)
-        {
-            List<Expression<Func<ExchangeGift, bool>>> expressions = new List<Expression<Func<ExchangeGift, bool>>>();
-            if (filterRequest.Status != null)
-            {
-                if(filterRequest.Status == ExchangeGiftStatus.Cancelled)
-                {
-                    expressions.Add(eg => eg.Status == ExchangeGiftStatus.Cancelled || eg.Status == ExchangeGiftStatus.CancelledByCustomer);
-                }
-                else
-                {
-                    expressions.Add(eg => eg.Status == filterRequest.Status);
-                }
-            }
-            if (!filterRequest.Code.IsNullOrEmpty())
-            {
-                expressions.Add(eg => eg.Code == filterRequest.Code);
-            }
-            return expressions;
-        }
+
         public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user)
         {
             var gift = await _giftService.GetGiftByIdAsync(request.GiftId);
@@ -148,76 +130,31 @@ namespace Services.Implements
         }
         public async Task<ExchangeGift> GetByIdAsync(Guid exchangeGiftId)
         {
-            var filters = new List<Expression<Func<ExchangeGift, bool>>>
-            {
-                (exchangeGift) => exchangeGift.Id == exchangeGiftId
-            };
-            var result = await _repository.FirstOrDefaultAsync(filters: filters,
-                include: i => i
-                .Include(eg => eg.Profile!)
-                    .ThenInclude(p => p.User!)
-                .Include(o => o.SessionDetail!)
-                    .ThenInclude(o => o.Session!)
-                .Include(o => o.Activities!)
-                ) ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
-            return result!;
+            return await _repository.GetByIdAsync(exchangeGiftId);
         }
 
         public async Task<ExchangeGift> GetByIdIncludeDeliverersAsync(Guid exchangeGiftId)
         {
-            var filters = new List<Expression<Func<ExchangeGift, bool>>>
-            {
-                (exchangeGift) => exchangeGift.Id == exchangeGiftId
-            };
-            var result = await _repository.FirstOrDefaultAsync(filters: filters,
-                include: i => i
-                .Include(eg => eg.Profile!)
-                    .ThenInclude(p => p.User!)
-                .Include(o => o.SessionDetail!)
-                    .ThenInclude(sd => sd.SessionDetailDeliverers!)
-                    .ThenInclude(sdd => sdd.Deliverer!)
-                .Include(o => o.SessionDetail!)
-                    .ThenInclude(o => o.Session!)
-                .Include(o => o.Activities!)
-                ) ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
-            return result!;
+            var result = await _repository.GetByIdIncludeDeliverersAsync(exchangeGiftId) 
+                ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
+            return result;
         }
 
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest)
         {
-            var filters = GetFilterFromFilterRequest(filterRequest);
-            return await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
+            return await _repository.GetExchangeGiftsAsync(filterRequest, paginationRequest);
         }
 
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId)
         {
             await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(profileId, user.Id);
-            var filters = GetFilterFromFilterRequest(filterRequest);
-            filters.Add(eg => eg.ProfileId == profileId);
-            IPaginable<GetExchangeGiftResponse> page = await _repository.GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
-            return page;
+            return await _repository.GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(filterRequest, paginationRequest, user, profileId);
         }
-        public async Task<ICollection<ExchangeGift>> GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId)
-        {
-            List<Expression<Func<ExchangeGift, bool>>> filters = new()
-            {
-                (order) => order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
-                && order.Profile!.UserId == customerId
-                && order.Status == ExchangeGiftStatus.Delivering
-            };
-            var exchangeGifts = await _repository.GetListAsync(
-                filters: filters,
-                include: queryable => queryable
-                .Include(o => o.SessionDetail!)
-                .ThenInclude(sd => sd.Session!)
-                .Include(o => o.Gift!)
-            );
-            return exchangeGifts!;
-        }
+
         public async Task<List<GetExchangeGiftResponse>> GetValidExchangeGiftResponsesByQRCodeAsync(string qrCode, Guid delivererId)
         {
             var customer = await _userService.GetCustomerByQrCodeAsync(qrCode);
-            var exchangeGifts = await GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
+            var exchangeGifts = await _repository.GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(delivererId, customer.Id);
             //if (exchangeGifts.IsNullOrEmpty())
             //{
             //    throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.NoDeliveryOrders);
@@ -356,7 +293,7 @@ namespace Services.Implements
             {
                 throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderNotInDeliveryTime);
             }
-            if(!exchangeGift.SessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == deliverer.Id))
+            if (!exchangeGift.SessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == deliverer.Id))
             {
                 throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.CurrentUserAreNotDeliverer);
             }
@@ -395,6 +332,6 @@ namespace Services.Implements
             await _walletService.UpdateAsync(pointWallet);
             await _transactionService.CreateTransactionAsync(rollbackPointTransaction);
         }
-       
+
     }
 }

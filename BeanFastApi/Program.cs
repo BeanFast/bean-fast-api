@@ -28,6 +28,7 @@ services.AddAutoMapperProfiles();
 services.AddJwtAuthentication();
 services.AddDatabase(builder.Configuration);
 services.AddUnitOfWork();
+services.AddRepositories();
 services.AddServices();
 services.AddBackgroundServices();
 services.AddSwagger();

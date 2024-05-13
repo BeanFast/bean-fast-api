@@ -6,15 +6,10 @@ using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Twilio.Rest.Trunking.V1;
 using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Settings;
@@ -28,85 +23,39 @@ namespace Services.Implements
         private readonly ICloudStorageService _cloudStorageService;
         private readonly IAreaService _areaService;
         private readonly ILocationService _locationService;
+        private readonly ISchoolRepository _repository;
         //private readonly I
-        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, ILocationService locationService) : base(unitOfWork, mapper, appSettings)
+        public SchoolService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, ICloudStorageService cloudStorageService, IOptions<AppSettings> appSettings, IAreaService areaService, ILocationService locationService, ISchoolRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _cloudStorageService = cloudStorageService;
             _appSettings = appSettings.Value;
             _areaService = areaService;
             _locationService = locationService;
+            _repository = repository;
         }
-        private List<Expression<Func<School, bool>>> GetSchoolFilterFromFilterRequest(SchoolFilterRequest filterRequest)
-        {
-            List<Expression<Func<School, bool>>> filters = new();
-            if (filterRequest.Code != null)
-            {
-                filters.Add(s => s.Code == filterRequest.Code);
-            }
-            if (filterRequest.Name != null)
-            {
-                filters.Add(s => s.Name.ToLower().Contains(filterRequest.Name.ToLower()));
-            }
-            if (filterRequest.Address != null)
-            {
-                filters.Add(s => s.Address.ToLower().Contains(filterRequest.Address.ToLower()));
-            }
-
-            return filters;
-        }
+        
         public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
-            var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            var page = await _repository.GetPageAsync<GetSchoolIncludeAreaAndLocationResponse>(
-                    filters: filters,
-                    paginationRequest: paginationRequest,
-                    include: s => s.Include(s => s.Area).Include(s => s.Locations!)
-                );
-            //var page = _repository.GetPageAsync(
-
-            //    );
-            return page;
+            return await _repository.GetSchoolPageAsync(paginationRequest, filterRequest);
         }
         public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
-            var filters = GetSchoolFilterFromFilterRequest(filterRequest);
-            var result =  await _repository.GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
-                filters: filters,
-                include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
-            );
-            foreach (var item in result)
-            {
-                item.StudentCount = await CountStudentAsync(item.Id);
-            }
-            return result;
+            return await _repository.GetSchoolListAsync(paginationRequest, filterRequest);
         }
 
         public async Task<School?> GetSchoolByAreaIdAndAddress(Guid areaId, string address)
         {
-            var school = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                s => s.AreaId == areaId,
-                s => s.Address.ToLower() == address.ToLower()
-            });
-            return school;
+            return await _repository.GetSchoolByAreaIdAndAddress(areaId, address);
         }
 
 
         public async Task<School> GetSchoolByIdAsync(Guid id)
         {
-            var school = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                s => s.Id == id
-            }) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
-            return school;
+            return await _repository.GetSchoolByIdAsync(id);
         }
         public async Task<School> GetSchoolByIdAsync(int status, Guid id)
         {
-            var school = await _repository.FirstOrDefaultAsync(status, filters: new()
-            {
-                s => s.Id == id
-            }) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
-            return school;
+            return await _repository.GetSchoolByIdAsync(status, id);
         }
 
         public async Task CreateSchoolAsync(CreateSchoolRequest request, User user)
@@ -175,11 +124,7 @@ namespace Services.Implements
 
         public async Task<School> GetByIdIncludeProfile(Guid schoolId)
         {
-            var school = await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
-            {
-                s => s.Id == schoolId
-            }, include: i => i.Include(s => s.Profiles!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(schoolId));
-            return school;
+            return await _repository.GetByIdIncludeProfile(schoolId);
         }
         public async Task<int> CountStudentAsync(Guid schoolId)
         {
@@ -190,10 +135,9 @@ namespace Services.Implements
         public async Task<GetSchoolIncludeAreaAndLocationResponse> GetSchoolIncludeAreaAndLocationResponseByIdAsync(Guid id)
         {
             var school = await _repository.FirstOrDefaultAsync<GetSchoolIncludeAreaAndLocationResponse>(
-                status: BaseEntityStatus.Active, 
                 filters: new()
                     {
-                        s => s.Id == id
+                        s => s.Id == id && s.Status == BaseEntityStatus.Active
                     }, 
                 include: i => i.Include(s => s.Area).Include(s => s.Locations!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(id));
             return school!;

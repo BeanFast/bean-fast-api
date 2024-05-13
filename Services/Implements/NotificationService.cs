@@ -21,9 +21,11 @@ namespace Services.Implements
     public class NotificationService : BaseService<BusinessObjects.Models.Notification>, INotificationService
     {
         private readonly IUserService _userService;
-        public NotificationService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IUserService userService) : base(unitOfWork, mapper, appSettings)
+        private readonly INotificationRepository _repository;
+        public NotificationService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IUserService userService, INotificationRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _userService = userService;
+            _repository = repository;
         }
 
         public async Task<IPaginable<GetNotificationResponse>> GetNotificationPageByCurrentUser(PaginationRequest paginationRequest, User user)

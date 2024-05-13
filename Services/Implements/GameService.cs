@@ -22,8 +22,10 @@ namespace Services.Implements
 {
     public class GameService : BaseService<Game>, IGameService
     {
-        public GameService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IGameRepository _repository;
+        public GameService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGameRepository repository) : base(unitOfWork, mapper, appSettings)
         {
+            _repository = repository;
         }
 
         public async Task CreateGameAsync(CreateGameRequest request, User user)
@@ -39,22 +41,12 @@ namespace Services.Implements
 
         public async Task<Game> GetGameById(Guid id)
         {
-            var filters = new List<Expression<Func<Game, bool>>>
-            {
-                game => game.Id == id,
-                game => game.Status == BaseEntityStatus.Active
-            };
-            var result = await _repository.FirstOrDefaultAsync(filters);
-            if(result == null) throw new EntityNotFoundException(MessageConstants.GameMessageConstrant.GameNotFound(id));
-            return result;
+            return await _repository.GetGameById(id);
         }
 
         public async Task<ICollection<GetGameResponse>> GetGamesAsync()
         {
-            var result = await _repository.GetListAsync<GetGameResponse>(
-                    status: BaseEntityStatus.Active
-                );
-            return result;
+            return await _repository.GetGamesAsync();
         }
     }
 }

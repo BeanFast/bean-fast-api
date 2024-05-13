@@ -20,36 +20,25 @@ namespace Services.Implements
 {
     public class RoleService : BaseService<Role>, IRoleService
     {
-        public RoleService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IRoleRepository _repository;
+        public RoleService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IRoleRepository repository) : base(unitOfWork, mapper, appSettings)
         {
+            _repository = repository;
         }
 
         public async Task<ICollection<GetRoleResponse>> GetAllAsync()
         {
-            var result = await _repository.GetListAsync<GetRoleResponse>(filters: new()
-            {
-                r => r.Status != BaseEntityStatus.Deleted
-            });
-            return result;
+            return await _repository.GetAllAsync();
         }
 
         public async Task<Role> GetRoleByIdAsync(Guid id)
         {
-            var result = await _repository.FirstOrDefaultAsync(BaseEntityStatus.Active, filters: new()
-            {
-                r => r.Id == id
-            });
-            if (result == null) { throw new EntityNotFoundException(message: MessageConstants.AuthorizationMessageConstrant.RoleNotFound); }
-            return result;
+            return await _repository.GetRoleByIdAsync(id);
         }
 
         public async Task<Role> GetRoleByRoleNameAsync(RoleName roleName)
         {
-            var role = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                r => r.EnglishName == roleName.ToString()
-            });
-            return role!;
+            return await _repository.GetRoleByRoleNameAsync(roleName);
         }
     }
 }

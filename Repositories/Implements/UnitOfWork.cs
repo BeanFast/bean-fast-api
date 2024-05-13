@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -7,7 +8,7 @@ using Repositories.Interfaces;
 
 namespace Repositories.Implements;
 
-public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext
+public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : BeanFastContext
 {
     public TContext Context { get; }
     private Dictionary<Type, object>? _repositories;

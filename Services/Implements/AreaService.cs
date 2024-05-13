@@ -23,86 +23,45 @@ namespace Services.Implements
 {
     public class AreaService : BaseService<Area>, IAreaService
     {
-        public AreaService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings) : base(unitOfWork, mapper, appSettings)
+        private readonly IAreaRepository _areaRepository;
+        public AreaService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IAreaRepository areaRepository) : base(unitOfWork, mapper, appSettings)
         {
+            _areaRepository = areaRepository;
         }
 
         public async Task<Area> GetAreaByIdAsync(Guid id)
         {
-            var area = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                area => area.Id == id
-            }) ?? throw new EntityNotFoundException(MessageConstants.AreaMessageConstrant.AreaNotFound(id));
-            return area;
+            return await _areaRepository.GetAreaByIdAsync(id);
         }
         public async Task<ICollection<SearchAreaResponse>> GetAllAsync()
         {
-            var areaList = await _repository.GetListAsync<SearchAreaResponse>(filters: new()
-            {
-                area => area.Status == BaseEntityStatus.Active,
-            });
-            return areaList;
+            return await _areaRepository.GetAllAsync();
         }
 
         public async Task<Area> GetAreaByIdAsync(int status, Guid id)
         {
-            var area = await _repository.FirstOrDefaultAsync(filters: new()
-            {
-                area => area.Id == id,
-                area => area.Status == status
-            }) ?? throw new EntityNotFoundException(MessageConstants.AreaMessageConstrant.AreaNotFound(id));
-            return area;
+            return await _areaRepository.GetAreaByIdAsync(status, id);
         }
-        private ICollection<string> searchLocation(ICollection<string> locationNames, string searchQuery)
-        {
-            searchQuery = searchQuery.ToLower();
-            return locationNames.Distinct().Where(name => searchQuery.HasDiacritics() ? name.ToLower().Contains(searchQuery) : name.ToLower().RemoveDiacritics().Contains(searchQuery)).ToList();
-        }
+       
 
         public async Task<ICollection<string>> SearchCityNamesAsync(string cityName)
         {
-            cityName = cityName.ToLower();
-            var cityNames = await _repository.GetListAsync(filters: new()
-            {
-                area => area.Status == BaseEntityStatus.Active
-            }, selector: l => l.City);
-            return searchLocation(cityNames, cityName);
+            return await _areaRepository.SearchCityNamesAsync(cityName);
         }
 
         public async Task<ICollection<string>> SearchDistrictNamesAsync(string cityName, string districtName)
         {
-            var districtNames = await _repository.GetListAsync(filters: new()
-            {
-                area => area.City == cityName,
-                area => area.Status == BaseEntityStatus.Active,
-            }, selector: d => d.District);
-            return searchLocation(districtNames, districtName);
+            return await _areaRepository.SearchDistrictNamesAsync(cityName, districtName);
         }
 
         public async Task<ICollection<string>> SearchWardNamesAsync(string cityName, string districtName, string wardName)
         {
-            var wardNames = await _repository.GetListAsync(filters: new()
-            {
-                area => area.City == cityName,
-                area => area.District == districtName,
-                area => area.Status == BaseEntityStatus.Active
-            }, selector: d => d.Ward);
-            return searchLocation(wardNames, wardName);
+            return await _areaRepository.SearchWardNamesAsync(cityName, districtName, wardName);
         }
 
         public async Task<SearchAreaResponse> SearchAreaAsync(AreaFilterRequest request)
         {
-            var result = await _repository.FirstOrDefaultAsync<SearchAreaResponse>(
-                        status: BaseEntityStatus.Active,
-                        filters: new()
-                            {
-                                area => area.City == request.City,
-                                area => area.District == request.District,
-                                area => area.Ward == request.Ward
-                            },
-                        include: i => i.Include(a => a.PrimarySchools!)
-                        );
-            return result!;
+            return await _areaRepository.SearchAreaAsync(request);
         }
     }
 }

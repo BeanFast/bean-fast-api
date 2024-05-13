@@ -33,13 +33,15 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IProfileService _profileService;
         private readonly IGameService _gameService;
+        private readonly ITransactionRepository _repository;
 
-        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService) : base(unitOfWork, mapper, appSettings)
+        public TransactionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IVnPayService vnPayService, IWalletService walletService, IProfileService profileService, IGameService gameService, ITransactionRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _vnPayService = vnPayService;
             _walletService = walletService;
             _profileService = profileService;
             _gameService = gameService;
+            _repository = repository;
         }
         public async Task CreateTransactionAsync(Transaction transaction)
         {
@@ -54,22 +56,88 @@ namespace Services.Implements
             await _repository.InsertAsync(transaction);
             await _unitOfWork.CommitAsync();
         }
-        private List<Expression<Func<Transaction, bool>>> GetTransactionFilterFromTransactionFilterRequest(TransactionFilterRequest filterRequest)
+       
+
+        public async Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(
+            Guid profileId,
+            PaginationRequest paginationRequest,
+            TransactionFilterRequest filterRequest,
+            User user)
         {
-            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>();
-            if (!filterRequest.Type.IsNullOrEmpty())
+            var profile = await _profileService.GetByIdAsync(profileId);
+            if (profile.UserId != user.Id)
             {
-                if (filterRequest.Type == "money")
-                {
-                    filters.Add(t => WalletType.Money.ToString().Equals(t.Wallet!.Type));
-                }
-                else if(filterRequest.Type == "points")
-                {
-                    filters.Add(t => WalletType.Points.ToString().Equals(t.Wallet!.Type));
-                }
+                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
             }
-            //if(!filterRequest.)
-            return filters;
+           
+            var transactionPage = await _repository.GetTransactionPageByProfileIdAndUserAsync(profileId, paginationRequest, filterRequest, user);
+            return transactionPage;
+        }
+        public async Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(
+            PaginationRequest paginationRequest, 
+            TransactionFilterRequest filterRequest, 
+            User user)
+        {
+            var transactionPage = await _repository.GetMoneyTransactionPageByUserAsync(paginationRequest, filterRequest, user);
+            return transactionPage;
+        }
+
+        public async Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoard(GetTransactionsForDashBoardRequest request)
+        {
+            return await _repository.GetTransactionsForDashBoardAsync(request);
+            //var filters = new List<Expression<Func<Transaction, bool>>>();
+            //if (request.Type == "money")
+            //{
+            //    filters.Add(t => t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null);
+            //}
+            //if (request.StartDate != DateTime.MinValue)
+            //{
+            //    filters.Add(t => t.Time.Date >= request.StartDate.Date && t.Time.Date <= request.EndDate.Date);
+            //}
+            //var transactions = await _repository.GetListAsync(filters);
+            //return transactions.GroupBy(t => t.Time.Month)
+            //    .OrderBy(group => group.Key)
+            //    .Select(group => new GetTransactionsForDashBoardResponse
+            //{
+            //    Count = group.Count(),
+            //    Month = TimeUtil.GetMonthName(group.Key),
+            //    Value = (int)group.Sum(t => t.Value)
+            //}).ToList();
+        }
+        public async Task<int> GetPlayedGameCount(User user, Guid profileId)
+        {
+            return await _repository.GetPlayedGameCountAsync(user, profileId);
+        }
+        public async Task<int> GetRemainingPlayGameCount(User user, Guid profileId)
+        {
+            var playedGameCount = await GetPlayedGameCount(user, profileId);
+            return TransactionConstrant.MaxGameTransactionPerDay - playedGameCount;
+        }
+
+        public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
+        {
+            await _gameService.GetGamesAsync();
+            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
+            var playedGameTransactions = await GetPlayedGameCount(user, request.ProfileId);
+            if (playedGameTransactions >= TransactionConstrant.MaxGameTransactionPerDay)
+            {
+                throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.GameTransactionIsExceedPermittedAmount);
+            }
+            var wallet = await _walletService.GetPointWalletByUserIdAndProfildId(user.Id, request.ProfileId);
+
+            var transaction = new Transaction
+            {
+                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1),
+                GameId = request.GameId,
+                Value = request.Points,
+                Time = TimeUtil.GetCurrentVietNamTime(),
+                WalletId = wallet.Id,
+                Status = BaseEntityStatus.Active
+            };
+            wallet.Balance += request.Points;
+            await _walletService.UpdateAsync(wallet);
+            await _repository.InsertAsync(transaction, user);
+            await _unitOfWork.CommitAsync();
         }
         public async Task CreateTransactionListAsync(List<Transaction> transactions)
         {
@@ -82,7 +150,7 @@ namespace Services.Implements
         public string CreateVnPayPaymentRequest(User user, int amount, HttpContext context)
         {
             Console.WriteLine(amount);
-            if(amount < 10000)
+            if (amount < 10000)
             {
                 throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.TopUpMoneyMustBeGreaterThanTenThousand);
             }
@@ -115,103 +183,6 @@ namespace Services.Implements
             wallet.Balance += amountDouble;
             await _walletService.UpdateAsync(wallet);
             //await _unitOfWork.CommitAsync();
-        }
-
-        public async Task<IPaginable<GetTransactionPageByProfileIdAndCurrentUserResponse>> GetTransactionPageByProfileIdAndCurrentUser(
-            Guid profileId,
-            PaginationRequest paginationRequest,
-            TransactionFilterRequest filterRequest,
-            User user)
-        {
-            var profile = await _profileService.GetByIdAsync(profileId);
-            if (profile.UserId != user.Id)
-            {
-                throw new InvalidRequestException(MessageConstants.ProfileMessageConstrant.ProfileDoesNotBelongToUser);
-            }
-            var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
-            filters.Add(
-                t => t.Wallet!.ProfileId == profileId && t.Wallet!.UserId == user.Id 
-            );
-            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByProfileIdAndCurrentUserResponse>(
-                paginationRequest, filters,
-                orderBy: o => o.OrderByDescending(t => t.Time));
-            return transactionPage;
-        }
-        public async Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByCurrentUser(
-            PaginationRequest paginationRequest, 
-            TransactionFilterRequest filterRequest, 
-            User user)
-        {
-            var filters = GetTransactionFilterFromTransactionFilterRequest(filterRequest);
-            filters.Add(t =>t.Wallet!.UserId == user.Id);
-            var transactionPage = await _repository.GetPageAsync<GetTransactionPageByCurrentUserResponse>(paginationRequest, filters,
-                orderBy: o => o.OrderByDescending(t => t.Time));
-            return transactionPage;
-        }
-
-        public async Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoard(GetTransactionsForDashBoardRequest request)
-        {
-            var filters = new List<Expression<Func<Transaction, bool>>>();
-            if (request.Type == "money")
-            {
-                filters.Add(t => t.OrderId == null && t.GameId == null && t.ExchangeGiftId == null);
-            }
-            if (request.StartDate != DateTime.MinValue)
-            {
-                filters.Add(t => t.Time.Date >= request.StartDate.Date && t.Time.Date <= request.EndDate.Date);
-            }
-            var transactions = await _repository.GetListAsync(filters);
-            return transactions.GroupBy(t => t.Time.Month)
-                .OrderBy(group => group.Key)
-                .Select(group => new GetTransactionsForDashBoardResponse
-            {
-                Count = group.Count(),
-                Month = TimeUtil.GetMonthName(group.Key),
-                Value = (int)group.Sum(t => t.Value)
-            }).ToList();
-        }
-        public async Task<int> GetPlayedGameCount(User user, Guid profileId)
-        {
-            var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
-            List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
-            {
-                t => WalletType.Points.ToString().Equals(t.Wallet!.Type) && t.Wallet.ProfileId == profileId,
-                t => t.GameId != null && t.OrderId == null && t.ExchangeGiftId == null && t.Value >= 0,
-                t => t.Time.Date == currentVietnamDate.Date
-            };
-            var playedGameTransactions = await _repository.GetListAsync(filters: filters);
-            return playedGameTransactions.Count;
-        }
-        public async Task<int> GetRemainingPlayGameCount(User user, Guid profileId)
-        {
-            var playedGameCount = await GetPlayedGameCount(user, profileId);
-            return TransactionConstrant.MaxGameTransactionPerDay - playedGameCount;
-        }
-
-        public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
-        {
-            await _gameService.GetGamesAsync();
-            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
-            var playedGameTransactions = await GetPlayedGameCount(user, request.ProfileId);
-            if (playedGameTransactions >= TransactionConstrant.MaxGameTransactionPerDay)
-            {
-                throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.GameTransactionIsExceedPermittedAmount);
-            }
-            var wallet = await _walletService.GetPointWalletByUserIdAndProfildId(user.Id, request.ProfileId);
-
-            var transaction = new Transaction
-            {
-                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.TransactionCodeConstrant.TransactionPrefix, await _repository.CountAsync() + 1),
-                GameId = request.GameId,
-                Value = request.Points,
-                Time = TimeUtil.GetCurrentVietNamTime(),
-                WalletId = wallet.Id,
-                Status = BaseEntityStatus.Active
-            };
-            wallet.Balance += request.Points;
-            await _walletService.UpdateAsync(wallet);
-            await _repository.InsertAsync(transaction, user);
-            await _unitOfWork.CommitAsync();
         }
     }
 }
