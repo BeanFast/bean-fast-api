@@ -18,5 +18,6 @@ namespace Repositories.Interfaces
         Task<Kitchen> GetByIdIncludePrimarySchoolsAsync(Guid id);
         Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId);
         Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest);
+        Task<Kitchen?> GetByManagerId(Guid managerId);
     }
 }

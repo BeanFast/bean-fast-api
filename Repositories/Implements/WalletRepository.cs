@@ -36,7 +36,7 @@ namespace Repositories.Implements
             {
                 p => p.UserId == customerId && p.Status != BaseEntityStatus.Deleted
             };
-            if (profileId != null) filters.Add(p => p.ProfileId == profileId);
+            //if (profileId != null) filters.Add(p => p.ProfileId == profileId);
             var wallets = await GetListAsync<GetWalletByCurrentCustomerAndProfileResponse>(
                 filters: filters);
             return wallets;
@@ -45,7 +45,7 @@ namespace Repositories.Implements
         {
             List<Expression<Func<Wallet, bool>>> filters = new()
             {
-                p => p.UserId == userId && WalletType.Points.ToString().Equals(p.Type) && p.ProfileId == profileId
+                p => p.UserId == userId && WalletType.Points.ToString().Equals(p.Type) //&& p.ProfileId == profileId
             };
             var wallet = await FirstOrDefaultAsync(filters: filters);
             return wallet!;
@@ -64,7 +64,7 @@ namespace Repositories.Implements
         {
             var filters = new List<Expression<Func<Wallet, bool>>>
             {
-                p => p.UserId == userId && p.Type == WalletType.Money.ToString() && p.ProfileId == null
+                p => p.UserId == userId && p.Type == WalletType.Money.ToString()// && p.ProfileId == null
             };
             var result = await FirstOrDefaultAsync(filters);
             return result!;

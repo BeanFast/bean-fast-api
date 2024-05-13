@@ -171,6 +171,7 @@ namespace Utilities.Constants
             public const string KitchenCodeLength = "Mã bếp ăn phải từ {2} đến {1} ký tự";
             public const string KitchenAddressRequired = "Đại chỉ bếp ăn là bắt buộc";
             public const string KitchenAddressLength = "Địa chỉ bếp ăn phải từ {2} đến {1} ký tự";
+            public const string KitchenManagerAlreadyInAnotherKitchen = "Người quản lý bếp này đang chịu trách nhiệm cho bếp khác rồi";
         }
 
         public class SchoolMessageConstrant

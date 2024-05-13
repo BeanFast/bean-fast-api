@@ -22,7 +22,6 @@ namespace DataTransferObjects.Models.Profiles.Response
         public string BMIStatus { get; set; }
         public SchoolOfGetProfileResponse School { get; set; }
         public WalletOfGetProfileResponse Wallet { get; set; }
-        public ICollection<LoyaltyCardOfGetProfileResponse> LoyaltyCards { get; set; }
         public int GameTransaction { get; set; }
         public BmiOfProfile Bmi { get; set; }
         public class BmiOfProfile
@@ -74,12 +73,6 @@ namespace DataTransferObjects.Models.Profiles.Response
             public string Type { get; set; }
             public double Balance { get; set; }
         }
-        public class LoyaltyCardOfGetProfileResponse
-        {
-            public Guid Id { get; set; }
-            public string Title { get; set; }
-            public string QRCode { get; set; }
-            public string BackgroundImagePath { get; set; }
-        }
+       
     }
 }

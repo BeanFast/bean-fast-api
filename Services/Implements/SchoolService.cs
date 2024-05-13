@@ -40,7 +40,8 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
         {
-            return await _repository.GetSchoolListAsync(paginationRequest, filterRequest);
+            var result =  await _repository.GetSchoolListAsync(paginationRequest, filterRequest);
+            return result;
         }
 
         public async Task<School?> GetSchoolByAreaIdAndAddress(Guid areaId, string address)

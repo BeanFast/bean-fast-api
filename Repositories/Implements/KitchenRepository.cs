@@ -21,7 +21,7 @@ namespace Repositories.Implements
 {
     public class KitchenRepository : GenericRepository<Kitchen>, IKitchenRepository
     {
-        public KitchenRepository(BeanFastContext context, IMapper mapper) : base(context, mapper) 
+        public KitchenRepository(BeanFastContext context, IMapper mapper) : base(context, mapper)
         {
 
         }
@@ -75,12 +75,18 @@ namespace Repositories.Implements
         public async Task<Kitchen> GetByIdAsync(int status, Guid id)
         {
             return await FirstOrDefaultAsync(filters: new()
-        {
-            kitchen => kitchen.Id == id,
-            kitchen => kitchen.Status == status
-        }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
+            {
+                kitchen => kitchen.Id == id,
+                kitchen => kitchen.Status == status
+            }) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenNotFound(id));
         }
-
+        public async Task<Kitchen?> GetByManagerId(Guid managerId)
+        {
+            return await FirstOrDefaultAsync(filters: new()
+            {
+                kitchen => kitchen.ManagerId == managerId
+            });
+        }
         public async Task<Kitchen> GetByIdIncludePrimarySchoolsAsync(Guid id)
         {
             return await FirstOrDefaultAsync(filters: new()
@@ -116,6 +122,7 @@ namespace Repositories.Implements
             }
             return kitchens;
         }
+
 
     }
 

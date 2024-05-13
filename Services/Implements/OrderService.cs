@@ -482,7 +482,7 @@ namespace Services.Implements
             orderEntity.Status = OrderStatus.Completed;
             orderEntity.DeliveryDate = TimeUtil.GetCurrentVietNamTime();
             orderEntity.RewardPoints = CalculateRewardPoints(orderEntity.TotalPrice);
-            var wallet = orderEntity.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
+            var wallet = orderEntity.Profile!.User!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!;
             wallet.Balance += orderEntity.RewardPoints;
 
             var newOrderActivity = new OrderActivity

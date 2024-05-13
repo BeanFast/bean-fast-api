@@ -76,7 +76,7 @@ namespace Services.Implements
             exchangeGift.Id = Guid.NewGuid();
             exchangeGift.Points = gift.Points;
             exchangeGift.Status = ExchangeGiftStatus.Active;
-            var wallet = profile.Wallets!.FirstOrDefault(w => w.Type == WalletType.Points.ToString())!;
+            var wallet = profile.User!.Wallets!.FirstOrDefault(w => w.Type == WalletType.Points.ToString())!;
             if (wallet.Balance - gift.Points < 0)
             {
                 throw new InvalidWalletBalanceException(MessageConstants.WalletMessageConstrant.NotEnoughPoints);

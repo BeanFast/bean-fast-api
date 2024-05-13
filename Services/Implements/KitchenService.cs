@@ -8,6 +8,7 @@ using DataTransferObjects.Models.Kitchen.Request;
 using DataTransferObjects.Models.Kitchen.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using System.Linq.Expressions;
@@ -48,12 +49,21 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     {
         return await _repository.GetByIdAsync(status, id);
     }
+    public async Task<Kitchen?> GetByManagerId(Guid managerId)
+    {
+        return await _repository.GetByManagerId(managerId);
+    }
 
     public async Task CreateKitchenAsync(CreateKitchenRequest request, User user)
     {
         var kitchenEntity = _mapper.Map<Kitchen>(request);
         var kitchenId = Guid.NewGuid();
         string imageUrl = await _cloudStorageService.UploadFileAsync(kitchenId, _appSettings.Firebase.FolderNames.Kitchen, request.Image);
+        var existingKitchen = await GetByManagerId(request.ManagerId);
+        if (existingKitchen != null)
+        {
+            throw new InvalidRequestException(MessageConstants.KitchenMessageConstrant.KitchenManagerAlreadyInAnotherKitchen);
+        }
         kitchenEntity.ImagePath = imageUrl;
         kitchenEntity.Status = BaseEntityStatus.Active;
         kitchenEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.KitchenCodeConstrant.KitchenPrefix, await _repository.CountAsync());

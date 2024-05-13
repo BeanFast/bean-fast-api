@@ -94,7 +94,6 @@ namespace Services.Implements
             var pointsWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                ProfileId = profileId,
                 Name = profileEntity.FullName,
                 UserId = userId,
             };

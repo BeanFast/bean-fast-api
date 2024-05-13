@@ -49,6 +49,7 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
     public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
     {
         var filters = GetSchoolFilterFromFilterRequest(filterRequest);
+        filters.Add(s => s.Status != BaseEntityStatus.Deleted);
         var result = await GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
             filters: filters,
             include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
@@ -68,7 +69,7 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
     {
         var school = await FirstOrDefaultAsync(filters: new()
             {
-                s => s.Id == schoolId && s.Status != BaseEntityStatus.Deleted
+                s => s.Id == schoolId 
             }, include: i => i.Include(s => s.Profiles!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(schoolId));
         return school;
     }

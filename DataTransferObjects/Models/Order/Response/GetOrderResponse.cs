@@ -55,6 +55,7 @@ namespace DataTransferObjects.Models.Order.Response
         public class SessionDetailOfOrderResponse
         {
             public string? Code { get; set; }
+            public Guid Id { get; set; }
             public GetSessionOfSessionDetail? Session { get; set; }
 
             public class GetSessionOfSessionDetail

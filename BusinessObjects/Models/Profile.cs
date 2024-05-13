@@ -14,7 +14,7 @@
         public double? CurrentBMI { get; set; }
         public virtual User? User { get; set; }
         public virtual School? School { get; set; }
-        public virtual ICollection<Wallet>? Wallets { get; set; }
+        //public virtual ICollection<Wallet>? Wallets { get; set; }
         public virtual ICollection<ProfileBodyMassIndex>? BMIs { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<ExchangeGift>? ExchangeGifts { get; set; }

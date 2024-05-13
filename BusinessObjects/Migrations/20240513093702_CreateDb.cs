@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObjects.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDatabase : Migration
+    public partial class CreateDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,7 +51,7 @@ namespace BusinessObjects.Migrations
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Phone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     AvatarPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -287,11 +287,34 @@ namespace BusinessObjects.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Wallet",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Balance = table.Column<double>(type: "float", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wallet", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wallet_User",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Kitchen",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AreaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -316,6 +339,12 @@ namespace BusinessObjects.Migrations
                         column: x => x.CreatorId,
                         principalTable: "User",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Kitchen_User_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Kitchen_User_UpdaterId",
                         column: x => x.UpdaterId,
@@ -368,8 +397,6 @@ namespace BusinessObjects.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     KitchenId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdaterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -394,8 +421,7 @@ namespace BusinessObjects.Migrations
                         name: "FK_Menu_User_UpdaterId",
                         column: x => x.UpdaterId,
                         principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -710,34 +736,6 @@ namespace BusinessObjects.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Wallet",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Balance = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Wallet", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Wallet_Profile",
-                        column: x => x.ProfileId,
-                        principalTable: "Profile",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Wallet_User",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ExchangeGift",
                 columns: table => new
                 {
@@ -791,6 +789,7 @@ namespace BusinessObjects.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DelivererId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SessionDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -825,6 +824,12 @@ namespace BusinessObjects.Migrations
                         principalTable: "User",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_Order_User_DelivererId",
+                        column: x => x.DelivererId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Order_User_UpdaterId",
                         column: x => x.UpdaterId,
                         principalTable: "User",
@@ -848,9 +853,15 @@ namespace BusinessObjects.Migrations
                 {
                     table.PrimaryKey("PK_SessionDetailDeliverer", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SessionDetailDeliverer_SessionDetail_SessionDetailId",
+                        name: "FK_SessionDetailDeliverer_SessionDetail",
                         column: x => x.SessionDetailId,
                         principalTable: "SessionDetail",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SessionDetailDeliverer_User",
+                        column: x => x.DelivererId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -858,12 +869,6 @@ namespace BusinessObjects.Migrations
                         column: x => x.CreatorId,
                         principalTable: "User",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_SessionDetailDeliverer_User_DelivererId",
-                        column: x => x.DelivererId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SessionDetailDeliverer_User_UpdaterId",
                         column: x => x.UpdaterId,
@@ -1103,6 +1108,11 @@ namespace BusinessObjects.Migrations
                 column: "CreatorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Kitchen_ManagerId",
+                table: "Kitchen",
+                column: "ManagerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Kitchen_UpdaterId",
                 table: "Kitchen",
                 column: "UpdaterId");
@@ -1181,6 +1191,11 @@ namespace BusinessObjects.Migrations
                 name: "IX_Order_CreatorId",
                 table: "Order",
                 column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order_DelivererId",
+                table: "Order",
+                column: "DelivererId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_ProfileId",
@@ -1348,11 +1363,6 @@ namespace BusinessObjects.Migrations
                 column: "UpdaterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wallet_ProfileId",
-                table: "Wallet",
-                column: "ProfileId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Wallet_UserId",
                 table: "Wallet",
                 column: "UserId");
@@ -1419,10 +1429,10 @@ namespace BusinessObjects.Migrations
                 name: "Gift");
 
             migrationBuilder.DropTable(
-                name: "SessionDetail");
+                name: "Profile");
 
             migrationBuilder.DropTable(
-                name: "Profile");
+                name: "SessionDetail");
 
             migrationBuilder.DropTable(
                 name: "Location");
