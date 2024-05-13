@@ -165,6 +165,25 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return await GetListAsync<GetOrderResponse>(filters: filters, include: include);
 
     }
+    public async Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user)
+    {
+        var filters = GetFiltersFromOrderRequest(request);
+        Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
+
+        if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
+        {
+            //filters.Add()
+        }
+        else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
+        {
+            filters.Add(o => o.Profile!.UserId == user.Id);
+        }
+        else if (RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName))
+        {
+            filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
+        }
+        return await GetPageAsync<GetOrderResponse>(filters: filters, include: include, paginationRequest: paginationRequest);
+    }
     public async Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request)
     {
         Expression<Func<Order, GetOrderResponse>> selector = (o => _mapper.Map<GetOrderResponse>(o));
@@ -202,4 +221,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
         return result!;
     }
+
+    
 }

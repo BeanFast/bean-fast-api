@@ -63,6 +63,10 @@ namespace Services.Implements
         {
             return await _repository.GetAllAsync(request, user);
         }
+        public async Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user)
+        {
+            return await _repository.GetPageAsync(paginationRequest, request, user);
+        }
 
         public async Task<Order> GetByIdAsync(Guid id)
         {
@@ -762,5 +766,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
+        
     }
 }
