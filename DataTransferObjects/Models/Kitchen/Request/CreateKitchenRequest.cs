@@ -24,5 +24,7 @@ namespace DataTransferObjects.Models.Kitchen.Request
         [Required(ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenAddressRequired)]
         [StringLength(500, MinimumLength = 10, ErrorMessage = MessageConstants.KitchenMessageConstrant.KitchenAddressLength)]
         public string Address { get; set; }
+        [RequiredGuid]
+        public Guid ManagerId { get; set; }
     }
 }

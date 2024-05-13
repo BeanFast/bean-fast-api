@@ -55,11 +55,12 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
                     p => p.Status ==BaseEntityStatus.Active
             }, include: i => i.Include(p => p.School!)
                 .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
-                .Include(p => p.Wallets!
+                .Include(p => p.User)
+                .ThenInclude(p => p.Wallets!
                         .Where(w => w.Status == BaseEntityStatus.Active
                             && WalletType.Points.ToString().Equals(w.Type)
                          )
-                    ));
+                    )); ;
         //foreach (var profile in profiles)
         //{
         //    profile.SchoolName = profile.Schoo
@@ -100,7 +101,8 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
             include: queryable => queryable
                 .Include(p => p.School!)
                 .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
-                .Include(p => p.Wallets!
+                .Include(p => p.User!)
+                .ThenInclude(p => p.Wallets!
                         .Where(w => w.Status == BaseEntityStatus.Active
                             && WalletType.Points.ToString().Equals(w.Type)
                          )
@@ -117,7 +119,8 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
                 p => p.Id == profileId,
                 p => p.UserId == customerId,
                 p => p.Status != BaseEntityStatus.Deleted
-            }, include: i => i.Include(p => p.Wallets!.Where(w => w.Status == BaseEntityStatus.Active)));
+            }, include: i => i.Include(p => p.User!)
+                .ThenInclude(p => p.Wallets!.Where(w => w.Status == BaseEntityStatus.Active)));
         return profile ?? throw new EntityNotFoundException(MessageConstants.ProfileMessageConstrant.ProfileNotFound);
     }
 }

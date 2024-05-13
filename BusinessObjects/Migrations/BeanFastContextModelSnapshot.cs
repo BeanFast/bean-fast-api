@@ -468,6 +468,9 @@ namespace BusinessObjects.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("ManagerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -488,6 +491,8 @@ namespace BusinessObjects.Migrations
                     b.HasIndex("AreaId");
 
                     b.HasIndex("CreatorId");
+
+                    b.HasIndex("ManagerId");
 
                     b.HasIndex("UpdaterId");
 
@@ -618,9 +623,6 @@ namespace BusinessObjects.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -632,9 +634,6 @@ namespace BusinessObjects.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -761,6 +760,9 @@ namespace BusinessObjects.Migrations
                     b.Property<Guid?>("CreatorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("DelivererId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("DeliveryDate")
                         .HasColumnType("datetime2");
 
@@ -795,6 +797,8 @@ namespace BusinessObjects.Migrations
                         .HasName("PK_Order");
 
                     b.HasIndex("CreatorId");
+
+                    b.HasIndex("DelivererId");
 
                     b.HasIndex("ProfileId");
 
@@ -1372,9 +1376,6 @@ namespace BusinessObjects.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("ProfileId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -1388,8 +1389,6 @@ namespace BusinessObjects.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_Wallet");
-
-                    b.HasIndex("ProfileId");
 
                     b.HasIndex("UserId");
 
@@ -1600,6 +1599,12 @@ namespace BusinessObjects.Migrations
                         .HasForeignKey("CreatorId")
                         .HasConstraintName("FK_Kitchen_User_CreatorId");
 
+                    b.HasOne("BusinessObjects.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusinessObjects.Models.User", "Updater")
                         .WithMany("UpdatedKitchens")
                         .HasForeignKey("UpdaterId")
@@ -1608,6 +1613,8 @@ namespace BusinessObjects.Migrations
                     b.Navigation("Area");
 
                     b.Navigation("Creator");
+
+                    b.Navigation("Manager");
 
                     b.Navigation("Updater");
                 });
@@ -1691,7 +1698,7 @@ namespace BusinessObjects.Migrations
                     b.HasOne("BusinessObjects.Models.User", "Updater")
                         .WithMany("UpdatedMenus")
                         .HasForeignKey("UpdaterId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_Menu_User_UpdaterId");
 
                     b.Navigation("Creator");
@@ -1750,6 +1757,12 @@ namespace BusinessObjects.Migrations
                         .HasForeignKey("CreatorId")
                         .HasConstraintName("FK_Order_User_CreatorId");
 
+                    b.HasOne("BusinessObjects.Models.User", "Deliverer")
+                        .WithMany()
+                        .HasForeignKey("DelivererId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusinessObjects.Models.Profile", "Profile")
                         .WithMany("Orders")
                         .HasForeignKey("ProfileId")
@@ -1770,6 +1783,8 @@ namespace BusinessObjects.Migrations
                         .HasConstraintName("FK_Order_User_UpdaterId");
 
                     b.Navigation("Creator");
+
+                    b.Navigation("Deliverer");
 
                     b.Navigation("Profile");
 
@@ -2052,19 +2067,12 @@ namespace BusinessObjects.Migrations
 
             modelBuilder.Entity("BusinessObjects.Models.Wallet", b =>
                 {
-                    b.HasOne("BusinessObjects.Models.Profile", "Profile")
-                        .WithMany("Wallets")
-                        .HasForeignKey("ProfileId")
-                        .HasConstraintName("FK_Wallet_Profile");
-
                     b.HasOne("BusinessObjects.Models.User", "User")
                         .WithMany("Wallets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Wallet_User");
-
-                    b.Navigation("Profile");
 
                     b.Navigation("User");
                 });
@@ -2156,8 +2164,6 @@ namespace BusinessObjects.Migrations
                     b.Navigation("LoyaltyCards");
 
                     b.Navigation("Orders");
-
-                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Role", b =>

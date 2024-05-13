@@ -124,7 +124,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         var menuEntity = await GetByIdAsync(guid);
         var menuDetails = new List<MenuDetail>();
         var menuDetailNumber = await _menuDetailService.CountAsync();
-        menuEntity.UpdateDate = TimeUtil.GetCurrentVietNamTime();
+        menuEntity.UpdatedDate = TimeUtil.GetCurrentVietNamTime();
         menuEntity.Updater = updater;
         foreach (var item in request.MenuDetails)
         {

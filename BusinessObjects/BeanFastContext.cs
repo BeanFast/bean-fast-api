@@ -57,8 +57,8 @@ namespace BusinessObjects
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=20.11.68.170;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
-                //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfastv4;User ID=sa;Password=12345;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=20.92.162.251;Initial Catalog=beanfast;User ID=sa;Password=thanh@Strong(!)P4ssw00rd;TrustServerCertificate=True;");
+                //optionsBuilder.UseSqlServer("Server=localhost;Initial Catalog=beanfastv10;User ID=sa;Password=12345;TrustServerCertificate=True;");
 
                 //optionsBuilder.UseSqlServer(GetConnectionString());
             }
@@ -223,7 +223,7 @@ namespace BusinessObjects
                     .WithMany(e => e.UpdatedMenus)
                     .HasForeignKey(e => e.UpdaterId)
                     .HasConstraintName("FK_Menu_User_UpdaterId")
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
             modelBuilder.Entity<MenuDetail>(entity =>
             {
@@ -362,10 +362,10 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.UserId)
                     .HasConstraintName("FK_Wallet_User")
                     .OnDelete(DeleteBehavior.NoAction);
-                entity.HasOne(e => e.Profile)
-                    .WithMany(e => e.Wallets)
-                    .HasForeignKey(e => e.ProfileId)
-                    .HasConstraintName("FK_Wallet_Profile");
+                //entity.HasOne(e => e.Profile)
+                //    .WithMany(e => e.Wallets)
+                //    .HasForeignKey(e => e.ProfileId)
+                //    .HasConstraintName("FK_Wallet_Profile");
             });
             modelBuilder.Entity<Transaction>(entity =>
             {

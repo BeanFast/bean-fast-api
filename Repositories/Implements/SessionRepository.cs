@@ -131,6 +131,7 @@ namespace Repositories.Implements
                 .Include(s => s.SessionDetails!)
                 .ThenInclude(sd => sd.Orders!)
                 .ThenInclude(o => o.Profile!)
+                .ThenInclude(p => p.User!)
                 .ThenInclude(p => p.Wallets!));
         }
         public async Task<ICollection<Session>> GetOverlappedDeliveryTimeSessions(DateTime deliveryStartTime, DateTime deliveryEndTime)

@@ -36,6 +36,18 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                 filters.Add(o => o.Status == request.Status);
             }
         }
+        if (request.SchoolId != null)
+        {
+            filters.Add(o => o.SessionDetail!.Location!.SchoolId == request.SchoolId);
+        }
+        if (request.SessionDetailId != null)
+        {
+            filters.Add(o => o.SessionDetailId == request.SessionDetailId);
+        }
+        if (request.SessionId != null)
+        {
+            filters.Add(o => o.SessionDetail!.SessionId == request.SessionId);
+        }
         return filters;
     }
     public async Task<ICollection<Order>> GetOrdersAsync(DateTime startDate, DateTime endDate, int? status = null)
@@ -44,7 +56,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             {
                     order => order.PaymentDate.Date >= startDate.Date && order.PaymentDate.Date <= endDate.Date
             };
-        if(status is not null)
+        if (status is not null)
         {
             filters.Add(order => order.Status == status);
         }
@@ -133,6 +145,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             filters: filters, include: queryable =>
             queryable
             .Include(o => o.Profile!)
+                .ThenInclude(p => p.User!)
                 .ThenInclude(p => p.Wallets)
             .Include(o => o.Profile!)
                 .ThenInclude(p => p.User!)
@@ -222,5 +235,5 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return result!;
     }
 
-    
+
 }
