@@ -22,5 +22,6 @@ namespace DataTransferObjects.Models.School.Request
 
         public Guid? KitchenId { get; set; }
 
+        public bool? Orderable { get; set; }
     }
 }

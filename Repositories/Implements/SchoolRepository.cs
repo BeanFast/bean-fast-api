@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Utilities.Constants;
 using Utilities.Exceptions;
 using Utilities.Statuses;
+using Utilities.Utils;
 
 namespace Repositories.Implements;
 
@@ -33,9 +34,16 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
         {
             filters.Add(s => s.Address.ToLower().Contains(filterRequest.Address.ToLower()));
         }
-        if(filterRequest.KitchenId != null)
+        if (filterRequest.KitchenId != null)
         {
             filters.Add(s => s.KitchenId == filterRequest.KitchenId);
+        }
+        if (filterRequest.Orderable != null)
+        {
+            if (filterRequest.Orderable.Value)
+            {
+                filters.Add(s => s.Locations!.Any(l => l.SessionDetails!.Any(sd => sd.Session!.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && sd.Session.OrderEndTime > TimeUtil.GetCurrentVietNamTime())));
+            }
         }
         return filters;
     }
@@ -72,7 +80,7 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
     {
         var school = await FirstOrDefaultAsync(filters: new()
             {
-                s => s.Id == schoolId 
+                s => s.Id == schoolId
             }, include: i => i.Include(s => s.Profiles!)) ?? throw new EntityNotFoundException(MessageConstants.SchoolMessageConstrant.SchoolNotFound(schoolId));
         return school;
     }
