@@ -123,7 +123,14 @@ namespace Repositories.Implements
             return kitchens;
         }
 
-
+        public async Task<GetKitchenResponse> GetKitchenByCurrentManagerAsync(Guid id)
+        {
+            var filters = new List<Expression<Func<Kitchen, bool>>>
+            {
+                k => k.ManagerId == id
+            };  
+           return await FirstOrDefaultAsync<GetKitchenResponse>(filters: filters) ?? throw new EntityNotFoundException(MessageConstants.KitchenMessageConstrant.KitchenWithManagerIdNotFound(id));
+        }
     }
 
 }

@@ -429,7 +429,6 @@ namespace Services.Implements
                         Status = TransactionStatus.Active
                     }
                 };
-                orderEntity.DelivererId = Guid.Parse("F3A6095A-CD76-47E2-B2DE-08DC4A06815D");
                 await AssignOrderToDelivererAsync(orderEntity);
                 await _walletService.UpdateAsync(wallet);
                 await _repository.InsertAsync(orderEntity, user);
@@ -481,12 +480,10 @@ namespace Services.Implements
                 {
                     data.Add(new GetDelivererIdAndOrderCountBySessionDetailIdResponse { DelivererId = deliverer.Id });
                 }
-                else
-                {
-                    order.DelivererId = deliverer.DelivererId;
-                }
+               
             }
-            //var sortedData = data.OrderBy(d => d.Value).ToList();
+            var sortedData = data.OrderBy(d => d.OrderCount).ToList();
+            order.DelivererId = sortedData.First().DelivererId;
             Console.WriteLine(availableDeliverers);
         }
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId, User deliverer)
