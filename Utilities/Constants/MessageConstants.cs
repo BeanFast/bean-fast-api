@@ -165,6 +165,7 @@ namespace Utilities.Constants
         public class KitchenMessageConstrant
         {
             public static string KitchenNotFound(Guid guid) => $"Bếp ăn với id: {guid} không tồn tại";
+            public static string KitchenWithManagerIdNotFound(Guid guid) => $"Bếp ăn với id của người quản lýz: {guid} không tồn tại";
             public const string KitchenNameRequired = "Tên bếp ăn là bắt buộc";
             public const string KitchenNameLength = "Tên bếp ăn phải từ {2} đến {1} ký tự";
             public const string KitchenCodeRequired = "Mã bếp ăn là bắt buộc";

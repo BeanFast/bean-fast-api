@@ -1,9 +1,11 @@
-﻿using DataTransferObjects.Core.Pagination;
+﻿using BeanFastApi.Validators;
+using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.Kitchen.Request;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using System.Formats.Tar;
 using System.Net;
+using Utilities.Enums;
 
 namespace BeanFastApi.Controllers;
 
@@ -26,6 +28,13 @@ public class KitchensController : BaseController
             ? await _kitchenService.GetAllAsync(userRole, filterRequest)
             : await _kitchenService.GetKitchenPageAsync(paginationRequest, filterRequest, userRole);
         return SuccessResult(kitchens);
+    }
+    [HttpGet("current")]
+    [Authorize(RoleName.MANAGER)]
+    public async Task<IActionResult> GetKitchenByCurrentManagerAsync()
+    {
+        var result = await _kitchenService.GetKitchenByCurrentManagerAsync(await GetUserAsync());
+        return SuccessResult(result);
     }
     [HttpGet("{kitchenId}/schools/count")]
     public async Task<IActionResult> CountSchoolByKitchenIdAsync([FromRoute] Guid kitchenId)

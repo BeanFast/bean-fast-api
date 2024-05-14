@@ -19,5 +19,6 @@ namespace Repositories.Interfaces
         Task<int> CountSchoolByKitchenIdAsync(Guid kitchentId);
         Task<ICollection<GetKitchenResponse>> GetAllAsync(string? userRole, KitchenFilterRequest filterRequest);
         Task<Kitchen?> GetByManagerId(Guid managerId);
+        Task<GetKitchenResponse> GetKitchenByCurrentManagerAsync(Guid id);
     }
 }

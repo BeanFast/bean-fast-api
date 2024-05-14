@@ -110,4 +110,9 @@ public class KitchenService : BaseService<Kitchen>, IKitchenService
     {
         return await _repository.GetAllAsync(userRole, filterRequest);
     }
+
+    public async Task<GetKitchenResponse> GetKitchenByCurrentManagerAsync(User user)
+    {
+        return await _repository.GetKitchenByCurrentManagerAsync(user.Id);
+    }
 }
