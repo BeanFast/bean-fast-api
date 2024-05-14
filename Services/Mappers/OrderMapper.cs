@@ -18,8 +18,10 @@ namespace Services.Mappers
             CreateMap<Food, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail>();
             CreateMap<Category, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail.CategoryOfFood>();
             CreateMap<SessionDetail, GetOrderResponse.SessionDetailOfOrderResponse>();
-            CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
             CreateMap<Session, GetOrderResponse.SessionDetailOfOrderResponse.GetSessionOfSessionDetail>();
+            CreateMap<Location, GetOrderResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail>();
+            CreateMap<School, GetOrderResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail.SchoolOfLocation>();
+            CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
 
             CreateMap<Order, GetOrderByIdResponse>();
             CreateMap<OrderDetail, GetOrderByIdResponse.OrderDetailOfGetOrderResponse>();

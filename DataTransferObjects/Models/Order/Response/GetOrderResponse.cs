@@ -57,7 +57,7 @@ namespace DataTransferObjects.Models.Order.Response
             public string? Code { get; set; }
             public Guid Id { get; set; }
             public GetSessionOfSessionDetail? Session { get; set; }
-
+            public LocationOfSessionDetail? Location { get; set; }
             public class GetSessionOfSessionDetail
             {
                 public Guid Id { get; set; }
@@ -66,6 +66,23 @@ namespace DataTransferObjects.Models.Order.Response
                 public DateTime OrderEndTime { get; set; }
                 public DateTime DeliveryStartTime { get; set; }
                 public DateTime DeliveryEndTime { get; set; }
+            }
+            public class LocationOfSessionDetail
+            {
+                public Guid Id { get; set; }
+                public string Code { get; set; }
+                public string Name { get; set; }
+                public string Description { get; set; }
+                public string ImagePath { get; set; }
+                public SchoolOfLocation School { get; set; }
+                public class SchoolOfLocation
+                {
+                    public Guid Id { get; set; }
+                    public string Code { get; set; }
+                    public string Name { get; set; }
+                    public string Address { get; set; }
+                    public string ImagePath { get; set; }
+                }
             }
         }
 
