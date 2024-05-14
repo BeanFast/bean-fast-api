@@ -30,7 +30,8 @@ namespace Services.Implements
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
         private readonly IExchangeGIftService _exchangeGIftService;
-        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService, IExchangeGIftService exchangeGIftService, ISessionRepository repository) : base(unitOfWork, mapper, appSettings)
+        private readonly IMenuService _menuService;
+        public SessionService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ILocationService locationService, ISessionDetailService sessionDetailService, IUserService userService, IOrderService orderService, IExchangeGIftService exchangeGIftService, ISessionRepository repository, IMenuService menuService) : base(unitOfWork, mapper, appSettings)
         {
             _locationService = locationService;
             _sessionDetailService = sessionDetailService;
@@ -38,6 +39,7 @@ namespace Services.Implements
             _orderService = orderService;
             _exchangeGIftService = exchangeGIftService;
             _repository = repository;
+            _menuService = menuService;
         }
 
         public async Task CreateSessionAsync(CreateSessionRequest request, User user)
@@ -46,6 +48,7 @@ namespace Services.Implements
             sessionEntity.Status = BaseEntityStatus.Active;
             sessionEntity.Id = Guid.NewGuid();
             HashSet<Guid> uniqueLocationIds = new();
+            var menu = await _menuService.GetByIdAsync(request.MenuId);
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
             var sessionsHasDeliveryTimeOverlap = await _repository.GetListAsync(filters: new()
             {

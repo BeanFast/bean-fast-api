@@ -284,6 +284,7 @@ namespace Utilities.Constants
             public const string OrderOutOfDeliveryTime = "Bạn không thể hoàn thành đơn hàng này vì đã hết thời gian giao hàng";
             public const string OrderNotInDeliveryTime = "Bạn không thể hoàn thành đơn hàng này vì chưa đến thời gian giao hàng";
             public const string CurrentUserAreNotDeliverer = "Bạn không thể hoàn thành đơn hàng này vì không phải người giao hàng";
+            //public const string NoDelivererAvailable = "Bạn không thể hoàn thành đơn hàng này vì không phải người giao hàng";
         }
 
         public class OrderActivityMessageConstrant

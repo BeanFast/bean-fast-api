@@ -11,5 +11,6 @@ namespace Services.Interfaces
     {
         Task HardDeleteAsync(List<SessionDetailDeliverer> sessionDetailDeliverers);
         Task InsertListAsync(List<SessionDetailDeliverer> sessionDetailDeliverers);
+        Task<ICollection<SessionDetailDeliverer>> GetBySessionDetailId(Guid sessionDetailId);
     }
 }

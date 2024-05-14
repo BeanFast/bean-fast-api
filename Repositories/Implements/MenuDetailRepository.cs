@@ -23,7 +23,7 @@ namespace Repositories.Implements
         {
             List<Expression<Func<MenuDetail, bool>>> filters = new()
             {
-                (menuDetail) => menuDetail.Id == id && menuDetail.Status != BaseEntityStatus.Active
+                (menuDetail) => menuDetail.Id == id && menuDetail.Status != BaseEntityStatus.Deleted
             };
             var menuDetail = await FirstOrDefaultAsync(filters: filters)
                 ?? throw new EntityNotFoundException(MessageConstants.MenuDetailMessageConstrant.MenuDetailNotFound(id));

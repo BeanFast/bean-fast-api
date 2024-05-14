@@ -34,5 +34,9 @@ namespace Services.Implements
             }
             await _unitOfWork.CommitAsync();
         }
+        public async Task<ICollection<SessionDetailDeliverer>> GetBySessionDetailId(Guid sessionDetailId)
+        {
+            return await _delivererRepository.GetBySessionDetailId(sessionDetailId);
+        }
     }
 }

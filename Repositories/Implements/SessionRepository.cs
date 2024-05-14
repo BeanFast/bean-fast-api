@@ -30,24 +30,7 @@ namespace Repositories.Implements
         private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request, string userRole)
         {
             List<Expression<Func<Session, bool>>> filters = new List<Expression<Func<Session, bool>>>();
-            //Expression<Func<Session, bool>> orFilter = (s) =>
-            //{
-            //    bool filter = false;
-            //    if (request.Expired)
-            //    {
-            //        filter = filter || s.OrderEndTime < TimeUtil.GetCurrentVietNamTime();
-            //    }
-            //    if (request.Incomming)
-            //    {
-            //        filter = filter || s.OrderStartTime > TimeUtil.GetCurrentVietNamTime();
-            //    }
-            //    if (request.Orderable)
-            //    {
-            //        filter = filter || (s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime());
-            //    }
-            //    return filter;
-            //};
-            //filters.Add(orFilter);
+      
             var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {

@@ -20,5 +20,7 @@ namespace DataTransferObjects.Models.School.Request
         //[RequiredGuid]
         public Guid? AreaId { get; set; }
 
+        public Guid? KitchenId { get; set; }
+
     }
 }
