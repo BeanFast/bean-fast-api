@@ -34,6 +34,7 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IFoodService _foodService;
         private readonly IUserService _userService;
+        private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
         private readonly IOrderRepository _repository;
 
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
@@ -44,7 +45,10 @@ namespace Services.Implements
            IMenuDetailService menuDetailService,
            ITransactionService transactionService,
            IWalletService walletService,
-           IFoodService foodService, IUserService userService, IOrderRepository repository) : base(unitOfWork, mapper, appSettings)
+           IFoodService foodService,
+           IUserService userService,
+           IOrderRepository repository,
+           ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -56,8 +60,9 @@ namespace Services.Implements
             _foodService = foodService;
             _userService = userService;
             _repository = repository;
+            _sessionDetailDelivererService = sessionDetailDelivererService;
         }
-        
+
 
         public async Task<ICollection<GetOrderResponse>> GetAllAsync(OrderFilterRequest request, User user)
         {
@@ -108,7 +113,7 @@ namespace Services.Implements
             return await _repository.GetOrdersByStatusAsync(status);
         }
 
-        public  Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
+        public Task<ICollection<GetOrderResponse>> GetOrdersDeliveringByProfileIdAndDelivererId(Guid profileId, Guid delivererId)
         {
             //List<Expression<Func<Order, bool>>> filters = new()
             //{
@@ -352,7 +357,7 @@ namespace Services.Implements
                 var orderEntity = _mapper.Map<Order>(request);
                 orderEntity.Id = orderId;
                 orderEntity.PaymentDate = TimeUtil.GetCurrentVietNamTime();
-                orderEntity.Status = OrderStatus.Cooking;
+                orderEntity.Status = OrderStatus.Pending;
 
                 orderEntity.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderCodeConstrant.OrderPrefix, orderNumber);
 
@@ -386,7 +391,6 @@ namespace Services.Implements
                     orderDetailEntity.Status = OrderDetailStatus.Active;
                     orderDetailEntityList.Add(orderDetailEntity);
 
-                    // food?
                 }
                 orderEntity.OrderDetails?.Clear();
 
@@ -425,6 +429,8 @@ namespace Services.Implements
                         Status = TransactionStatus.Active
                     }
                 };
+                orderEntity.DelivererId = Guid.Parse("F3A6095A-CD76-47E2-B2DE-08DC4A06815D");
+                await AssignOrderToDelivererAsync(orderEntity);
                 await _walletService.UpdateAsync(wallet);
                 await _repository.InsertAsync(orderEntity, user);
                 await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
@@ -465,6 +471,24 @@ namespace Services.Implements
         //        }
         //    }
         //}
+        public async Task AssignOrderToDelivererAsync(Order order)
+        {
+            var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(order.SessionDetailId);
+            var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(order.SessionDetailId);
+            foreach (var deliverer in availableDeliverers)
+            {
+                if (!data.Any(d => d.DelivererId == deliverer.DelivererId))
+                {
+                    data.Add(new GetDelivererIdAndOrderCountBySessionDetailIdResponse { DelivererId = deliverer.Id });
+                }
+                else
+                {
+                    order.DelivererId = deliverer.DelivererId;
+                }
+            }
+            //var sortedData = data.OrderBy(d => d.Value).ToList();
+            Console.WriteLine(availableDeliverers);
+        }
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId, User deliverer)
         {
             var startTime = DateTime.Now;
@@ -766,6 +790,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        
+
     }
 }

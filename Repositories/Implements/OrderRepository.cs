@@ -65,7 +65,24 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         );
         return orders;
     }
-
+    public async Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId)
+    {
+        var filters = new List<Expression<Func<Order, bool>>>
+        {
+                order => order.SessionDetailId == sessionDetailId
+        };
+        var orders = await GetListAsync(
+                       filters: filters,
+                       include: queryable => queryable.Include(o => o.Profile!));
+        var result = orders.GroupBy(o => o.DelivererId)
+            .Select(g => new GetDelivererIdAndOrderCountBySessionDetailIdResponse
+            {
+                DelivererId = g.Key,
+                OrderCount = g.Count(),
+                CustomerIds = g.Select(o => o.Profile!.UserId).ToHashSet()
+            }).ToList();
+        return result;
+    }
     public async Task<ICollection<Order>> GetCompletedOrderIncludeKitchenAsync()
     {
         var filters = new List<Expression<Func<Order, bool>>>

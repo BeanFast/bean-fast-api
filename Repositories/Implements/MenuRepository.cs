@@ -104,8 +104,8 @@ public class MenuRepository : GenericRepository<Menu>, IMenuRepository
         var menu = await FirstOrDefaultAsync(
             filters: filters, include: queryable => queryable
             .Include(m => m.Kitchen!)
-            .Include(m => m.MenuDetails!)
-            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id)));
+            .Include(m => m.MenuDetails!))
+            ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
         return menu;
     }
 

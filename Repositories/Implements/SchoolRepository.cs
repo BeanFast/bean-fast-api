@@ -33,7 +33,10 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
         {
             filters.Add(s => s.Address.ToLower().Contains(filterRequest.Address.ToLower()));
         }
-
+        if(filterRequest.KitchenId != null)
+        {
+            filters.Add(s => s.KitchenId == filterRequest.KitchenId);
+        }
         return filters;
     }
     public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
