@@ -22,11 +22,19 @@ namespace DataTransferObjects.Models.Session.Request
         public DateTime DeliveryEndTime { get; set; }
         [RequiredListLength]
         public ICollection<SessionDetailOfCreateSessionRequest> SessionDetails { get; set; }
-        
+
         public class SessionDetailOfCreateSessionRequest
         {
             [RequiredGuid]
             public Guid LocationId { get; set; }
+
+            [RequiredListLength]
+            public ICollection<SessionDetailDelivererOfSessionDetail> Deliverers { get; set; }
+            public class SessionDetailDelivererOfSessionDetail
+            {
+                [RequiredGuid]
+                public Guid DelivererId { get; set; }
+            }
         }
     }
 }
