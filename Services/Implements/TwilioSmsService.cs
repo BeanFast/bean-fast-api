@@ -12,12 +12,12 @@ using Utilities.Settings;
 
 namespace Services.Implements
 {
-    public class SmsService : ISmsService
+    public class TwilioSmsService : ISmsService
     {
         
         private AppSettings _appSettings;
 
-        public SmsService(IOptions<AppSettings> appSettings)
+        public TwilioSmsService(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
         }
