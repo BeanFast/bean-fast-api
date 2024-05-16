@@ -20,7 +20,6 @@ using Utilities.Utils;
 using DataTransferObjects.Models.OrderActivity.Response;
 using DataTransferObjects.Models.OrderActivity.Request;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json.Serialization;
 namespace Services.Implements
 {
     public class OrderService : BaseService<Order>, IOrderService
@@ -429,12 +428,12 @@ namespace Services.Implements
                         Status = TransactionStatus.Active
                     }
                 };
-                await AssignOrderToDelivererAsync(orderEntity);
-                await _walletService.UpdateAsync(wallet);
-                await _repository.InsertAsync(orderEntity, user);
-                await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
-                await _unitOfWork.CommitAsync();
-                await transaction.CommitAsync();
+                await AssignOrderToDelivererAsync(orderEntity, user);
+                //await _walletService.UpdateAsync(wallet);
+                //await _repository.InsertAsync(orderEntity, user);
+                //await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
+                //await _unitOfWork.CommitAsync();
+                //await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -470,17 +469,22 @@ namespace Services.Implements
         //        }
         //    }
         //}
-        public async Task AssignOrderToDelivererAsync(Order order)
+        public async Task AssignOrderToDelivererAsync(Order order, User customer)
         {
             var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(order.SessionDetailId);
             var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(order.SessionDetailId);
+            var delivererThatAlreadyHasOrderOfThisCustomer = data.FirstOrDefault(d => d.CustomerIds.Any(id => id == customer.Id));
+            if(delivererThatAlreadyHasOrderOfThisCustomer != null)
+            {
+                order.DelivererId = delivererThatAlreadyHasOrderOfThisCustomer.DelivererId;
+                return;
+            }
             foreach (var deliverer in availableDeliverers)
             {
                 if (!data.Any(d => d.DelivererId == deliverer.DelivererId))
                 {
                     data.Add(new GetDelivererIdAndOrderCountBySessionDetailIdResponse { DelivererId = deliverer.Id });
                 }
-               
             }
             var sortedData = data.OrderBy(d => d.OrderCount).ToList();
             order.DelivererId = sortedData.First().DelivererId;

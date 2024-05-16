@@ -63,7 +63,6 @@ namespace Services.Implements
                 {
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.OverlappedSessionHasExistedLocationId(item.DeliveryStartTime, item.DeliveryEndTime, matchingSessionDetail.LocationId));
                 }
-                
             }
             foreach (var sessionDetail in sessionEntity.SessionDetails!)
             {
@@ -78,6 +77,7 @@ namespace Services.Implements
                     sessionDetail.Status = BaseEntityStatus.Active;
                     sessionDetailNumber++;
                     uniqueLocationIds.Add(sessionDetail.Id);
+                    
                 }
             }
             var sessionNumber = await _repository.CountAsync() + 1;
@@ -228,6 +228,26 @@ namespace Services.Implements
             return list;
 
         }
+        public async Task<ICollection<GetDelivererResponse>> GetAvailableDelivererInSessionDeliveryTime(DateTime deliveryStartTime, DateTime deliveryEndTime)
+        {
+            ICollection<GetDelivererResponse> list = new List<GetDelivererResponse>();
+
+            var sessions = await _repository.GetOverlappedDeliveryTimeSessions(deliveryStartTime, deliveryEndTime);
+            var busyDelivererIdList = new List<Guid>();
+
+            if (!sessions.IsNullOrEmpty())
+            {
+                busyDelivererIdList = sessions
+                    .SelectMany(s => s.SessionDetails!.SelectMany(sd => sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId)))
+                    .ToList();
+                // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
+                
+            }
+            list = await _userService.GetDeliverersExcludeAsync(busyDelivererIdList);
+
+            return list;
+
+        }
         public async Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user)
         {
             throw new NotImplementedException();
@@ -284,7 +304,7 @@ namespace Services.Implements
                     if (s.Status == SessionStatus.Active)
                     {
                         var currentTime = TimeUtil.GetCurrentVietNamTime();
-                        if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.DeliveryStartTime)
+                        if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.OrderEndTime)
                         {
                             CancelOrderRequest cancelOrderRequest = new()
                             {
