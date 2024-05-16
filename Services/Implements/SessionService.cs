@@ -54,6 +54,7 @@ namespace Services.Implements
             {
                 s => s.DeliveryStartTime < sessionEntity.DeliveryEndTime && s.DeliveryEndTime > sessionEntity.DeliveryStartTime
             }, include: i => i.Include(s => s.SessionDetails!));
+            var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionEntity.DeliveryStartTime, sessionEntity.DeliveryEndTime);
             foreach (var item in sessionsHasDeliveryTimeOverlap)
             {
                 
@@ -77,7 +78,17 @@ namespace Services.Implements
                     sessionDetail.Status = BaseEntityStatus.Active;
                     sessionDetailNumber++;
                     uniqueLocationIds.Add(sessionDetail.Id);
-                    
+                    foreach (var deliverer in sessionDetail.SessionDetailDeliverers)
+                    {
+                        if (availableDeliverers.Any(ad => ad.Id != deliverer.Id))
+                        {
+                            availableDeliverers.Remove(availableDeliverers.First(ad => ad.Id == deliverer.Id));
+                        }
+                        else
+                        {
+                            throw new InvalidRequestException("Deliverer is not available in delivery time");
+                        }
+                    }
                 }
             }
             var sessionNumber = await _repository.CountAsync() + 1;
