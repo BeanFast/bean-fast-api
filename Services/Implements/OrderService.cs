@@ -272,7 +272,7 @@ namespace Services.Implements
                 Revenue = s.Revenue,
                 Count = s.Count
             }).ToList();
-
+            if (roundedData.Count == 0) return roundedData;
             // Calculate the total after rounding
             double totalAfterRounding = roundedData.Sum(c => c.Percentage);
 
@@ -324,7 +324,7 @@ namespace Services.Implements
                 TotalItem = s.TotalItem,
                 Percentage = Math.Round(s.Percentage, 1)
             }).ToList();
-
+            if(roundedData.Count == 0) return roundedData;
             // Calculate the total after rounding
             double totalAfterRounding = roundedData.Sum(c => c.Percentage);
 

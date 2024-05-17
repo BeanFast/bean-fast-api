@@ -127,7 +127,7 @@ namespace Services.Implements
                 Category = c.Category,
                 TotalSold = Math.Round(c.TotalSold, 1)
             }).ToList();
-
+            if(roundedData.Count == 0) return roundedData;
             // Calculate the total after rounding
             double totalAfterRounding = roundedData.Sum(c => c.TotalSold);
 
