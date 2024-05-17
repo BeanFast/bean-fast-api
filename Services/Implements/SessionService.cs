@@ -57,7 +57,7 @@ namespace Services.Implements
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionEntity.DeliveryStartTime, sessionEntity.DeliveryEndTime);
             foreach (var item in sessionsHasDeliveryTimeOverlap)
             {
-                
+
                 var matchingSessionDetail = request.SessionDetails.FirstOrDefault(rsd => item.SessionDetails!.Any(sd => rsd.LocationId == sd.LocationId));
 
                 if (matchingSessionDetail != null)
@@ -121,7 +121,7 @@ namespace Services.Implements
             var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
             if (RoleName.ADMIN.ToString().Equals(userRole))
             {
-                
+
                 if (request.Orderable)
                 {
                     filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
@@ -221,10 +221,8 @@ namespace Services.Implements
 
             var session = await GetBySessionDetailIdAsync(sessionDetailId);
             var sessions = await _repository.GetOverlappedDeliveryTimeSessions(session.DeliveryStartTime, session.DeliveryEndTime);
-            var existedBusyDelivererIdList = session.SessionDetails?.SelectMany(sd =>
-            {
-                return sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId);
-            }).ToList();
+            sessions = sessions.Where(s => s.Id != session.Id).ToList();
+            var existedBusyDelivererIdList = new List<Guid>();
 
             if (!sessions.IsNullOrEmpty())
             {
@@ -252,7 +250,7 @@ namespace Services.Implements
                     .SelectMany(s => s.SessionDetails!.SelectMany(sd => sd.SessionDetailDeliverers!.Select(sdd => sdd.DelivererId)))
                     .ToList();
                 // list những deliverer id mà đang có sẵn trong session detail mà người dùng chọn
-                
+
             }
             list = await _userService.GetDeliverersExcludeAsync(busyDelivererIdList);
 
@@ -291,7 +289,7 @@ namespace Services.Implements
 
         }
 
-        
+
         public async Task UpdateOrdersStatusAutoAsync()
         {
             var filters = new List<Expression<Func<Session, bool>>>()
@@ -299,7 +297,7 @@ namespace Services.Implements
                session => session.Status != SessionStatus.Deleted && session.Status != SessionStatus.Ended
             };
             var sessions = await _repository
-                .GetListAsync(filters: filters, 
+                .GetListAsync(filters: filters,
                 include: i => i
                 .Include(s => s.SessionDetails!)
                 .ThenInclude(sd => sd.SessionDetailDeliverers!)
@@ -414,6 +412,6 @@ namespace Services.Implements
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
             await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList());
         }
-        
+
     }
 }
