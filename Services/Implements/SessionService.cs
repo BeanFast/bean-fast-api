@@ -67,6 +67,11 @@ namespace Services.Implements
             }
             foreach (var sessionDetail in sessionEntity.SessionDetails!)
             {
+                
+            }
+            for (int i = 0; i < sessionEntity.SessionDetails.Count; i++)
+            {
+                var sessionDetail = sessionEntity.SessionDetails.ElementAt(i);
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
                 {
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.DuplicateLocationInSession);
@@ -78,11 +83,11 @@ namespace Services.Implements
                     sessionDetail.Status = BaseEntityStatus.Active;
                     sessionDetailNumber++;
                     uniqueLocationIds.Add(sessionDetail.Id);
-                    foreach (var deliverer in sessionDetail.SessionDetailDeliverers)
+                    foreach (var sessionDetailDeliverer in request.SessionDetails.ElementAt(i).Deliverers)
                     {
-                        if (availableDeliverers.Any(ad => ad.Id != deliverer.Id))
+                        if (availableDeliverers.Any(ad => ad.Id != sessionDetailDeliverer.DelivererId))
                         {
-                            availableDeliverers.Remove(availableDeliverers.First(ad => ad.Id == deliverer.Id));
+                            availableDeliverers.Remove(availableDeliverers.First(ad => ad.Id == sessionDetailDeliverer.DelivererId));
                         }
                         else
                         {
