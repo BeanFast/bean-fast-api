@@ -231,7 +231,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         }
         return page;
     }
-    public async Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id)
+    public async Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id)
     {
         Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
             (o) => o.Include(o => o.Profile!)
@@ -246,7 +246,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                 (order) => order.Id == id,
                 //(order) => order.Status == BaseEntityStatus.Active
             };
-        var result = await FirstOrDefaultAsync<GetOrderByIdResponse>(
+        var result = await FirstOrDefaultAsync<GetOrderResponse>(
             filters: filters, include: include)
             ?? throw new EntityNotFoundException(MessageConstants.OrderMessageConstrant.OrderNotFound(id));
         return result!;

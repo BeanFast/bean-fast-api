@@ -20,7 +20,7 @@ namespace Services.Interfaces
         Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request);
         Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user);
 
-        Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id);
+        Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id);
         //Task<ICollection<GetOrderResponse>> GetOrdersByCustomerIdAsync(Guid userId);
         Task<List<GetOrderResponse>> GetValidOrderResponsesByQRCodeAsync(string qrCode, Guid delivererId);
         Task<ICollection<GetOrderResponse>> GetOrdersByStatusAsync(int status);
