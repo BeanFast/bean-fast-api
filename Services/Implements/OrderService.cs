@@ -77,7 +77,7 @@ namespace Services.Implements
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id)
+        public async Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id)
         {
             return await _repository.GetOderResponseByIdAsync(id);
         }
