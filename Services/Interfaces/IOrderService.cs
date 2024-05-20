@@ -46,5 +46,6 @@ namespace Services.Interfaces
         Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request);
         Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount);
         Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc);
+        Task UpdateOrderCookingStatusAsync(Guid orderId);
     }
 }

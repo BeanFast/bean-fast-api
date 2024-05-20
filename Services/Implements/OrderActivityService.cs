@@ -59,7 +59,12 @@ namespace Services.Implements
         public async Task CreateOrderActivityAsync(Order order, OrderActivity orderActivity, User user)
         {
             orderActivity.OrderId = order.Id;
-            
+            await _repository.InsertAsync(orderActivity, user);
+            await _unitOfWork.CommitAsync();
+            if(order.Profile == null)
+            {
+                return;
+            }
             if (user == null || order.Profile!.User!.Id != user.Id)
             {
                 await _notificationService.SendNotificationAsync(new CreateNotificationRequest
@@ -75,8 +80,7 @@ namespace Services.Implements
                     }
                 });
             }
-            await _repository.InsertAsync(orderActivity, user);
-            await _unitOfWork.CommitAsync();
+            
         }
         public async Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user)
         {

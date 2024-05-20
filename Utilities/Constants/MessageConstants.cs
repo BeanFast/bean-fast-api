@@ -206,6 +206,7 @@ namespace Utilities.Constants
             public const string SessionOrderClosed = "Thời gian đặt hàng đã đóng, không thể thực hiện thao tác này";
             public const string SessionOrderNotStarted = "Thời gian đặt hàng chưa đến, không thể thực hiện thao tác này";
             public const string InvalidSchoolLocation = "Địa điểm không thuộc trường học mà bạn đã đăng ký";
+            public const string NoDelivererAvailableInThisSession = "Chi tiết buổi này chưa có người giao";
             public static string SessionDetailNotFound(Guid guid) => $"Buổi chi tiết với id: {guid} không tồn tại";
             public static string DelivererAreBusyInAnotherSessionDetail(Guid guid) => $"Người giao có id: {guid} đã nhận trách nhiệm giao một phiên khác rồi!";
         }

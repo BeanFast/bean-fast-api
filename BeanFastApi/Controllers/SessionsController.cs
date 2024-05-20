@@ -53,7 +53,7 @@ namespace BeanFastApi.Controllers
         [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> UpdateSessionDetail([FromRoute] Guid id, [FromBody] UpdateSessionDetailRequest request)
         {
-            await _sessionService.UpdateSessionDetailByIdAsync(id, request);
+            await _sessionService.UpdateSessionDetailByIdAsync(id, request, await GetUserAsync());
             return SuccessResult<object>(statusCode: HttpStatusCode.OK);
         }
         [HttpDelete("{id}")]
