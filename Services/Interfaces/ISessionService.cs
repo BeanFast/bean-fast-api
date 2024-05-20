@@ -23,7 +23,7 @@ namespace Services.Interfaces
         Task UpdateSessionAsync(Guid sessionId, UpdateSessionRequest request, User user);
         Task DeleteAsync(Guid guid, User user);
         Task UpdateOrdersStatusAutoAsync();
-        Task UpdateSessionDetailByIdAsync(Guid id, UpdateSessionDetailRequest request);
+        Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest request, User manager);
         Task<bool> CheckOrderable(Guid menuDetailId, Guid profileId, Guid sessionId);
     }
 }

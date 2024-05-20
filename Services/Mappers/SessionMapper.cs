@@ -25,7 +25,6 @@ namespace Services.Mappers
 
             CreateMap<CreateSessionRequest, Session>();
             CreateMap<CreateSessionRequest.SessionDetailOfCreateSessionRequest, SessionDetail>();
-            CreateMap<CreateSessionRequest.SessionDetailOfCreateSessionRequest.SessionDetailDelivererOfSessionDetail, SessionDetailDeliverer>().ForMember(src => src.DelivererId, opt => opt.MapFrom(src => src.DelivererId));
         }
     }
 }

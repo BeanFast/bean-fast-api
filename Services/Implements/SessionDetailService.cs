@@ -94,7 +94,11 @@ namespace Services.Implements
         }
         
 
-        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest updateSessionDetailRequest, List<Guid> availableDelivererIds)
+        public async Task UpdateSessionDetailByIdAsync(
+            Guid sessionDetailId, 
+            UpdateSessionDetailRequest updateSessionDetailRequest, 
+            List<Guid> availableDelivererIds,
+            User user)
         {
             var sessionDetailEntity = await GetByIdAsync(sessionDetailId);
             var sessionDetailDeliverers = new List<SessionDetailDeliverer>();
@@ -111,7 +115,8 @@ namespace Services.Implements
                 sessionDetailDeliverers.Add(new SessionDetailDeliverer
                 {
                     DelivererId = item,
-                    SessionDetailId = sessionDetailId
+                    SessionDetailId = sessionDetailId,
+                    Status = BaseEntityStatus.Active
                 });
             }
             if (sessionDetailEntity.SessionDetailDeliverers != null && sessionDetailEntity.SessionDetailDeliverers.Count > 0)

@@ -65,13 +65,11 @@ namespace Services.Implements
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.OverlappedSessionHasExistedLocationId(item.DeliveryStartTime, item.DeliveryEndTime, matchingSessionDetail.LocationId));
                 }
             }
-            foreach (var sessionDetail in sessionEntity.SessionDetails!)
-            {
-                
-            }
+            
             for (int i = 0; i < sessionEntity.SessionDetails.Count; i++)
             {
                 var sessionDetail = sessionEntity.SessionDetails.ElementAt(i);
+                sessionDetail!.SessionDetailDeliverers = new List<SessionDetailDeliverer>();
                 if (uniqueLocationIds.Contains(sessionDetail.LocationId))
                 {
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.DuplicateLocationInSession);
@@ -88,6 +86,16 @@ namespace Services.Implements
                         if (availableDeliverers.Any(ad => ad.Id != sessionDetailDeliverer.DelivererId))
                         {
                             availableDeliverers.Remove(availableDeliverers.First(ad => ad.Id == sessionDetailDeliverer.DelivererId));
+                            sessionDetail!.SessionDetailDeliverers!.Add(new SessionDetailDeliverer
+                            {
+                                DelivererId = sessionDetailDeliverer.DelivererId,
+                                SessionDetailId = sessionDetail.Id,
+                                CreatedDate = TimeUtil.GetCurrentVietNamTime(),
+                                UpdatedDate = TimeUtil.GetCurrentVietNamTime(),
+                                Status = BaseEntityStatus.Active,
+                                CreatorId = user.Id,
+                                UpdaterId = user.Id
+                            });
                         }
                         else
                         {
@@ -102,75 +110,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        private List<Expression<Func<Session, bool>>> getFiltersFromSessionFilterRequest(SessionFilterRequest request, string userRole)
-        {
-            List<Expression<Func<Session, bool>>> filters = new List<Expression<Func<Session, bool>>>();
-            //Expression<Func<Session, bool>> orFilter = (s) =>
-            //{
-            //    bool filter = false;
-            //    if (request.Expired)
-            //    {
-            //        filter = filter || s.OrderEndTime < TimeUtil.GetCurrentVietNamTime();
-            //    }
-            //    if (request.Incomming)
-            //    {
-            //        filter = filter || s.OrderStartTime > TimeUtil.GetCurrentVietNamTime();
-            //    }
-            //    if (request.Orderable)
-            //    {
-            //        filter = filter || (s.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && s.OrderEndTime > TimeUtil.GetCurrentVietNamTime());
-            //    }
-            //    return filter;
-            //};
-            //filters.Add(orFilter);
-            var currentVietNamTime = TimeUtil.GetCurrentVietNamTime();
-            if (RoleName.ADMIN.ToString().Equals(userRole))
-            {
-
-                if (request.Orderable)
-                {
-                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
-                }
-            }
-            else
-            {
-                if (request.Orderable)
-                {
-                    filters.Add(s => s.OrderStartTime <= currentVietNamTime && s.OrderEndTime > currentVietNamTime);
-                }
-                filters.Add(s => s.Status != BaseEntityStatus.Deleted);
-            }
-            if (request.Expired)
-            {
-                filters.Add(s => s.OrderEndTime < currentVietNamTime);
-            }
-            if (request.Incomming)
-            {
-                filters.Add(s => s.OrderStartTime > currentVietNamTime);
-            }
-            if (request.MenuId != Guid.Empty)
-            {
-                filters.Add(s => s.MenuId == request.MenuId);
-            }
-            if (request.SchoolId != null && request.SchoolId != Guid.Empty)
-            {
-                filters.Add(s => s.SessionDetails!.Where(sd => sd.Location!.SchoolId == request.SchoolId && sd.Status == BaseEntityStatus.Active).Any());
-            }
-            if (request.OrderStartTime != null)
-            {
-                filters.Add(s => s.OrderStartTime.Date.Equals(request.OrderStartTime.Value.Date));
-            }
-            if (request.OrderTime != null)
-            {
-                filters.Add(s => s.OrderStartTime.Date <= request.OrderTime.Value.Date && s.OrderEndTime.Date >= request.OrderTime.Value.Date);
-            }
-            if (request.DeliveryTime != null)
-            {
-                filters.Add(s => s.DeliveryStartTime.Date <= request.DeliveryTime.Value.Date && s.DeliveryEndTime.Date >= request.DeliveryTime.Value.Date);
-            }
-            //if(request.DeliveryEndTime)
-            return filters;
-        }
         public async Task<ICollection<GetSessionForDeliveryResponse>> GetAllAsync(string? userRole, SessionFilterRequest filterRequest)
         {
             return await _repository.GetAllAsync(userRole, filterRequest);
@@ -318,7 +257,7 @@ namespace Services.Implements
                     if (s.Status == SessionStatus.Active)
                     {
                         var currentTime = TimeUtil.GetCurrentVietNamTime();
-                        if (currentTime.AddMinutes(TimeConstrant.NumberOfMinutesBeforeDeliveryStartTime) >= s.OrderEndTime)
+                        if (currentTime >= s.OrderEndTime && currentTime < s.DeliveryStartTime)
                         {
                             CancelOrderRequest cancelOrderRequest = new()
                             {
@@ -348,9 +287,9 @@ namespace Services.Implements
 
                                     foreach (var order in sd.Orders!)
                                     {
-                                        if (order.Status == OrderStatus.Cooking)
+                                        if (order.Status == OrderStatus.Pending)
                                         {
-                                            await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                            await _orderService.UpdateOrderCookingStatusAsync(order.Id);
                                         }
                                     }
                                     foreach (var exchangeGift in sd.ExchangeGifts!)
@@ -373,6 +312,7 @@ namespace Services.Implements
                     else if (s.Status == SessionStatus.Incoming)
                     {
                         var currentTime = TimeUtil.GetCurrentVietNamTime();
+                        // nếu hết thời gian giao hàng nhưng người dùng chưa nhận hàng
                         if (currentTime > s.DeliveryEndTime)
                         {
                             CancelOrderRequest request = new()
@@ -398,7 +338,7 @@ namespace Services.Implements
                                     if (eg.Status == ExchangeGiftStatus.Delivering)
                                     {
                                         var exchangeGift = await _exchangeGIftService.GetByIdAsync(eg.Id);
-                                        //await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, null!);
+                                        await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, exchangeGift.Profile!.User!);
                                     }
                                 }
                             }
@@ -406,16 +346,37 @@ namespace Services.Implements
                             await _repository.UpdateAsync(s);
                             await _unitOfWork.CommitAsync();
                         }
+                        else if(currentTime >= s.DeliveryStartTime && currentTime < s.DeliveryEndTime)
+                        {
+                            foreach (var sd in s.SessionDetails!)
+                            {
+                                foreach (var order in sd.Orders!)
+                                {
+                                    if (order.Status == OrderStatus.Cooking)
+                                    {
+                                       await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                    }
+                                }
+                                //foreach (var eg in sd.ExchangeGifts!)
+                                //{
+                                //    if (eg.Status == ExchangeGiftStatus.Delivering)
+                                //    {
+                                //        var exchangeGift = await _exchangeGIftService.GetByIdAsync(eg.Id);
+                                //        //await _exchangeGIftService.CancelExchangeGiftForCustomerAsync(exchangeGift, cancelExchangeGiftRequest, null!);
+                                //    }
+                                //}
+                            }
+                        }
                     }
 
                 }
             }
         }
 
-        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest request)
+        public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest request, User manager)
         {
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
-            await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList());
+            await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList(), manager);
         }
 
     }
