@@ -7,7 +7,7 @@ namespace Repositories.Interfaces;
 
 public interface ITransactionRepository : IGenericRepository<Transaction>
 {
-    Task<int> GetPlayedGameCountAsync(User user, Guid profileId);
+    Task<int> GetPlayedGameCountAsync(User user);
     Task<ICollection<GetTransactionsForDashBoardResponse>> GetTransactionsForDashBoardAsync(GetTransactionsForDashBoardRequest request);
     Task<IPaginable<GetTransactionPageByCurrentUserResponse>> GetMoneyTransactionPageByUserAsync(
         PaginationRequest paginationRequest,

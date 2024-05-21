@@ -206,12 +206,19 @@ namespace Services.Implements
             var moneyWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                Name = customer.FullName!,
+                Name = "Ví tiền của: #" + customer.Id, 
+                UserId = customer.Id,
+            };
+            var pointsWallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                Name = "Ví điểm của: #" + customer.Id,
                 UserId = customer.Id,
             };
             await _repository.InsertAsync(customer);
             await _unitOfWork.CommitAsync();
             await _walletService.CreateWalletAsync(WalletType.Money, moneyWallet);
+            await _walletService.CreateWalletAsync(WalletType.Points, pointsWallet);
             return new RegisterResponse();
         }
 

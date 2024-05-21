@@ -30,7 +30,7 @@ namespace Repositories.Implements
             var wallet = await FirstOrDefaultAsync<GetWalletTypeMoneyByCustomerId>(filters: filters);
             return wallet;
         }
-        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId)
+        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId)
         {
             List<Expression<Func<Wallet, bool>>> filters = new()
             {
@@ -41,7 +41,7 @@ namespace Repositories.Implements
                 filters: filters);
             return wallets;
         }
-        public async Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId, Guid profileId)
+        public async Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId)
         {
             List<Expression<Func<Wallet, bool>>> filters = new()
             {

@@ -59,9 +59,9 @@ namespace Services.Implements
             return await _repository.GetByIdAsync(walletId);
         }
 
-        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId)
+        public async Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId)
         {
-            return await _repository.GetWalletByCurrentCustomerAndProfileAsync(customerId, profileId);
+            return await _repository.GetWalletByCurrentCustomerAndProfileAsync(customerId);
         }
 
         public async Task<GetWalletTypeMoneyByCustomerId> GetWalletTypeMoneyByCustomerIdAsync(Guid customerId)
@@ -75,9 +75,9 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId, Guid profileId)
+        public async Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId)
         {
-            var wallet = await _repository.GetPointWalletByUserIdAndProfildId(userId, profileId);
+            var wallet = await _repository.GetPointWalletByUserIdAndProfildId(userId);
             return wallet!;
         }
 
