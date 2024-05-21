@@ -104,26 +104,25 @@ namespace Services.Implements
             //    Value = (int)group.Sum(t => t.Value)
             //}).ToList();
         }
-        public async Task<int> GetPlayedGameCount(User user, Guid profileId)
+        public async Task<int> GetPlayedGameCount(User user)
         {
-            return await _repository.GetPlayedGameCountAsync(user, profileId);
+            return await _repository.GetPlayedGameCountAsync(user);
         }
-        public async Task<int> GetRemainingPlayGameCount(User user, Guid profileId)
+        public async Task<int> GetRemainingPlayGameCount(User user)
         {
-            var playedGameCount = await GetPlayedGameCount(user, profileId);
+            var playedGameCount = await GetPlayedGameCount(user);
             return TransactionConstrant.MaxGameTransactionPerDay - playedGameCount;
         }
 
         public async Task CreateGameTransactionAsync(CreateGameTransactionRequest request, User user)
         {
             await _gameService.GetGamesAsync();
-            await _profileService.GetProfileByIdAndCurrentCustomerIdAsync(request.ProfileId, user.Id);
-            var playedGameTransactions = await GetPlayedGameCount(user, request.ProfileId);
+            var playedGameTransactions = await GetPlayedGameCount(user);
             if (playedGameTransactions >= TransactionConstrant.MaxGameTransactionPerDay)
             {
                 throw new InvalidRequestException(MessageConstants.TransactionMessageConstrant.GameTransactionIsExceedPermittedAmount);
             }
-            var wallet = await _walletService.GetPointWalletByUserIdAndProfildId(user.Id, request.ProfileId);
+            var wallet = await _walletService.GetPointWalletByUserIdAndProfildId(user.Id);
 
             var transaction = new Transaction
             {

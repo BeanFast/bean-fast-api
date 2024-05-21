@@ -15,7 +15,5 @@ namespace DataTransferObjects.Models.Transaction.Request
         public Guid GameId { get; set; }
         [Range(0, int.MaxValue, ErrorMessage = MessageConstants.TransactionMessageConstrant.PointMustBeGreaterThanZero)]
         public int Points { get; set; }
-        [RequiredGuid]
-        public Guid ProfileId { get; set; }
     }
 }

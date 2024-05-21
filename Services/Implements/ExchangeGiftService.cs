@@ -319,7 +319,7 @@ namespace Services.Implements
         {
             //var moneyWallet = exchangeGift.Profile!.Wallets!.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type.ToString()));
             //moneyWallet!.Balance += exchangeGift.Points;
-            var pointWallet = await _walletService.GetPointWalletByUserIdAndProfildId(exchangeGift.Profile!.UserId, exchangeGift.Profile!.Id);
+            var pointWallet = await _walletService.GetPointWalletByUserIdAndProfildId(exchangeGift.Profile!.UserId);
             pointWallet!.Balance += exchangeGift.Points;
             var rollbackPointTransaction = new Transaction
             {

@@ -11,12 +11,12 @@ namespace Services.Interfaces
 {
     public interface IWalletService : IBaseService
     {
-        Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId, Guid? profileId);
+        Task<ICollection<GetWalletByCurrentCustomerAndProfileResponse>> GetWalletByCurrentCustomerAndProfileAsync(Guid customerId);
         Task<GetWalletTypeMoneyByCustomerId> GetWalletTypeMoneyByCustomerIdAsync(Guid customerId);
         Task<Wallet> GetMoneyWalletByUserId(Guid userId);
-        Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId, Guid profileId);
+        Task<Wallet> GetPointWalletByUserIdAndProfildId(Guid userId);
         Task<Wallet> GetByIdAsync(Guid customerId);
         Task CreateWalletAsync(WalletType type, Wallet wallet);
-        Task UpdateAsync(Wallet wallet);
+        Task UpdateAsync(Wallet wallet); 
     }
 }

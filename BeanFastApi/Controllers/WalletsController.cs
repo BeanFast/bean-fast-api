@@ -14,10 +14,10 @@ namespace BeanFastApi.Controllers
         }
         [Authorize(RoleName.CUSTOMER)]
         [HttpGet("")]
-        public async Task <IActionResult> GetWalletsByCurrentCustomerAndProfileAsync([FromQuery] Guid? profileId)
+        public async Task <IActionResult> GetWalletsByCurrentCustomerAndProfileAsync()
         {
             var customerId = GetUserId();
-            var result = await _walletService.GetWalletByCurrentCustomerAndProfileAsync(customerId, profileId);
+            var result = await _walletService.GetWalletByCurrentCustomerAndProfileAsync(customerId);
             return SuccessResult(result);   
         }
         

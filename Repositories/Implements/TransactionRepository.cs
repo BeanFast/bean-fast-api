@@ -86,7 +86,7 @@ public class TransactionRepository : GenericRepository<Transaction>,ITransaction
                 Value = (int)group.Sum(t => t.Value)
             }).ToList();
     }
-    public async Task<int> GetPlayedGameCountAsync(User user, Guid profileId)
+    public async Task<int> GetPlayedGameCountAsync(User user)
     {
         var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
         List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()

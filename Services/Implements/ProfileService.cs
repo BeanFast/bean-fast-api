@@ -26,14 +26,16 @@ namespace Services.Implements
     {
 
         private readonly ISchoolService _schoolService;
-        private readonly IWalletService _wallletService;
+        //private readonly IWalletService _wallletService;
         private readonly ICloudStorageService _cloudStorageService;
         private readonly IProfileRepository _repository;
-        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService, IWalletService wallletService, IProfileRepository repository) : base(unitOfWork, mapper, appSettings)
+        public ProfileService(IUnitOfWork<BeanFastContext> unitOfWork, AutoMapper.IMapper mapper, IOptions<AppSettings> appSettings, ISchoolService schoolService, ICloudStorageService cloudStorageService
+            //, IWalletService wallletService
+            , IProfileRepository repository) : base(unitOfWork, mapper, appSettings)
         {
             _schoolService = schoolService;
             _cloudStorageService = cloudStorageService;
-            _wallletService = wallletService;
+            //_wallletService = wallletService;
             _repository = repository;
         }
 
@@ -100,7 +102,7 @@ namespace Services.Implements
             await _repository.InsertAsync(profileEntity, user);
             await _unitOfWork.GetRepository<ProfileBodyMassIndex>().InsertAsync(currentBMI);
             await _unitOfWork.CommitAsync();
-            await _wallletService.CreateWalletAsync(WalletType.Points, pointsWallet);
+            //await _wallletService.CreateWalletAsync(WalletType.Points, pointsWallet);
         }
 
         public async Task UpdateProfileAsync(Guid id, UpdateProfileRequest request, User user)
