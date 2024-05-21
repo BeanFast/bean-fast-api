@@ -57,9 +57,9 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
                 .Include(p => p.LoyaltyCards!.Where(lc => lc.Status == BaseEntityStatus.Active))
                 .Include(p => p.User)
                 .ThenInclude(p => p.Wallets!
-                        .Where(w => w.Status == BaseEntityStatus.Active
-                            && WalletType.Points.ToString().Equals(w.Type)
-                         )
+                        //.Where(w => w.Status == BaseEntityStatus.Active
+                        //    && WalletType.Points.ToString().Equals(w.Type)
+                        // )
                     )); ;
         //foreach (var profile in profiles)
         //{
