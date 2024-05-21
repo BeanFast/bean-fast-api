@@ -766,9 +766,9 @@ namespace Services.Implements
             }
             if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
             {
-                if (order.Status != OrderStatus.Cooking)
+                if (order.Status == OrderStatus.Cancelled || order.Status == OrderStatus.CancelledByCustomer)
                 {
-                    throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderOnlyCanBeCancelIfInCookingStatus);
+                    throw new InvalidRequestException(MessageConstants.OrderMessageConstrant.OrderAlreadyCanceled);
                 }
                 else
                 {
