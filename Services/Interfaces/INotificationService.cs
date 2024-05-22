@@ -14,7 +14,7 @@ namespace Services.Interfaces
     public interface INotificationService : IBaseService 
     {
         Task<BatchResponse> SendNotificationAsync(CreateNotificationRequest request);
-
+        Task<int> CountUnreadNotification(User user);
         Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user);
         Task<IPaginable<GetNotificationResponse>> GetNotificationPageByCurrentUser(PaginationRequest paginationRequest, User user);
     }

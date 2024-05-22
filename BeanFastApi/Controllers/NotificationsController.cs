@@ -21,9 +21,17 @@ namespace BeanFastApi.Controllers
             return SuccessResult(new { });
         }
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetNotificationsByCurrentUser([FromQuery] PaginationRequest paginationRequest)
         {
             var notificationPage = await _notificationService.GetNotificationPageByCurrentUser(paginationRequest, await GetUserAsync());
+            return SuccessResult(notificationPage);
+        }
+        [HttpGet("count/unread")]
+        [Authorize]
+        public async Task<IActionResult> CountNotificationsByCurrentUser()
+        {
+            var notificationPage = await _notificationService.CountUnreadNotification(await GetUserAsync());
             return SuccessResult(notificationPage);
         }
         [HttpPost]
