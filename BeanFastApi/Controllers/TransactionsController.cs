@@ -64,11 +64,11 @@ namespace BeanFastApi.Controllers
             await _transactionService.CreateGameTransactionAsync(request, await GetUserAsync());
             return SuccessResult<object>();
         }
-        [HttpGet("games/count/profiles/{profileId}")]
+        [HttpGet("games/count")]
         [Authorize(RoleName.CUSTOMER)]
-        public async Task<IActionResult> CountGameTransactionByCurrentUser([FromRoute] Guid profileId)
+        public async Task<IActionResult> CountGameTransactionByCurrentUser()
         {
-            var gameTransactionCount = await _transactionService.GetRemainingPlayGameCount(await GetUserAsync(), profileId);
+            var gameTransactionCount = await _transactionService.GetRemainingPlayGameCount(await GetUserAsync());
             return SuccessResult<object>(gameTransactionCount);
         }
 

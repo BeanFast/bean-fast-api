@@ -407,7 +407,7 @@ namespace Services.Implements
                 {
                     Id = Guid.NewGuid(),
                     Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
+                    Name = MessageConstants.OrderActivityMessageConstrant.OrderCreatedActivityName,
                     Time = TimeUtil.GetCurrentVietNamTime(),
                     Status = OrderActivityStatus.Active,
                     OrderId = orderId
@@ -552,7 +552,7 @@ namespace Services.Implements
             {
                 Id = Guid.NewGuid(),
                 Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCompletedActivityName,
+                Name = MessageConstants.OrderActivityMessageConstrant.OrderCookingActivityName,
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
