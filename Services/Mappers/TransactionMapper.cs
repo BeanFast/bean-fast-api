@@ -22,6 +22,8 @@ namespace Services.Mappers
 
             CreateMap<Transaction, GetTransactionPageByCurrentUserResponse>();
             CreateMap<Order, GetTransactionPageByCurrentUserResponse.OrderOfGetTransactionPageByProfileIdAndCurrentUserResponse>();
+            CreateMap<Game, GetTransactionPageByCurrentUserResponse.GameOfGetTransactionPageByProfileIdAndCurrentUserResponse>();
+            CreateMap<ExchangeGift, GetTransactionPageByCurrentUserResponse.ExchangeGiftOfGetTransactionPageByProfileIdAndCurrentUserResponse>();
         }
     }
 }

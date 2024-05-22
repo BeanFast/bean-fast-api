@@ -91,7 +91,7 @@ public class TransactionRepository : GenericRepository<Transaction>,ITransaction
         var currentVietnamDate = TimeUtil.GetCurrentVietNamTime();
         List<Expression<Func<Transaction, bool>>> filters = new List<Expression<Func<Transaction, bool>>>()
             {
-                t => WalletType.Points.ToString().Equals(t.Wallet!.Type) ,
+                t => WalletType.Points.ToString().Equals(t.Wallet!.Type) && t.Wallet.UserId == user.Id,
                 t => t.GameId != null && t.OrderId == null && t.ExchangeGiftId == null && t.Value >= 0,
                 t => t.Time.Date == currentVietnamDate.Date
             };
