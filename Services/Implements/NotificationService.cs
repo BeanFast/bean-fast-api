@@ -30,34 +30,19 @@ namespace Services.Implements
 
         public async Task<IPaginable<GetNotificationResponse>> GetNotificationPageByCurrentUser(PaginationRequest paginationRequest, User user)
         {
-            var notificationsPage = await _repository.GetPageAsync(paginationRequest, filters: new()
-            {
-                n => n.NotificationDetails.Any(nd => nd.UserId == user.Id),
-                n => n.Status != BaseEntityStatus.Deleted
-            }, include: i => i.Include(n => n.NotificationDetails.Where(nd => nd.UserId == user.Id)));
-            Paginate<GetNotificationResponse> result = new Paginate<GetNotificationResponse>
-            {
-                Page = notificationsPage.Page,
-                TotalPages = notificationsPage.TotalPages,
-                Items = _mapper.Map<List<GetNotificationResponse>>(notificationsPage.Items),
-                Size = notificationsPage.Size,
-                Total = notificationsPage.Total
-            };
-            
-
-            return result;
+            return await _repository.GetNotificationPageByCurrentUser(paginationRequest, user);
         }
-
+        public async Task<int> CountUnreadNotification(User user)
+        {
+            return await _repository.CountUnreadNotification(user);
+        }
         public async Task MarkAsReadNotificationAsync(MarkAsReadNotificationRequest request, User user)
         {
             List<Guid> notFoundNotificationIds = new List<Guid>();
             foreach (var notificationId in request.NotificationIds)
             {
 
-                var notification = await _repository.FirstOrDefaultAsync(filters: new()
-                {
-                    n => n.Id == notificationId && n.Status == BaseEntityStatus.Active
-                }, include: i => i.Include(n => n.NotificationDetails.Where(nd => nd.Status == NotificationDetailStatus.Unread && nd.UserId == user.Id)));
+                var notification = await _repository.GetUnreadNotificationById(notificationId, user.Id);
                 if (notification == null)
                 {
                     notFoundNotificationIds.Add(notificationId);
