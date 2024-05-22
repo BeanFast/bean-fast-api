@@ -310,6 +310,7 @@ namespace Services.Implements
             if (user.Wallets != null && user.Wallets.Any())
             {
                 mappedUser.Balance = user.Wallets.FirstOrDefault(w => WalletType.Money.ToString().Equals(w.Type))!.Balance;
+                mappedUser.Points = user.Wallets.FirstOrDefault(w => WalletType.Points.ToString().Equals(w.Type))!.Balance;
             }
             return mappedUser;
 
