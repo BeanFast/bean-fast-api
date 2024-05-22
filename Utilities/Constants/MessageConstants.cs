@@ -293,7 +293,8 @@ namespace Utilities.Constants
         {
             public static string OrderActivityNotFound(Guid id) => $"Theo dõi hoạt động đơn hàng với id: {id} không tồn tại";
             public const string OrderCreatedActivityName = "Đơn hàng được tạo thành công";
-            public const string OrderCookingActivityName = "Đơn hàng đã được nhận và đang trong quá trình chế biến";
+            //public const string OrderPendingActivityName = "Đơn hàng đã được nhận và đang trong quá trình chế biến";
+            public const string OrderCookingActivityName = "Đơn hàng đang trong quá trình chế biến";
             public const string OrderDeliveringActivityName = "Đơn hàng đang được giao";
             public const string OrderCompletedActivityName = "Đơn hàng đã được giao hoàn thành";
             public const string OrderCanceledActivityName = "Đơn hàng đã bị hủy vì lí do: ";
