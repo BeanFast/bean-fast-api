@@ -13,5 +13,7 @@ namespace DataTransferObjects.Models.User.Response
         public string Email { get; set; }
         public string AvatarPath { get; set; }
         public double Balance { get; set; }
+        public double Points { get; set; }
+
     }
 }
