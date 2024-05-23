@@ -13,7 +13,7 @@ namespace Services.Mappers
     {
         public OrderMapper()
         {
-            CreateMap<Order, GetOrderResponse>();
+            CreateMap<Order, GetOrderResponse>().ForMember(src => src.OrderActivities, opt => opt.MapFrom(dest => dest.OrderActivities!.OrderByDescending(oa => oa.Time)));
             CreateMap<OrderDetail, GetOrderResponse.OrderDetailOfGetOrderResponse>();
             CreateMap<Food, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail>();
             CreateMap<Category, GetOrderResponse.OrderDetailOfGetOrderResponse.FoodOfOrderDetail.CategoryOfFood>();
