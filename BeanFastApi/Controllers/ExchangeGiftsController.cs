@@ -24,7 +24,7 @@ namespace BeanFastApi.Controllers
             [FromQuery] PaginationRequest paginationRequest
             )
         {
-            var result = await _exchangeGiftService.GetExchangeGiftsAsync(filterRequest, paginationRequest);
+            var result = await _exchangeGiftService.GetExchangeGiftsAsync(filterRequest, paginationRequest, await GetUserAsync());
             return SuccessResult(result);
         }
         [HttpGet("{id}")]
@@ -35,16 +35,16 @@ namespace BeanFastApi.Controllers
             var result = await _exchangeGiftService.GetExchangeGiftResponseByIdAsync(id);
             return SuccessResult(result);
         }
-        [HttpGet("profiles/{profileId}")]
-        public async Task<IActionResult> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(
-            [FromQuery] ExchangeGiftFilterRequest filterRequest,
-            [FromQuery] PaginationRequest paginationRequest,
-            [FromRoute] Guid profileId
-            )
-        {
-            var result = await _exchangeGiftService.GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(filterRequest, paginationRequest, await GetUserAsync(), profileId);
-            return SuccessResult(result);
-        }
+        //[HttpGet("profiles/{profileId}")]
+        //public async Task<IActionResult> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(
+        //    [FromQuery] ExchangeGiftFilterRequest filterRequest,
+        //    [FromQuery] PaginationRequest paginationRequest,
+        //    [FromRoute] Guid profileId
+        //    )
+        //{
+        //    var result = await _exchangeGiftService.GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(filterRequest, paginationRequest, await GetUserAsync(), profileId);
+        //    return SuccessResult(result);
+        //}
         [HttpGet("{exchangeGiftId}/orderActivities")]
         [Authorize]
         public async Task<IActionResult> GetOrderActivitiesByExchangeGiftIdAsync([FromRoute] Guid exchangeGiftId)
