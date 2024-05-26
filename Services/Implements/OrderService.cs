@@ -669,7 +669,7 @@ namespace Services.Implements
             };
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, null);
             orderEntity.Status = OrderStatus.CancelledByCustomer;
-            orderEntity.Profile = null;
+            //orderEntity.Profile = null;
             await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);
             await _unitOfWork.CommitAsync();
         }
