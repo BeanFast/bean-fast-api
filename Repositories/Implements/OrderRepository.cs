@@ -130,6 +130,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .Include(o => o.SessionDetail!)
                 .ThenInclude(sd => sd.Session!)
             .Include(o => o.OrderDetails!)
+            .Include(o => o.Profile!)
+                .ThenInclude(p => p.User!)
         );
         return orders!;
     }

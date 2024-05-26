@@ -667,10 +667,10 @@ namespace Services.Implements
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
-            await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, customer);
+            await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, null);
             orderEntity.Status = OrderStatus.CancelledByCustomer;
             orderEntity.Profile = null;
-            await _repository.UpdateAsync(orderEntity, customer);
+            await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);
             await _unitOfWork.CommitAsync();
         }
 

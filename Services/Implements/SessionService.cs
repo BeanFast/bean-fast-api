@@ -251,6 +251,7 @@ namespace Services.Implements
                 .ThenInclude(sd => sd.ExchangeGifts!));
             foreach (var s in sessions)
             {
+                await Console.Out.WriteLineAsync(s.Code);
                 if (s.Status == SessionStatus.Active || s.Status == SessionStatus.Incoming)
                 {
 
@@ -304,6 +305,7 @@ namespace Services.Implements
                                 sd.ExchangeGifts = null;
                             }
                             s.Status = SessionStatus.Incoming;
+                            s.SessionDetails = null;
                             await _repository.UpdateAsync(s);
                             await _unitOfWork.CommitAsync();
                         }
@@ -343,6 +345,7 @@ namespace Services.Implements
                                 }
                             }
                             s.Status = SessionStatus.Ended;
+                            s.SessionDetails = null;
                             await _repository.UpdateAsync(s);
                             await _unitOfWork.CommitAsync();
                         }
