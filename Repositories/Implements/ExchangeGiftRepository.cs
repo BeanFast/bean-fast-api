@@ -86,8 +86,10 @@ namespace Repositories.Implements
                 filters: filters,
                 include: queryable => queryable
                 .Include(o => o.SessionDetail!)
-                .ThenInclude(sd => sd.Session!)
+                    .ThenInclude(sd => sd.Session!)
                 .Include(o => o.Gift!)
+                .Include(e => e.Profile!)
+                    .ThenInclude(p => p.User!)
             );
             return exchangeGifts!;
         }
