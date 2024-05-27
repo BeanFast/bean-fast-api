@@ -94,6 +94,12 @@ namespace DataTransferObjects.Models.Order.Response
             public DateTime Dob { get; set; }
             public string? Class { get; set; }
             public bool Gender { get; set; }
+            public UserOfProfile User { get; set; }
+            public class UserOfProfile
+            {
+                public Guid Id { get; set; }
+                public string FullName { get; set; }
+            }
         }
     }
 }

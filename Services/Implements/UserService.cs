@@ -51,53 +51,15 @@ namespace Services.Implements
 
         public async Task<User> GetByIdAsync(Guid userId)
         {
-            List<Expression<Func<User, bool>>> filters = new()
-            {
-                (user) => user.Id == userId,
-                //(user) => user.Status == BaseEntityStatus.Active
-            };
-
-            var user = await _repository.FirstOrDefaultAsync(filters: filters,
-                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
-                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
-            if (UserStatus.NotVerified == user.Status)
-            {
-                throw new NotVerifiedAccountException();
-            }
-            if (UserStatus.Deleted == user.Status)
-            {
-                throw new BannedAccountException();
-            }
-            return user;
+            return await _repository.GetByIdAsync(userId);
         }
         public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
         {
-            List<Expression<Func<User, bool>>> filters = new()
-            {
-                (user) => user.QRCode == qrCode && user.Status == BaseEntityStatus.Active,
-                //(user) => user.QrCodeExpiry > TimeUtil.GetCurrentVietNamTime()
-            };
-            var user = await _repository.FirstOrDefaultAsync(
-                filters: filters,
-                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
-                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFoundByQrCode);
-            if (user.QrCodeExpiry < TimeUtil.GetCurrentVietNamTime())
-            {
-                throw new InvalidRequestException(MessageConstants.UserMessageConstrant.QrCodeExpired);
-            }
-            return user;
+            return await _repository.GetCustomerByQrCodeAsync(qrCode);
         }
         public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
         {
-            List<Expression<Func<User, bool>>> filters = new()
-            {
-                (user) => RoleName.DELIVERER.ToString().Equals(user.Role!.EnglishName),
-                (user) => !excludeDelivererIds.Contains(user.Id),
-                //(user) => user.SessionDetails != null && user.SessionDetails.Count == 0,
-
-            };
-            var users = await _repository.GetListAsync<GetDelivererResponse>(filters: filters);
-            return users;
+            return await _repository.GetDeliverersExcludeAsync(excludeDelivererIds);
         }
         public async Task<ICollection<GetDelivererResponse>> GetDeliverersAsync()
         {
@@ -111,44 +73,7 @@ namespace Services.Implements
         }
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
-            List<Expression<Func<User, bool>>>? whereFilters = null;
-            if (loginRequest.Email is not null)
-            {
-                whereFilters = new()
-                {
-                    user => user.Email == loginRequest.Email && user.Role!.EnglishName != RoleName.CUSTOMER.ToString()
-                };
-            }
-            else if (loginRequest.Phone is not null)
-            {
-                whereFilters = new()
-                {
-                    (user) => user.Phone == loginRequest.Phone && user.Role!.EnglishName == RoleName.CUSTOMER.ToString()
-                };
-            }
-
-            Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
-            User user = await _repository.FirstOrDefaultAsync(filters: whereFilters, include: include) ??
-                        throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
-            if (!PasswordUtil.VerifyPassword(loginRequest.Password, user.Password))
-            {
-                throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
-            }
-
-            if (user.Status == BaseEntityStatus.Deleted)
-            {
-                throw new BannedAccountException();
-            }
-            else if (user.Status == UserStatus.NotVerified)
-            {
-                throw new NotVerifiedAccountException();
-            }
-            if (!loginRequest.DeviceToken.IsNullOrEmpty())
-            {
-                user.DeviceToken = loginRequest.DeviceToken;
-
-            }
-
+            var user = await _repository.LoginAsync(loginRequest);
             var refreshToken = JwtUtil.GenerateRefreshToken(user);
             user.RefreshToken = refreshToken;
             await _repository.UpdateAsync(user);
@@ -184,13 +109,8 @@ namespace Services.Implements
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             var customer = _mapper.Map<User>(registerRequest);
-            List<Expression<Func<User, bool>>> filters = new()
-            {
-                (user) => user.Phone == registerRequest.Phone && user.Status != UserStatus.Deleted
-            };
-            var existedData = await _repository.FirstOrDefaultAsync(
-                filters: filters
-            );
+            
+            var existedData = await _repository.FindUserByPhone(registerRequest.Phone);
             if (existedData is not null)
                 throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
             var customerRole = await _roleService.GetRoleByRoleNameAsync(RoleName.CUSTOMER);
@@ -206,7 +126,7 @@ namespace Services.Implements
             var moneyWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                Name = "Ví tiền của: #" + customer.Id, 
+                Name = "Ví tiền của: #" + customer.Id,
                 UserId = customer.Id,
             };
             var pointsWallet = new Wallet
@@ -260,13 +180,7 @@ namespace Services.Implements
 
         private async Task<User> findNotVerifiedUserByPhone(string phone)
         {
-            return await _repository.FirstOrDefaultAsync(
-                filters: new List<Expression<Func<User, bool>>>
-                {
-                    (user) => user.Phone == phone,
-                    (user) => user.Status == UserStatus.NotVerified,
-                }
-            ) ?? throw new EntityNotFoundException(MessageConstants.AuthorizationMessageConstrant.PhoneNotFound);
+            return await _repository.FindNotVerifiedUserByPhone(phone);
         }
 
         public async Task CreateUserAsync(CreateUserRequest request)
@@ -290,17 +204,7 @@ namespace Services.Implements
         }
         public async Task<User> GetUserByIdIncludeWallet(Guid userId)
         {
-            List<Expression<Func<User, bool>>> filters = new()
-            {
-                (user) => user.Id == userId
-            };
-
-            var user = await _repository.FirstOrDefaultAsync(
-                filters: filters,
-                include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
-                ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
-            if (user.Status == UserStatus.Deleted) throw new BannedAccountException();
-            return user;
+            return await _repository.GetUserByIdIncludeWallet(userId);
         }
         public async Task<GetCurrentUserResponse> GetCurrentUserAsync(Guid userId)
         {
@@ -324,10 +228,7 @@ namespace Services.Implements
             {
                 currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
                 qrCodeString = QrCodeUtil.GenerateQRCodeString(user.Id.ToString() + user.Code + currentVietnamTime, _appSettings.QrCode.QrCodeSecretKey);
-            } while (await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()
-            {
-                    u => u.QRCode == qrCodeString
-            }) != null);
+            } while (await GetCustomerByQrCodeAsync(qrCodeString) != null);
             user.QRCode = qrCodeString;
             user.QrCodeExpiry = currentVietnamTime.AddSeconds(_appSettings.QrCode.QrCodeExpiryInSeconds);
             await _repository.UpdateAsync(user);
@@ -339,25 +240,14 @@ namespace Services.Implements
             };
         }
 
-        public Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId)
+        public async Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId)
         {
-            var result = _repository.FirstOrDefaultAsync<GetUserResponse>(filters: new()
-            {
-                u => u.Id == userId
-            });
-            if (result == null) throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(userId));
-            return result!;
+            return await _repository.GetUserResponseByIdAsync(userId);
         }
 
-        public Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request)
+        public async Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request)
         {
-            var filters = new List<Expression<Func<User, bool>>>();
-            if (request.RoleId != null && request.RoleId != Guid.Empty)
-            {
-                filters.Add(u => u.RoleId == request.RoleId);
-            }
-            var result = _repository.GetListAsync<GetUserResponse>(filters: filters);
-            return result;
+            return await _repository.GetAllAsync(request);
         }
 
         public async Task UpdateUserStatusAsync(Guid id, UpdateUserStatusRequest request)

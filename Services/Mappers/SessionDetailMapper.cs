@@ -28,6 +28,7 @@ namespace Services.Mappers
             CreateMap<ExchangeGift, GetSessionDetailResponse.ExchangeGiftOfSessionDetail>();
             CreateMap<Gift, GetSessionDetailResponse.ExchangeGiftOfSessionDetail.GiftOfGetExchangeGiftResponse>();
             CreateMap<Profile, GetSessionDetailResponse.ProfileGetSessionDetailResponse>();
+            CreateMap<User, GetSessionDetailResponse.ProfileGetSessionDetailResponse.UserOfProfile>();
 
 
             CreateMap<SessionDetail, GetIncommingDeliveringSessionDetails>();
