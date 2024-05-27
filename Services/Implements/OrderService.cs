@@ -667,11 +667,25 @@ namespace Services.Implements
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
-            await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, null);
-            orderEntity.Status = OrderStatus.CancelledByCustomer;
-            //orderEntity.Profile = null;
-            await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);
-            await _unitOfWork.CommitAsync();
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, null);
+                orderEntity.Status = OrderStatus.CancelledByCustomer;
+                //orderEntity.Profile = null;
+                await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                await transaction.RollbackAsync();
+                if (ex is BeanFastApplicationException beanfastException)
+                {
+                    throw;
+                }
+            }
+               
         }
 
         public async Task UpdateOrderStatusAfterDeliveryTimeEndedAsync()

@@ -22,6 +22,7 @@ namespace Services.Mappers
             CreateMap<Location, GetOrderResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail>();
             CreateMap<School, GetOrderResponse.SessionDetailOfOrderResponse.LocationOfSessionDetail.SchoolOfLocation>();
             CreateMap<Profile, GetOrderResponse.ProfileOfOrderRessponse>();
+            CreateMap<User, GetOrderResponse.ProfileOfOrderRessponse.UserOfProfile>();
 
             CreateMap<Order, GetOrderByIdResponse>();
             CreateMap<OrderDetail, GetOrderByIdResponse.OrderDetailOfGetOrderResponse>();

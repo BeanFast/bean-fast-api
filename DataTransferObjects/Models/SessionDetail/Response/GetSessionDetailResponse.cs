@@ -112,6 +112,12 @@ namespace DataTransferObjects.Models.SessionDetail.Response
             public DateTime Dob { get; set; }
             public string? Class { get; set; }
             public bool Gender { get; set; }
+            public UserOfProfile User { get; set; }
+            public class UserOfProfile
+            {
+                //public int Id { get; set; }
+                public string FullName { get; set; }
+            }
         }
     }
 }
