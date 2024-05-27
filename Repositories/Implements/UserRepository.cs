@@ -44,7 +44,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         }
         return user;
     }
-    public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
+    public async Task<User?> GetCustomerByQrCodeAsync(string qrCode)
     {
         List<Expression<Func<User, bool>>> filters = new()
             {
@@ -53,14 +53,10 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             };
         var user = await FirstOrDefaultAsync(
             filters: filters,
-            include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!))
-            ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFoundByQrCode);
-        if (user.QrCodeExpiry < TimeUtil.GetCurrentVietNamTime())
-        {
-            throw new InvalidRequestException(MessageConstants.UserMessageConstrant.QrCodeExpired);
-        }
+            include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!));
         return user;
     }
+   
     public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
     {
         List<Expression<Func<User, bool>>> filters = new()
