@@ -55,7 +55,13 @@ namespace Services.Implements
         }
         public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
         {
-            return await _repository.GetCustomerByQrCodeAsync(qrCode);
+            var user = await _repository.GetCustomerByQrCodeAsync(qrCode);
+            if (user == null) throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFoundByQrCode);
+            if (user.QrCodeExpiry < TimeUtil.GetCurrentVietNamTime())
+            {
+                throw new InvalidRequestException(MessageConstants.UserMessageConstrant.QrCodeExpired);
+            }
+            return user;
         }
         public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
         {
@@ -109,7 +115,7 @@ namespace Services.Implements
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             var customer = _mapper.Map<User>(registerRequest);
-            
+
             var existedData = await _repository.FindUserByPhone(registerRequest.Phone);
             if (existedData is not null)
                 throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.DupplicatedPhone);
@@ -228,7 +234,9 @@ namespace Services.Implements
             {
                 currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
                 qrCodeString = QrCodeUtil.GenerateQRCodeString(user.Id.ToString() + user.Code + currentVietnamTime, _appSettings.QrCode.QrCodeSecretKey);
-            } while (await GetCustomerByQrCodeAsync(qrCodeString) != null);
+            } while (
+                await _repository.GetCustomerByQrCodeAsync(qrCodeString) != null
+            );
             user.QRCode = qrCodeString;
             user.QrCodeExpiry = currentVietnamTime.AddSeconds(_appSettings.QrCode.QrCodeExpiryInSeconds);
             await _repository.UpdateAsync(user);
