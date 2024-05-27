@@ -675,6 +675,7 @@ namespace Services.Implements
                 //orderEntity.Profile = null;
                 await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);
                 await _unitOfWork.CommitAsync();
+                await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -725,6 +726,7 @@ namespace Services.Implements
                         throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryStillAvailable);
                     }
                 }
+                await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -819,6 +821,8 @@ namespace Services.Implements
             {
                 await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
                 await _repository.UpdateAsync(order);
+                await _unitOfWork.CommitAsync();
+                await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
