@@ -42,6 +42,12 @@ namespace DataTransferObjects.Models.Session.Response
                 public int Status { get; set; }
                 public string? Feedback { get; set; }
                 public ProfileOfOrderRessponse? Profile { get; set; }
+                public DelivererOfOrder Deliverer { get; set; }
+                public class DelivererOfOrder
+                {
+                    public Guid Id { get; set; }
+                    public string FullName { get; set; }
+                }
                 public IList<GetOrderActivityResponse> OrderActivities { get; set; }
                 public IList<OrderDetailOfGetOrderResponse> OrderDetails { get; set; }
                 public class OrderDetailOfGetOrderResponse
