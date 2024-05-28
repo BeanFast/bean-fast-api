@@ -166,7 +166,13 @@ namespace Services.Implements
             var sessions = await _repository.GetOverlappedDeliveryTimeSessions(session.DeliveryStartTime, session.DeliveryEndTime);
             sessions = sessions.Where(s => s.Id != session.Id).ToList();
             var existedBusyDelivererIdList = new List<Guid>();
-
+            foreach(var sd in session.SessionDetails!)
+            {
+                if(sd.Id != sessionDetailId)
+                {
+                    existedBusyDelivererIdList.AddRange(sd.SessionDetailDeliverers.Select(s => s.DelivererId));
+                }
+            }
             if (!sessions.IsNullOrEmpty())
             {
                 var busyDelivererIds = sessions
@@ -377,6 +383,15 @@ namespace Services.Implements
 
         public async Task UpdateSessionDetailByIdAsync(Guid sessionDetailId, UpdateSessionDetailRequest request, User manager)
         {
+            var currentSession = await GetBySessionDetailIdAsync(sessionDetailId);
+            if (currentSession == null)
+            {
+                throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDetailIdIsNotExisted);
+            }
+            if (currentSession.DeliveryStartTime <= TimeUtil.GetCurrentVietNamTime())
+            {
+                throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionIsDelivering);
+            }
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionDetailId);
             await _sessionDetailService.UpdateSessionDetailByIdAsync(sessionDetailId, request, availableDeliverers.Select(d => d.Id).ToList(), manager);
         }
