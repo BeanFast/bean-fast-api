@@ -13,14 +13,15 @@ var services = builder.Services;
 // Add services to the container.
 //Console.WriteLine(TimeUtil.GetCurrentVietNamTime().Date);
 //QrCodeUtil.GenerateQRCode("3e24d372-1776-4dc2-81f3-a6322317aad3");
-Console.WriteLine(TimeUtil.GetCurrentVietNamTime().ToString());
-Console.WriteLine(QrCodeUtil.GenerateQRCodeString("C4D5E6F7-A8B9-4C3D-9E8F-0A1B2C3D4E5F" + "AD000002" + TimeUtil.GetCurrentVietNamTime().ToString(), "this_is_a_very_secret_key"));
+//Console.WriteLine(TimeUtil.GetCurrentVietNamTime().ToString());
+//Console.WriteLine(QrCodeUtil.GenerateQRCodeString("C4D5E6F7-A8B9-4C3D-9E8F-0A1B2C3D4E5F" + "AD000002" + TimeUtil.GetCurrentVietNamTime().ToString(), "this_is_a_very_secret_key"));
 services.AddHttpContextAccessor();
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
 });
+services.AddFileConfiguration();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddAutoMapperProfiles();

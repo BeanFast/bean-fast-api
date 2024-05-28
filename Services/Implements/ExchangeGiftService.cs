@@ -172,9 +172,9 @@ namespace Services.Implements
             return result;
         }
 
-        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest)
+        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user)
         {
-            return await _repository.GetExchangeGiftsAsync(filterRequest, paginationRequest);
+            return await _repository.GetExchangeGiftsAsync(filterRequest, paginationRequest, user);
         }
 
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId)

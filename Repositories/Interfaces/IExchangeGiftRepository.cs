@@ -18,8 +18,13 @@ namespace Repositories.Interfaces
             ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId);
         Task<ICollection<ExchangeGift>> GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId);
         Task<ExchangeGift?> GetByIdIncludeDeliverersAsync(Guid exchangeGiftId);
-        Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
+//<<<<<<< HEAD
+//        Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
+//        Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId);
+//=======
+        Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user);
         Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId);
+//>>>>>>> c1cbe8bf578b78aef3a6bb4fbfa373b636d2195d
 
     }
 }

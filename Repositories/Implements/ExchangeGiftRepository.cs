@@ -61,15 +61,17 @@ namespace Repositories.Implements
                 ) ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
             return result!;
         }
-        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest)
+        public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user)
         {
             var filters = GetFilterFromFilterRequest(filterRequest);
+            filters.Add(ex => ex.Profile!.UserId == user.Id);
             return await GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
         }
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId)
         {
             var filters = GetFilterFromFilterRequest(filterRequest);
             filters.Add(eg => eg.ProfileId == profileId);
+            filters.Add(ex => ex.Profile!.UserId == user.Id);
             IPaginable<GetExchangeGiftResponse> page = await GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
             return page;
         }

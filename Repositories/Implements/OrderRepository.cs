@@ -131,7 +131,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
         List<Expression<Func<Order, bool>>> filters = new()
             {
-                (order) => order.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == delivererId)
+                (order) => order.DelivererId == delivererId
                 && order.Profile!.UserId == customerId
                 && order.Status == OrderStatus.Delivering
             };

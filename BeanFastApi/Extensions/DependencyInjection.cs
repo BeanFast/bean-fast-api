@@ -18,6 +18,8 @@ using System.Threading.RateLimiting;
 using Utilities.Exceptions;
 using Utilities.Utils;
 using BeanFastApi.BackgroundJobs;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 namespace BeanFastApi.Extensions
@@ -45,6 +47,16 @@ namespace BeanFastApi.Extensions
                 options.UseSqlServer(configuration.GetConnectionString(connectionStringKey));
                 options.EnableDetailedErrors();
                 options.EnableSensitiveDataLogging();
+            });
+            return services;
+        }
+        public static IServiceCollection AddFileConfiguration(this IServiceCollection services)
+        {
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = long.MaxValue;
+                // if don't set default value is: 30 MB
+
             });
             return services;
         }
