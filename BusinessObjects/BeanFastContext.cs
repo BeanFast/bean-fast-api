@@ -423,6 +423,7 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.GiftId)
                     .HasConstraintName("FK_ExchangeGift_Gift")
                     .OnDelete(DeleteBehavior.NoAction);
+                //entity.HasOne(e => e.)
                 entity.HasOne(e => e.Creator).WithMany(e => e.CreatedExchangeGifts).HasConstraintName("FK_ExchangeGift_User_CreatorId");
                 entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedExchangeGifts).HasConstraintName("FK_ExchangeGift_User_UpdaterId");
 

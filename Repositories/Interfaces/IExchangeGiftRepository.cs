@@ -2,6 +2,7 @@
 using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.ExchangeGift.Response;
+using DataTransferObjects.Models.Order.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Repositories.Interfaces
         Task<ICollection<ExchangeGift>> GetDeliveringExchangeGiftsByDelivererIdAndCustomerIdAsync(Guid delivererId, Guid customerId);
         Task<ExchangeGift?> GetByIdIncludeDeliverersAsync(Guid exchangeGiftId);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest);
+        Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId);
 
     }
 }

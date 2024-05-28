@@ -74,6 +74,11 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         var orders = await GetListAsync(
                        filters: filters,
                        include: queryable => queryable.Include(o => o.Profile!));
+        var exchangeGift = await _dbContext.ExchangeGifts.Where(
+                ex => ex.SessionDetailId == sessionDetailId 
+                && ex.Status != ExchangeGiftStatus.Cancelled && ex.Status != ExchangeGiftStatus.CancelledByCustomer
+                && ex.DelivererId != null && ex.DelivererId != Guid.Empty
+            ).Include(ex => ex.Profile).ToListAsync();
         var result = orders.GroupBy(o => o.DelivererId)
             .Select(g => new GetDelivererIdAndOrderCountBySessionDetailIdResponse
             {
@@ -81,6 +86,12 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                 OrderCount = g.Count(),
                 CustomerIds = g.Select(o => o.Profile!.UserId).ToHashSet()
             }).ToList();
+        result.AddRange(exchangeGift.GroupBy(ex => ex.DelivererId).Select(ex => new GetDelivererIdAndOrderCountBySessionDetailIdResponse
+        {
+            DelivererId = ex.Key.Value,
+            OrderCount = ex.Count(),
+            CustomerIds = ex.Select(o => o.Profile!.UserId).ToHashSet()
+        }));
         return result;
     }
     public async Task<ICollection<Order>> GetCompletedOrderIncludeKitchenAsync()
@@ -194,14 +205,14 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
         }
 
-        return await GetListAsync<GetOrderResponse>(filters: filters, include: include);
+        return await GetListAsync<GetOrderResponse>(filters: filters, include: include, orderBy: o => o.OrderByDescending(order => order.PaymentDate));
 
     }
     public async Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user)
     {
         var filters = GetFiltersFromOrderRequest(request);
         Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
-
+        
         if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
         {
             //filters.Add()
@@ -214,7 +225,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         {
             filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
         }
-        return await GetPageAsync<GetOrderResponse>(filters: filters, include: include, paginationRequest: paginationRequest);
+        return await GetPageAsync<GetOrderResponse>(filters: filters, include: include, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(order => order.PaymentDate));
     }
     public async Task<IPaginable<GetOrderResponse>> GetPageAsync(string? userRole, PaginationRequest request)
     {
