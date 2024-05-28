@@ -196,7 +196,9 @@ namespace Utilities.Constants
             public static string OverlappedSessionHasExistedLocationId(DateTime deliveryStartDate, DateTime deliveryEndDate, Guid locationId) => $"Buổi với thời gian giao hàng từ {deliveryStartDate} - {deliveryEndDate} đã tồn tại một buổi có thời gian trùng lặp và có cổng {locationId}";
             public const string DuplicateLocationInSession = "Địa điểm đã tồn tại trong buổi này";
             public const string SessionDeliveryClosed = "Thời gian giao hàng đã đóng, không thể thực hiện thao tác này";
+            public const string SessionIsDelivering = "Thời gian giao hàng của phiên giao hàng đã bắt đầu, không thể thực hiện thao tác này";
             public const string SessionDeliveryStillAvailable = "Đơn hàng vẫn còn nằm trong thời hạn giao, không thể thực hiện thao tác này";
+            public const string SessionDetailIdIsNotExisted = "Không tồn tại phiên giao hàng với chi tiết phiên giao hàng có id này!";
 
 
         }
