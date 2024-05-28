@@ -24,7 +24,6 @@ namespace Services.Implements
     public class SessionService : BaseService<Session>, ISessionService
     {
         private readonly ISessionRepository _repository;
-
         private readonly ILocationService _locationService;
         private readonly ISessionDetailService _sessionDetailService;
         private readonly IUserService _userService;
