@@ -15,6 +15,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities.Constants;
+using Utilities.Enums;
 using Utilities.Exceptions;
 using Utilities.Statuses;
 
@@ -64,7 +65,18 @@ namespace Repositories.Implements
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user)
         {
             var filters = GetFilterFromFilterRequest(filterRequest);
-            filters.Add(ex => ex.Profile!.UserId == user.Id);
+            if(RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
+            {
+                filters.Add(ex => ex.Profile!.UserId == user.Id);
+            }else if(RoleName.MANAGER.ToString() == user.Role!.EnglishName)
+            {
+                var kitchen = _dbContext.Kitchens.Where(k => k.ManagerId == user.Id).Include(k => k.PrimarySchools!).FirstOrDefault();
+                if(kitchen!= null)
+                {
+                    var schoolIds = kitchen!.PrimarySchools!.Select(s => s.Id).ToList();
+                    filters.Add(ex => schoolIds.Contains(ex.Profile!.SchoolId));
+                }
+            }
             return await GetPageAsync<GetExchangeGiftResponse>(filters: filters, paginationRequest: paginationRequest, orderBy: o => o.OrderByDescending(eg => eg.CreatedDate));
         }
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId)
