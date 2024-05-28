@@ -591,7 +591,6 @@ namespace Services.Implements
             orderEntity.Status = OrderStatus.Delivering;
 
 
-            //await RollbackMoneyAsync(orderEntity);
             await _orderActivityService.CreateOrderActivityAsync(orderEntity, new OrderActivity
             {
                 Id = Guid.NewGuid(),
@@ -667,10 +666,11 @@ namespace Services.Implements
                 Time = TimeUtil.GetCurrentVietNamTime(),
                 Status = OrderActivityStatus.Active
             };
+            orderEntity.Profile.User.Wallets = null;
             var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, null);
+                await _orderActivityService.CreateOrderActivityAsync(orderEntity, orderActivity, customer);
                 orderEntity.Status = OrderStatus.CancelledByCustomer;
                 //orderEntity.Profile = null;
                 await _repository.UpdateAsync(orderEntity, orderEntity.Profile.User);

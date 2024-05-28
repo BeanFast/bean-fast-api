@@ -39,8 +39,9 @@ namespace Services.Implements
         private readonly IUserService _userService;
         private readonly IWalletService _walletService;
         private readonly IExchangeGiftRepository _repository;
+        private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
 
-        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService, IExchangeGiftRepository repository) : base(unitOfWork, mapper, appSettings)
+        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService, IExchangeGiftRepository repository, ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
         {
             _giftService = giftService;
             _profileService = profileService;
@@ -50,6 +51,7 @@ namespace Services.Implements
             _userService = userService;
             _walletService = walletService;
             _repository = repository;
+            _sessionDetailDelivererService = sessionDetailDelivererService;
         }
 
         public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user)
@@ -110,9 +112,39 @@ namespace Services.Implements
             };
             await _giftService.UpdateGiftAsync(gift);
             await _walletService.UpdateAsync(wallet);
+            await AssignExchangeGiftToDeliverer(exchangeGift, user);
             await _repository.InsertAsync(exchangeGift, user);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());
+        }
+        public async Task AssignExchangeGiftToDeliverer(ExchangeGift exchangeGift, User customer)
+        {
+            var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(exchangeGift.SessionDetailId);
+            var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(exchangeGift.SessionDetailId);
+            if (availableDeliverers.IsNullOrEmpty())
+            {
+                throw new InvalidRequestException(MessageConstants.SessionDetailMessageConstrant.NoDelivererAvailableInThisSession);
+            }
+            var delivererThatAlreadyHasOrderOfThisCustomer = data.FirstOrDefault(d => d.CustomerIds.Any(id => id == customer.Id));
+            if (delivererThatAlreadyHasOrderOfThisCustomer != null)
+            {
+                exchangeGift.DelivererId = delivererThatAlreadyHasOrderOfThisCustomer.DelivererId;
+                return;
+            }
+            foreach (var sessionDetailDeliverer in availableDeliverers)
+            {
+                if (!data.Any(d => d.DelivererId == sessionDetailDeliverer.DelivererId))
+                {
+                    data.Add(new GetDelivererIdAndOrderCountBySessionDetailIdResponse { DelivererId = sessionDetailDeliverer.DelivererId });
+                }
+            }
+            if (!data.IsNullOrEmpty())
+            {
+                var sortedData = data.OrderBy(d => d.OrderCount).ToList();
+                exchangeGift.DelivererId = sortedData.First().DelivererId;
+            }
+
+            Console.WriteLine(availableDeliverers);
         }
 
         public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user)

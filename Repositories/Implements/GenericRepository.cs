@@ -41,10 +41,10 @@ namespace Repositories.Implements
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
             IQueryable<T> query = _dbSet;
+            if (orderBy != null) query = orderBy(query);
             if (include != null) query = include(query);
             filters?.ForEach(filter => query = query.Where(filter));
 
-            if (orderBy != null) query = orderBy(query);
             return query.AsNoTracking();
         }
 

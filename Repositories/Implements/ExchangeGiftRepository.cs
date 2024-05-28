@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.ExchangeGift.Request;
 using DataTransferObjects.Models.ExchangeGift.Response;
+using DataTransferObjects.Models.Order.Response;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
@@ -92,6 +93,36 @@ namespace Repositories.Implements
                     .ThenInclude(p => p.User!)
             );
             return exchangeGifts!;
+        }
+        public async Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId)
+        {
+            var exchangeGifts = await GetListAsync(
+                    filters: new List<Expression<Func<ExchangeGift, bool>>>
+                    {
+                        ex => ex.SessionDetailId == sessionDetailId && ex.DelivererId != null,
+                        ex => ex.Status != ExchangeGiftStatus.Completed && ex.Status != ExchangeGiftStatus.Cancelled &&  ex.Status != ExchangeGiftStatus.CancelledByCustomer,
+                    }, include: i => i.Include(ex => ex.Profile!)
+                );
+            var order = await _dbContext.Orders
+                    .Where(o => o.SessionDetailId == sessionDetailId
+                    && o.Status != OrderStatus.Completed && o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.CancelledByCustomer
+                ).Include(o => o.Profile!)
+                .ToListAsync();
+            var data = exchangeGifts.GroupBy(e => e.DelivererId).Select(g => new GetDelivererIdAndOrderCountBySessionDetailIdResponse
+            {
+                DelivererId = g.Key.Value,
+                OrderCount = g.Count(),
+                CustomerIds = g.Select(o => o.Profile!.UserId).ToHashSet()
+            }).ToList();
+            data.AddRange(
+                order.GroupBy(e => e.DelivererId).Select(g => new GetDelivererIdAndOrderCountBySessionDetailIdResponse
+                {
+                    DelivererId = g.Key,
+                    OrderCount = g.Count(),
+                    CustomerIds = g.Select(o => o.Profile!.UserId).ToHashSet()
+                }).ToList()
+                );
+            return data;
         }
         public async Task<ExchangeGift?> GetByIdIncludeDeliverersAsync(Guid exchangeGiftId)
         {
