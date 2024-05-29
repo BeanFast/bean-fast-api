@@ -111,11 +111,15 @@ namespace Repositories.Implements
                 filters: filters, include: queryable => queryable.Include(f => f.Category!).Include(f => f.Combos!).Include(f => f.MasterCombos!));
             return food;
         }
-        public async Task<IPaginable<Food>> GetBestSellerFoodsPageAsync(GetBestSellerFoodsRequest request)
+        public async Task<IPaginable<Food>> GetBestSellerFoodsPageAsync(GetBestSellerFoodsRequest request, User manager)
         {
             var filters = new List<Expression<Func<Food, bool>>>();
             Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include;
             filters.Add(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed) && f.Status == BaseEntityStatus.Active);
+            if (manager.Kitchen != null)
+            {
+                filters.Add(f => f.MenuDetails!.Any(md => md.Menu!.KitchenId == manager.Kitchen!.Id));
+            }
             if (request.StartDate != DateTime.MinValue && request.EndDate != DateTime.MinValue)
             {
                 include = i => i

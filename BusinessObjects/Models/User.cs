@@ -14,6 +14,7 @@
         public string? QRCode { get; set; }
         public DateTime? QrCodeExpiry { get; set; }
         public virtual Role? Role { get; set; }
+        public virtual Kitchen? Kitchen { get; set; }
         public virtual ICollection<Profile>? Profiles { get; set; }
         public virtual ICollection<Area>? CreatedAreas { get; set; }
         public virtual ICollection<Area>? UpdatedAreas { get; set; }

@@ -33,6 +33,10 @@ public class TransactionRepository : GenericRepository<Transaction>,ITransaction
                 filters.Add(t => WalletType.Points.ToString().Equals(t.Wallet!.Type));
             }
         }
+        if(filterRequest.Time.HasValue)
+        {
+            filters.Add(t => t.Time.Month == filterRequest.Time.Value.Month && t.Time.Year == filterRequest.Time.Value.Year);
+        }
         //if(!filterRequest.)
         return filters;
     }

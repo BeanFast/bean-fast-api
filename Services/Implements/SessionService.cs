@@ -64,7 +64,7 @@ namespace Services.Implements
                     throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.OverlappedSessionHasExistedLocationId(item.DeliveryStartTime, item.DeliveryEndTime, matchingSessionDetail.LocationId));
                 }
             }
-            
+
             for (int i = 0; i < sessionEntity.SessionDetails.Count; i++)
             {
                 var sessionDetail = sessionEntity.SessionDetails.ElementAt(i);
@@ -141,6 +141,9 @@ namespace Services.Implements
             }
             bool profileIdIsInSchoolOfSession = false;
             bool menuDetailIdIsInMenuOfSession = false;
+            var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
+            if (session.OrderStartTime < currentVietnamTime || session.OrderEndTime > currentVietnamTime)
+                return false;
             foreach (var sessionDetail in session.SessionDetails!)
             {
                 if (sessionDetail.Location!.School!.Profiles!.Any(p => p.Id == profileId))
@@ -166,9 +169,9 @@ namespace Services.Implements
             var sessions = await _repository.GetOverlappedDeliveryTimeSessions(session.DeliveryStartTime, session.DeliveryEndTime);
             sessions = sessions.Where(s => s.Id != session.Id).ToList();
             var existedBusyDelivererIdList = new List<Guid>();
-            foreach(var sd in session.SessionDetails!)
+            foreach (var sd in session.SessionDetails!)
             {
-                if(sd.Id != sessionDetailId)
+                if (sd.Id != sessionDetailId)
                 {
                     existedBusyDelivererIdList.AddRange(sd.SessionDetailDeliverers.Select(s => s.DelivererId));
                 }
@@ -354,7 +357,7 @@ namespace Services.Implements
                             await _repository.UpdateAsync(s);
                             await _unitOfWork.CommitAsync();
                         }
-                        else if(currentTime >= s.DeliveryStartTime && currentTime < s.DeliveryEndTime)
+                        else if (currentTime >= s.DeliveryStartTime && currentTime < s.DeliveryEndTime)
                         {
                             foreach (var sd in s.SessionDetails!)
                             {
@@ -362,7 +365,7 @@ namespace Services.Implements
                                 {
                                     if (order.Status == OrderStatus.Cooking)
                                     {
-                                       await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
+                                        await _orderService.UpdateOrderDeliveryStatusAsync(order.Id);
                                     }
                                 }
                                 //foreach (var eg in sd.ExchangeGifts!)

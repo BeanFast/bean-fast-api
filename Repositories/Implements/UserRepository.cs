@@ -79,6 +79,27 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         var users = await GetListAsync<GetDelivererResponse>(filters: filters);
         return users;
     }
+    public async Task<User> GetManagerByIdAsync(Guid managerId)
+    {
+        List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.Id == managerId,
+                //(user) => user.Status == BaseEntityStatus.Active
+            };
+
+        var user = await FirstOrDefaultAsync(filters: filters,
+            include: queryable => queryable.Include(u => u.Role!).Include(u => u.Kitchen!))
+            ?? throw new EntityNotFoundException(MessageConstants.UserMessageConstrant.UserNotFound(managerId));
+        if (UserStatus.NotVerified == user.Status)
+        {
+            throw new NotVerifiedAccountException();
+        }
+        if (UserStatus.Deleted == user.Status)
+        {
+            throw new BannedAccountException();
+        }
+        return user;
+    }
     public async Task<User> LoginAsync(LoginRequest loginRequest)
     {
         List<Expression<Func<User, bool>>>? whereFilters = null;

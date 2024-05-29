@@ -9,7 +9,6 @@ namespace DataTransferObjects.Models.Transaction.Request
     public class TransactionFilterRequest
     {
         public string? Type { get; set; }
-        public string? StartDate { get; set; }
-        public string? EndDate { get; set; }
+        public DateTime? Time { get; set; }
     }
 }

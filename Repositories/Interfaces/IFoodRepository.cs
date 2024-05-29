@@ -16,6 +16,6 @@ namespace Repositories.Interfaces
         Task<IPaginable<GetFoodResponse>> GetPageAsync(string? userRole, FoodFilterRequest filterRequest,
             PaginationRequest request);
         Task<Food?> GetByIdAsync(Guid id);
-        Task<IPaginable<Food>> GetBestSellerFoodsPageAsync(GetBestSellerFoodsRequest request);
+        Task<IPaginable<Food>> GetBestSellerFoodsPageAsync(GetBestSellerFoodsRequest request, User manager);
     }
 }

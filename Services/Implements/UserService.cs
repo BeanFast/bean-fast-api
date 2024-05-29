@@ -53,6 +53,10 @@ namespace Services.Implements
         {
             return await _repository.GetByIdAsync(userId);
         }
+        public async Task<User> GetManagerByIdAsync(Guid managerId)
+        {
+            return await _repository.GetManagerByIdAsync(managerId);
+        }
         public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
         {
             var user = await _repository.GetCustomerByQrCodeAsync(qrCode);
