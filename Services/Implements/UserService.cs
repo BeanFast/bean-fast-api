@@ -85,6 +85,10 @@ namespace Services.Implements
         {
             var user = await _repository.LoginAsync(loginRequest);
             var refreshToken = JwtUtil.GenerateRefreshToken(user);
+            if (!loginRequest.DeviceToken.IsNullOrEmpty())
+            {
+                user.DeviceToken = loginRequest.DeviceToken;
+            }
             user.RefreshToken = refreshToken;
             await _repository.UpdateAsync(user);
             await _unitOfWork.CommitAsync();

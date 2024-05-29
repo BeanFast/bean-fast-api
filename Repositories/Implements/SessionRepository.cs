@@ -50,7 +50,7 @@ namespace Repositories.Implements
             }
             if (request.Expired)
             {
-                filters.Add(s => s.DeliveryEndTime < currentVietNamTime);
+                filters.Add(s => s.OrderEndTime < currentVietNamTime);
             }
             if (request.Incomming)
             {
