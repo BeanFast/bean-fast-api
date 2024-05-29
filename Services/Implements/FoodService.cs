@@ -174,12 +174,15 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<ICollection<GetBestSellerFoodsResponse>> GetBestSellerFoodsAsync(GetBestSellerFoodsRequest request)
+        public async Task<ICollection<GetBestSellerFoodsResponse>> GetBestSellerFoodsAsync(GetBestSellerFoodsRequest request, User manager)
         {
 
             //_mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
-            var foodPage = await _repository.GetBestSellerFoodsPageAsync(request);
-            return _mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
+            
+            var foodPage = await _repository.GetBestSellerFoodsPageAsync(request, manager);
+            var result =  _mapper.Map<ICollection<GetBestSellerFoodsResponse>>(foodPage.Items);
+            result = result.OrderByDescending(r => r.SoldCount).ToList();
+            return result;
         }
         //public async Task<ICollection<GetFoodResponse>> GetFoodsByCategoryAsync(Guid categoryId)
         //{

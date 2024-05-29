@@ -42,7 +42,13 @@ namespace BeanFastApi.Controllers
             return await _userService.GetByIdAsync(Guid.Parse(userIdStr!));
             //string? 
         }
-
+        protected async Task<User> GetManagerAsync()
+        {
+            string? userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr.IsNullOrEmpty()) throw new NotLoggedInOrInvalidTokenException();
+            return await _userService.GetManagerByIdAsync(Guid.Parse(userIdStr!));
+            //string? 
+        }
         protected string? GetUserRole()
         {
             return User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;

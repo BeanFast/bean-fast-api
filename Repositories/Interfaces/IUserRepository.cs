@@ -17,4 +17,5 @@ public interface IUserRepository : IGenericRepository<User>
     Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId);
     Task<User> FindNotVerifiedUserByPhone(string phone);
     Task<User> FindUserByPhone(string phone);
+    Task<User> GetManagerByIdAsync(Guid managerId);
 }

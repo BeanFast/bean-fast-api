@@ -200,8 +200,17 @@ namespace BusinessObjects
                     .HasForeignKey(e => e.AreaId)
                     .HasConstraintName("FK_Kitchen_Area")
                     .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(e => e.Creator).WithMany(e => e.CreatedKitchens).HasConstraintName("FK_Kitchen_User_CreatorId");
-                entity.HasOne(e => e.Updater).WithMany(e => e.UpdatedKitchens).HasConstraintName("FK_Kitchen_User_UpdaterId");
+                entity.HasOne(e => e.Creator)
+                    .WithMany(e => e.CreatedKitchens)
+                    .HasConstraintName("FK_Kitchen_User_CreatorId");
+                entity
+                    .HasOne(e => e.Updater)
+                    .WithMany(e => e.UpdatedKitchens)
+                    .HasConstraintName("FK_Kitchen_User_UpdaterId");
+                entity
+                    .HasOne(e => e.Manager)
+                    .WithOne(e => e.Kitchen)
+                    .HasConstraintName("FK_Kitchen_User_ManagerId");
             });
             modelBuilder.Entity<Menu>(entity =>
             {
