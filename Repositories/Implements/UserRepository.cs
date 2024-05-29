@@ -96,10 +96,17 @@ public class UserRepository : GenericRepository<User>, IUserRepository
                     (user) => user.Phone == loginRequest.Phone && user.Role!.EnglishName == RoleName.CUSTOMER.ToString()
                 };
         }
-
         Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
         User user = await FirstOrDefaultAsync(filters: whereFilters, include: include) ??
                     throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
+        if (UserStatus.NotVerified == user.Status)
+        {
+            throw new NotVerifiedAccountException();
+        }
+        if (UserStatus.Deleted == user.Status)
+        {
+            throw new BannedAccountException();
+        }
         return user;
     }
     public async Task<User> GetUserByIdIncludeWallet(Guid userId)
