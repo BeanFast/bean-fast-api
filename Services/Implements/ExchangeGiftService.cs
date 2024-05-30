@@ -112,12 +112,12 @@ namespace Services.Implements
             };
             await _giftService.UpdateGiftAsync(gift);
             await _walletService.UpdateAsync(wallet);
-            await AssignExchangeGiftToDeliverer(exchangeGift, user);
+            await AssignExchangeGiftToDelivererAsync(exchangeGift, user);
             await _repository.InsertAsync(exchangeGift, user);
             await _unitOfWork.CommitAsync();
             //await Console.Out.WriteLineAsync(sessionDetail.ToString());
         }
-        public async Task AssignExchangeGiftToDeliverer(ExchangeGift exchangeGift, User customer)
+        public async Task AssignExchangeGiftToDelivererAsync(ExchangeGift exchangeGift, User customer)
         {
             var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(exchangeGift.SessionDetailId);
             var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(exchangeGift.SessionDetailId);
@@ -146,6 +146,12 @@ namespace Services.Implements
 
             Console.WriteLine(availableDeliverers);
         }
+        public async Task AssignExchangeGiftToDelivererAndUpdateAsync(ExchangeGift exchangeGift, User customer)
+        {
+            await AssignExchangeGiftToDelivererAsync(exchangeGift, customer);
+            await _repository.UpdateAsync(exchangeGift);
+            await _unitOfWork.CommitAsync();
+        }
 
         public async Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user)
         {
@@ -171,7 +177,10 @@ namespace Services.Implements
                 ?? throw new EntityNotFoundException(MessageConstants.ExchangeGiftMessageConstrant.ExchangeGiftNotFound(exchangeGiftId));
             return result;
         }
-
+        public async Task<ICollection<ExchangeGift>> GetBySessionDetailId(Guid sessionDetailId)
+        {
+            return await _repository.GetBySessionDetailId(sessionDetailId);
+        }
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user)
         {
             return await _repository.GetExchangeGiftsAsync(filterRequest, paginationRequest, user);
@@ -365,5 +374,6 @@ namespace Services.Implements
             await _transactionService.CreateTransactionAsync(rollbackPointTransaction);
         }
 
+        
     }
 }

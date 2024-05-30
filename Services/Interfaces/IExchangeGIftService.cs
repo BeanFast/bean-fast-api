@@ -18,12 +18,15 @@ namespace Services.Interfaces
         Task<ICollection<GetOrderActivityResponse>> GetOrderActivitiesByExchangeGiftIdAsync(Guid exchangeGiftId, User user);
         Task CreateOrderActivityAsync(CreateOrderActivityRequest request, User user);
         Task<ExchangeGift> GetByIdAsync(Guid exchangeGiftId);
+        Task<ICollection<ExchangeGift>> GetBySessionDetailId(Guid sessionDetailId);
+        Task AssignExchangeGiftToDelivererAndUpdateAsync(ExchangeGift exchangeGift, User customer);
         Task CancelExchangeGiftForCustomerAsync(ExchangeGift exchangeGift, CancelExchangeGiftRequest request, User customer);
         Task CancelExchangeGiftForManagerAsync(ExchangeGift exchangeGift, CancelExchangeGiftRequest request, User manager);
         Task UpdateExchangeGiftToDeliveryStatusAsync(Guid exchangeGiftId);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user);
         Task<List<GetExchangeGiftResponse>> GetValidExchangeGiftResponsesByQRCodeAsync(string qrCode, Guid delivererId);
         Task<GetExchangeGiftResponse> GetExchangeGiftResponseByIdAsync(Guid id);
+
         Task CancelExchangeGiftAsync(Guid exchangeGiftId, CancelExchangeGiftRequest request, User user);
         Task UpdateExchangeGiftCompleteStatusAsync(Guid exchangeGiftId, User deliverer);
         Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsByCurrentCustomerAndProfileIdAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user, Guid profileId);

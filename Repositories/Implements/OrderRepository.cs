@@ -75,7 +75,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                        filters: filters,
                        include: queryable => queryable.Include(o => o.Profile!));
         var exchangeGift = await _dbContext.ExchangeGifts.Where(
-                ex => ex.SessionDetailId == sessionDetailId 
+                ex => ex.SessionDetailId == sessionDetailId
                 && ex.Status != ExchangeGiftStatus.Cancelled && ex.Status != ExchangeGiftStatus.CancelledByCustomer
                 && ex.DelivererId != null && ex.DelivererId != Guid.Empty
             ).Include(ex => ex.Profile).ToListAsync();
@@ -212,7 +212,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
         var filters = GetFiltersFromOrderRequest(request);
         Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
-        
+
         if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
         {
             //filters.Add()
@@ -265,5 +265,15 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return result!;
     }
 
-
+    public async Task<ICollection<Order>> GetBySessionDetailId(Guid id)
+    {
+        List<Expression<Func<Order, bool>>> filters = new()
+        {
+            (order) => order.SessionDetailId == id,
+        };
+        Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include =
+            (o) => o.Include(o => o.Profile!).ThenInclude(p => p.User!);
+        var result = await GetListAsync(filters: filters, include: include);
+        return result;
+    }
 }

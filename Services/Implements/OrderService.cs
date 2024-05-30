@@ -76,7 +76,10 @@ namespace Services.Implements
         {
             return await _repository.GetByIdAsync(id);
         }
-
+        public async Task<ICollection<Order>> GetBySessionDetailId(Guid id)
+        {
+            return await _repository.GetBySessionDetailId(id);
+        }
         public async Task<GetOrderResponse> GetOderResponseByIdAsync(Guid id)
         {
             return await _repository.GetOderResponseByIdAsync(id);
@@ -496,6 +499,12 @@ namespace Services.Implements
 
             Console.WriteLine(availableDeliverers);
         }
+        public async Task AssignOrderToDelivererAndUpdateAsync(Order order, User customer)
+        {
+            await AssignOrderToDelivererAsync(order, customer);
+            await _repository.UpdateAsync(order);
+            await _unitOfWork.CommitAsync();
+        }
         public async Task UpdateOrderCompleteStatusAsync(Guid orderId, User deliverer)
         {
             var startTime = DateTime.Now;
@@ -832,6 +841,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-
+        
     }
 }
