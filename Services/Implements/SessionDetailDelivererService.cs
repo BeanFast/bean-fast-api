@@ -18,8 +18,8 @@ namespace Services.Implements
         private readonly ISessionDetailDelivererRepository _delivererRepository;
         //private readonly IOrderService _orderService;
         //private readonly IExchangeGIftService _exchangeGIftService;
-        public SessionDetailDelivererService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISessionDetailDelivererRepository delivererRepository, 
-            //IOrderService orderService, IExchangeGIftService exchangeGIftService
+        public SessionDetailDelivererService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, ISessionDetailDelivererRepository delivererRepository
+            //,IOrderService orderService, IExchangeGIftService exchangeGIftService
             ) : base(unitOfWork, mapper, appSettings)
         {
             _delivererRepository = delivererRepository;
