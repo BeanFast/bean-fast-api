@@ -65,13 +65,14 @@ namespace Repositories.Implements
         public async Task<IPaginable<GetExchangeGiftResponse>> GetExchangeGiftsAsync(ExchangeGiftFilterRequest filterRequest, PaginationRequest paginationRequest, User user)
         {
             var filters = GetFilterFromFilterRequest(filterRequest);
-            if(RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
+            if (RoleName.CUSTOMER.ToString() == user.Role!.EnglishName)
             {
                 filters.Add(ex => ex.Profile!.UserId == user.Id);
-            }else if(RoleName.MANAGER.ToString() == user.Role!.EnglishName)
+            }
+            else if (RoleName.MANAGER.ToString() == user.Role!.EnglishName)
             {
                 var kitchen = _dbContext.Kitchens.Where(k => k.ManagerId == user.Id).Include(k => k.PrimarySchools!).FirstOrDefault();
-                if(kitchen!= null)
+                if (kitchen != null)
                 {
                     var schoolIds = kitchen!.PrimarySchools!.Select(s => s.Id).ToList();
                     filters.Add(ex => schoolIds.Contains(ex.Profile!.SchoolId));
@@ -152,6 +153,20 @@ namespace Repositories.Implements
                 .Include(o => o.SessionDetail!)
                     .ThenInclude(o => o.Session!)
                 .Include(o => o.Activities!)
+                );
+            return result;
+        }
+
+        public async Task<ICollection<ExchangeGift>> GetBySessionDetailId(Guid sessionDetailId)
+        {
+            var filters = new List<Expression<Func<ExchangeGift, bool>>>
+            {
+                (exchangeGift) => exchangeGift.SessionDetailId == sessionDetailId
+            };
+            var result = await GetListAsync(filters: filters,
+                include: i => i
+                .Include(eg => eg.Profile!)
+                    .ThenInclude(p => p.User!)
                 );
             return result;
         }

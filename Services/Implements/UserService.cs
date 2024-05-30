@@ -183,7 +183,6 @@ namespace Services.Implements
                 user.Status = UserStatus.Active;
                 await _repository.UpdateAsync(user);
                 await _unitOfWork.CommitAsync();
-
             }
             else
             {

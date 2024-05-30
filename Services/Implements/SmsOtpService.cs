@@ -33,14 +33,16 @@ namespace Services.Implements
             string convertedNumber = "+84" + user.Phone;
             try
             {
-                if(_smsService is TwilioSmsService)
+                if (_smsService is TwilioSmsService)
                 {
                     await _smsService.SendSmsAsync(convertedNumber, _appSettings.Twilio.BodyTemplate + smsOtp.Value);
-                }else if (_smsService is EsmsSmsService)
+                }
+                else if (_smsService is EsmsSmsService)
                 {
                     await _smsService.SendSmsAsync(user.Phone, smsOtp.Value);
                 }
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }

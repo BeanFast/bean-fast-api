@@ -307,6 +307,8 @@ namespace Services.Implements
                                         {
                                             await _exchangeGIftService.UpdateExchangeGiftToDeliveryStatusAsync(exchangeGift.Id);
                                         }
+
+
                                     }
                                 }
                                 sd.Orders = null;
