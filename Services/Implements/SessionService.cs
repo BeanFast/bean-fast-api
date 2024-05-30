@@ -142,7 +142,7 @@ namespace Services.Implements
             bool profileIdIsInSchoolOfSession = false;
             bool menuDetailIdIsInMenuOfSession = false;
             var currentVietnamTime = TimeUtil.GetCurrentVietNamTime();
-            if (session.OrderStartTime < currentVietnamTime || session.OrderEndTime > currentVietnamTime)
+            if (currentVietnamTime < session.OrderStartTime || currentVietnamTime > session.OrderEndTime)
                 return false;
             foreach (var sessionDetail in session.SessionDetails!)
             {
