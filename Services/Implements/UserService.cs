@@ -55,7 +55,12 @@ namespace Services.Implements
         }
         public async Task<User> GetManagerByIdAsync(Guid managerId)
         {
-            return await _repository.GetManagerByIdAsync(managerId);
+            var user =  await _repository.GetManagerByIdAsync(managerId);
+            if(user.Kitchen == null)
+            {
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.ManagerIsNotBeResponseForAnyKitchen);
+            }
+            return user;
         }
         public async Task<User> GetCustomerByQrCodeAsync(string qrCode)
         {
@@ -84,6 +89,7 @@ namespace Services.Implements
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
             var user = await _repository.LoginAsync(loginRequest);
+            
             var refreshToken = JwtUtil.GenerateRefreshToken(user);
             if (!loginRequest.DeviceToken.IsNullOrEmpty())
             {

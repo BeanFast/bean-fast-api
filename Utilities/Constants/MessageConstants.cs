@@ -37,6 +37,7 @@ namespace Utilities.Constants
             public static string InvalidSmsOtp = "Mã xác nhận OTP không hợp lệ";
             public static string RoleNotFound = "Không tìm thấy role này";
             public static string InvalidRefreshToken = "Refresh token không hợp lệ";
+            public static string ManagerIsNotBeResponseForAnyKitchen = "Bạn chưa được quản lý bất kỳ bếp nào trong hệ thống, không thể làm hành động này!";
 
         }
 

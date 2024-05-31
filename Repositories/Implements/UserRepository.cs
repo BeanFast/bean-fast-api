@@ -128,7 +128,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
                     (user) => user.Phone == loginRequest.Phone && user.Role!.EnglishName == RoleName.CUSTOMER.ToString()
                 };
         }
-        Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!);
+        Func<IQueryable<User>, IIncludableQueryable<User, object>> include = (user) => user.Include(u => u.Role!).Include(u => u.Kitchen!);
         User user = await FirstOrDefaultAsync(filters: whereFilters, include: include) ??
                     throw new InvalidRequestException(MessageConstants.LoginMessageConstrant.InvalidCredentials);
         if (UserStatus.NotVerified == user.Status)
@@ -138,6 +138,13 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         if (UserStatus.Deleted == user.Status)
         {
             throw new BannedAccountException();
+        }
+        if(user.Role!.EnglishName == RoleName.MANAGER.ToString())
+        {
+            if(user.Kitchen == null)
+            {
+                throw new InvalidRequestException(MessageConstants.AuthorizationMessageConstrant.ManagerIsNotBeResponseForAnyKitchen);
+            }
         }
         return user;
     }

@@ -191,7 +191,15 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
         var filters = GetFiltersFromOrderRequest(request);
         Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = (o) => o.Include(o => o.Profile!).Include(o => o.SessionDetail!);
-
+        Func<IQueryable<Order>, IOrderedQueryable<Order>>? orderBy = null;
+        if(request.Status == 5 || request.Status == 6)
+        {
+            orderBy = o => o.OrderByDescending(o => o.OrderActivities!.Max(oa => oa.Time));
+        }
+        else
+        {
+            orderBy = o => o.OrderByDescending(order => order.PaymentDate);
+        }
         if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
         {
             //filters.Add()
@@ -205,7 +213,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             filters.Add(o => o.SessionDetail!.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id));
         }
 
-        return await GetListAsync<GetOrderResponse>(filters: filters, include: include, orderBy: o => o.OrderByDescending(order => order.PaymentDate));
+        return await GetListAsync<GetOrderResponse>(filters: filters, include: include, orderBy: orderBy);
 
     }
     public async Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user)

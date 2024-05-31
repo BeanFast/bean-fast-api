@@ -47,9 +47,10 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
         }
         return filters;
     }
-    public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+    public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest, User user)
     {
         var filters = GetSchoolFilterFromFilterRequest(filterRequest);
+        filters.Add(s => s.Kitchen != null && s.Kitchen.ManagerId == user.Id);
         var page = await GetPageAsync<GetSchoolIncludeAreaAndLocationResponse>(
                 filters: filters,
                 paginationRequest: paginationRequest,
@@ -57,10 +58,11 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
             );
         return page;
     }
-    public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+    public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest, User user)
     {
         var filters = GetSchoolFilterFromFilterRequest(filterRequest);
         filters.Add(s => s.Status != BaseEntityStatus.Deleted);
+        filters.Add(s => s.Kitchen != null && s.Kitchen.ManagerId == user.Id);
         var result = await GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
             filters: filters,
             include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))
