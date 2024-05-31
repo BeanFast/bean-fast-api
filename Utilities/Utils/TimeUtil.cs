@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Constants;
 
 namespace Utilities.Utils
 {
@@ -36,6 +37,17 @@ namespace Utilities.Utils
 
             // Calculate total seconds
             return hours * 3600 + minutes * 60 + seconds;
+        }
+        public static bool IsInDeliveryTime(DateTime startTime, DateTime endTime)
+        {
+            // Ensure times are set to the same date for accurate comparison
+            startTime = startTime.Date + startTime.TimeOfDay;
+            endTime = endTime.Date + endTime.TimeOfDay;
+
+            var fourAm = new DateTime(startTime.Year, startTime.Month, startTime.Day, TimeConstrant.DeliveryStartHour, 0, 0);
+            var elevenAm = new DateTime(startTime.Year, startTime.Month, startTime.Day, TimeConstrant.DeliveryEndHour, 0, 0);
+
+            return startTime >= fourAm && endTime <= elevenAm;
         }
         public static DateTime GetCurrentVietNamTime()
         {

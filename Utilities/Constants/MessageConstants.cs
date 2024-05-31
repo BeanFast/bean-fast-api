@@ -203,6 +203,7 @@ namespace Utilities.Constants
             public const string SessionIsDelivering = "Thời gian giao hàng của phiên giao hàng đã bắt đầu, không thể thực hiện thao tác này";
             public const string SessionDeliveryStillAvailable = "Đơn hàng vẫn còn nằm trong thời hạn giao, không thể thực hiện thao tác này";
             public const string SessionDetailIdIsNotExisted = "Không tồn tại phiên giao hàng với chi tiết phiên giao hàng có id này!";
+            public const string SessionDeliveryNotInTime = "Thời gian giao hàng phải nằm trong khoảng 4 giờ sáng tới 11 giờ trưa";
 
 
         }

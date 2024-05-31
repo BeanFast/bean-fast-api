@@ -53,7 +53,7 @@ namespace Utilities.ValidationAttributes
 
                 var comparisonValue = (DateTime)property.GetValue(validationContext.ObjectInstance)!;
 
-                if (currentValue <= comparisonValue.AddMinutes(_additionalMinutes))
+                if (currentValue < comparisonValue.AddMinutes(_additionalMinutes))
                     return new ValidationResult(ErrorMessage);
 
                 return ValidationResult.Success;
