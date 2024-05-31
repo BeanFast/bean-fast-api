@@ -13,6 +13,7 @@ namespace DataTransferObjects.Models.User.Request
         [RequiredGuid]
         public Guid RoleId { get; set; }
         public string FullName { get; set; }
+        [Password]
         public string Password { get; set; }
         //public string Phone { get; set; }
         public string Email { get; set; }

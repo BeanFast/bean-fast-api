@@ -10,6 +10,7 @@ namespace DataTransferObjects.Models.Auth.Response
     {
         [RegularExpression(RegexConstants.PhoneRegex, ErrorMessage = MessageConstants.LoginMessageConstrant.InvalidPhoneNumber)]
         public string? Phone { get; set; }
+        [Password]
         public string Password { get; set; } = null!;
         [RegularExpression(RegexConstants.EmailRegex, ErrorMessage = MessageConstants.LoginMessageConstrant.InvalidEmail)]
         //[CustomEmailAddress]

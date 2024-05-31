@@ -62,7 +62,10 @@ public class SchoolRepository : GenericRepository<School>, ISchoolRepository
     {
         var filters = GetSchoolFilterFromFilterRequest(filterRequest);
         filters.Add(s => s.Status != BaseEntityStatus.Deleted);
-        filters.Add(s => s.Kitchen != null && s.Kitchen.ManagerId == user.Id);
+        if(user.Kitchen != null)
+        {
+            filters.Add(s => s.Kitchen != null && s.Kitchen.ManagerId == user.Id);
+        }
         var result = await GetListAsync<GetSchoolIncludeAreaAndLocationResponse>(
             filters: filters,
             include: s => s.Include(s => s.Area).Include(s => s.Locations!.Where(l => l.Status == BaseEntityStatus.Active))

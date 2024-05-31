@@ -1,4 +1,5 @@
 ﻿using BeanFastApi.Validators;
+using BusinessObjects.Models;
 using DataTransferObjects.Core.Pagination;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using System.Net;
+using Utilities.Enums;
 
 namespace BeanFastApi.Controllers
 {
@@ -23,7 +25,16 @@ namespace BeanFastApi.Controllers
             [FromQuery] SchoolFilterRequest filterRequest,
             [FromQuery] PaginationRequest paginationRequest)
         {
-            var result = await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest, await GetManagerAsync());
+            User user = null;
+            if (GetUserRole() == RoleName.MANAGER.ToString())
+            {
+                user = await GetManagerAsync();
+            }
+            else
+            {
+                user = await GetUserAsync();
+            }
+            var result = await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest, user);
             return SuccessResult(result);
         }
         [HttpGet("{id}")]
