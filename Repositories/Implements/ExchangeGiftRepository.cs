@@ -31,7 +31,7 @@ namespace Repositories.Implements
             List<Expression<Func<ExchangeGift, bool>>> expressions = new List<Expression<Func<ExchangeGift, bool>>>();
             if (filterRequest.Status != null)
             {
-                if (filterRequest.Status == ExchangeGiftStatus.Cancelled)
+                if (filterRequest.Status == ExchangeGiftStatus.CancelledByCustomer)
                 {
                     expressions.Add(eg => eg.Status == ExchangeGiftStatus.Cancelled || eg.Status == ExchangeGiftStatus.CancelledByCustomer);
                 }
