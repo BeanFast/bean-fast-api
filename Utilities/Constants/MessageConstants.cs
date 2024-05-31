@@ -77,6 +77,7 @@ namespace Utilities.Constants
         public static class UserMessageConstrant
         {
             public static string UserNotFound(Guid guid) => $"Người dùng với id: {guid} không tồn tại";
+            public const string DefaultUserName = "Người dùng #";
 
             public const string UserEmailRequired = "Email là bắt buộc";
 
@@ -329,6 +330,8 @@ namespace Utilities.Constants
             public static string WalletNotFound(Guid guid) => $"Ví với id: {guid} không tồn tại";
             public const string NotEnoughPoints = "Quý khách không có đủ số điểm để đổi món quà này!";
             public const string NotEnoughMoney = "Quý khách không có đủ tiền để thực hiện giao dịch này!";
+            public const string DefaultPointWalletName = "Ví điểm của #";
+            public const string DefaultMoneyWalletName = "Ví điểm của #";
         }
         public class ExchangeGiftMessageConstrant
         {
