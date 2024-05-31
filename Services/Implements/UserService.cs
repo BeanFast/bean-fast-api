@@ -264,7 +264,10 @@ namespace Services.Implements
         {
             return await _repository.GetAllAsync(request);
         }
-
+        public async Task<ICollection<GetUserResponse>> GetKitchenManagerHasNoKitchen()
+        {
+            return await _repository.GetKitchenManagerHasNoKitchen();
+        }
         public async Task UpdateUserStatusAsync(Guid id, UpdateUserStatusRequest request)
         {
             var user = await _repository.FirstOrDefaultAsync(filters: new List<Expression<Func<User, bool>>>()

@@ -13,6 +13,7 @@ namespace Services.Interfaces
         Task<User> GetManagerByIdAsync(Guid managerId);
         Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId);
         Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request);
+        Task<ICollection<GetUserResponse>> GetKitchenManagerHasNoKitchen();
         //Task<ICollection<GetDelivererResponse>> GetAvailableDeliverersAsync(Guid sessionId);
         Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds);
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
