@@ -16,6 +16,6 @@ public interface IUserRepository : IGenericRepository<User>
     Task<ICollection<GetUserResponse>> GetAllAsync(UserFilterRequest request); 
     Task<GetUserResponse> GetUserResponseByIdAsync(Guid userId);
     Task<User> FindNotVerifiedUserByPhone(string phone);
-    Task<User> FindUserByPhone(string phone);
+    Task<User?> FindUserByPhone(string phone);
     Task<User> GetManagerByIdAsync(Guid managerId);
 }

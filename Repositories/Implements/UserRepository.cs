@@ -173,14 +173,14 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             }
         ) ?? throw new EntityNotFoundException(MessageConstants.AuthorizationMessageConstrant.PhoneNotFound);
     }
-    public async Task<User> FindUserByPhone(string phone)
+    public async Task<User?> FindUserByPhone(string phone)
     {
         return await FirstOrDefaultAsync(
             filters: new List<Expression<Func<User, bool>>>
             {
                     (user) => user.Phone == phone && user.Status != UserStatus.Deleted
                 }
-            ) ?? throw new EntityNotFoundException(MessageConstants.AuthorizationMessageConstrant.PhoneNotFound);
+            ); ;
     }
 
 }

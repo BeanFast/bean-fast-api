@@ -33,7 +33,8 @@ namespace Services.Implements
         private readonly IWalletService _walletService;
         private readonly IFoodService _foodService;
         private readonly IUserService _userService;
-        private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
+        //private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
+        private readonly ISessionDetailDelivererRepository _sessionDetailDelivererRepository;
         private readonly IOrderRepository _repository;
 
         public OrderService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings,
@@ -47,7 +48,8 @@ namespace Services.Implements
            IFoodService foodService,
            IUserService userService,
            IOrderRepository repository,
-           ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
+           //ISessionDetailDelivererService sessionDetailDelivererService,
+           ISessionDetailDelivererRepository sessionDetailDelivererRepository) : base(unitOfWork, mapper, appSettings)
         {
             _profileService = profileService;
             _sessionDetailService = sessionDetailService;
@@ -59,7 +61,8 @@ namespace Services.Implements
             _foodService = foodService;
             _userService = userService;
             _repository = repository;
-            _sessionDetailDelivererService = sessionDetailDelivererService;
+            //_sessionDetailDelivererService = sessionDetailDelivererService;
+            _sessionDetailDelivererRepository = sessionDetailDelivererRepository;
         }
 
 
@@ -472,7 +475,7 @@ namespace Services.Implements
         //}
         public async Task AssignOrderToDelivererAsync(Order order, User customer)
         {
-            var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(order.SessionDetailId);
+            var availableDeliverers = await _sessionDetailDelivererRepository.GetBySessionDetailId(order.SessionDetailId);
             var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(order.SessionDetailId);
             if (availableDeliverers.IsNullOrEmpty())
             {

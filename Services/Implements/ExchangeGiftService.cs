@@ -39,9 +39,12 @@ namespace Services.Implements
         private readonly IUserService _userService;
         private readonly IWalletService _walletService;
         private readonly IExchangeGiftRepository _repository;
-        private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
+        //private readonly ISessionDetailDelivererService _sessionDetailDelivererService;
+        private readonly ISessionDetailDelivererRepository _sessionDetailDelivererRepository;
 
-        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService, IExchangeGiftRepository repository, ISessionDetailDelivererService sessionDetailDelivererService) : base(unitOfWork, mapper, appSettings)
+        public ExchangeGiftService(IUnitOfWork<BeanFastContext> unitOfWork, IMapper mapper, IOptions<AppSettings> appSettings, IGiftService giftService, IProfileService profileService, ISessionDetailService sessionDetailService, ITransactionService transactionService, IOrderActivityService orderActivityService, IUserService userService, IWalletService walletService, IExchangeGiftRepository repository,
+            //ISessionDetailDelivererService sessionDetailDelivererService,
+            ISessionDetailDelivererRepository sessionDetailDelivererRepository) : base(unitOfWork, mapper, appSettings)
         {
             _giftService = giftService;
             _profileService = profileService;
@@ -51,7 +54,8 @@ namespace Services.Implements
             _userService = userService;
             _walletService = walletService;
             _repository = repository;
-            _sessionDetailDelivererService = sessionDetailDelivererService;
+            //_sessionDetailDelivererService = sessionDetailDelivererService;
+            _sessionDetailDelivererRepository = sessionDetailDelivererRepository;
         }
 
         public async Task CreateExchangeGiftAsync(CreateExchangeGiftRequest request, User user)
@@ -119,7 +123,7 @@ namespace Services.Implements
         }
         public async Task AssignExchangeGiftToDelivererAsync(ExchangeGift exchangeGift, User customer)
         {
-            var availableDeliverers = await _sessionDetailDelivererService.GetBySessionDetailId(exchangeGift.SessionDetailId);
+            var availableDeliverers = await _sessionDetailDelivererRepository.GetBySessionDetailId(exchangeGift.SessionDetailId);
             var data = await _repository.GetDelivererIdAndOrderCountBySessionDetailId(exchangeGift.SessionDetailId);
             if (availableDeliverers.IsNullOrEmpty())
             {
