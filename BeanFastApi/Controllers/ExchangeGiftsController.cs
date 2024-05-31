@@ -84,7 +84,7 @@ namespace BeanFastApi.Controllers
             return SuccessResult<object>();
         }
         [HttpPut("complete/{id}")]
-        [Authorize(RoleName.CUSTOMER, RoleName.MANAGER)]
+        [Authorize(RoleName.DELIVERER)]
         public async Task<IActionResult> CompleteExchangeGiftAsync([FromRoute] Guid id)
         {
             await _exchangeGiftService.UpdateExchangeGiftCompleteStatusAsync(id, await GetUserAsync());
