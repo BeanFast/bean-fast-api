@@ -28,6 +28,8 @@ namespace Utilities.Constants
         public static class AuthorizationMessageConstrant
         {
             public static string NotAllowed = "Bạn không được phép sử dụng tính năng này";
+            public static string InvalidPassword = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm cả chữ hoa, chữ thường và số";
+            public static string PasswordRequired = "Mật khẩu là bắt buộc";
             public static string NotLoggedInOrInvalidToken = "Bạn chưa đăng nhập hoặc access token không hợp lệ";
             public static string BannedAccount = "Tài khoản của bạn đã bị khóa!!";
             public static string NotVerifiedAccount = "Tài khoản của bạn chưa xác nhận số điện thoại, xin hãy xác nhận số điện thoại";

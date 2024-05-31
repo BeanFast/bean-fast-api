@@ -13,6 +13,7 @@ namespace DataTransferObjects.Models.Auth.Request
     {
         public string? FullName { get; set; }
         //public string Phone { get; set; }
+        [Password]
         public string Password { get; set; }
         public string Phone { get; set; }
 
