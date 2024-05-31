@@ -56,7 +56,17 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             include: queryable => queryable.Include(u => u.Role!).Include(u => u.Wallets!));
         return user;
     }
-   
+    public async Task<ICollection<GetUserResponse>> GetKitchenManagerHasNoKitchen()
+    {
+        List<Expression<Func<User, bool>>> filters = new()
+            {
+                (user) => user.Kitchen == null && user.Status == BaseEntityStatus.Active && user.Role!.EnglishName == RoleName.MANAGER.ToString(),
+                //(user) => user.QrCodeExpiry > TimeUtil.GetCurrentVietNamTime()
+            };
+        var users = await GetListAsync<GetUserResponse>(
+            filters: filters);
+        return users;
+    }
     public async Task<ICollection<GetDelivererResponse>> GetDeliverersExcludeAsync(List<Guid> excludeDelivererIds)
     {
         List<Expression<Func<User, bool>>> filters = new()

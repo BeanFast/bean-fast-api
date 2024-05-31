@@ -1,6 +1,7 @@
 ﻿
 using BeanFastApi.Validators;
 using DataTransferObjects.Models.User.Request;
+using DataTransferObjects.Models.User.Response;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -24,6 +25,13 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> GetAllUserAsync([FromQuery] UserFilterRequest request)
         {
             var result = await _userService.GetAllAsync(request);
+            return SuccessResult(result);
+        }
+        [HttpGet("kitchens")]
+        [Authorize(Utilities.Enums.RoleName.ADMIN)]
+        public async Task<IActionResult> GetKitchenManagerHasNoKitchen()
+        {
+            var result = await _userService.GetKitchenManagerHasNoKitchen();
             return SuccessResult(result);
         }
         [HttpPatch("{id}")]
