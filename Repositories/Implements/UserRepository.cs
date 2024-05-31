@@ -63,6 +63,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
                 (user) => user.Kitchen == null && user.Status == BaseEntityStatus.Active && user.Role!.EnglishName == RoleName.MANAGER.ToString(),
                 //(user) => user.QrCodeExpiry > TimeUtil.GetCurrentVietNamTime()
             };
+        
         var users = await GetListAsync<GetUserResponse>(
             filters: filters);
         return users;
