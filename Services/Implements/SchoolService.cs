@@ -34,13 +34,13 @@ namespace Services.Implements
             _repository = repository;
         }
         
-        public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<IPaginable<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolPageAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest, User user)
         {
-            return await _repository.GetSchoolPageAsync(paginationRequest, filterRequest);
+            return await _repository.GetSchoolPageAsync(paginationRequest, filterRequest, user);
         }
-        public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest)
+        public async Task<ICollection<GetSchoolIncludeAreaAndLocationResponse>> GetSchoolListAsync(PaginationRequest paginationRequest, SchoolFilterRequest filterRequest, User user)
         {
-            var result =  await _repository.GetSchoolListAsync(paginationRequest, filterRequest);
+            var result =  await _repository.GetSchoolListAsync(paginationRequest, filterRequest, user);
             return result;
         }
 
@@ -78,6 +78,7 @@ namespace Services.Implements
             schoolEntity.ImagePath = imagePath;
             schoolEntity.Id = schoolId;
             schoolEntity.Locations = null;
+            schoolEntity.KitchenId = user.Kitchen!.Id;
             await _repository.InsertAsync(schoolEntity, user);
             await _unitOfWork.CommitAsync();
             foreach (var location in request.Locations)

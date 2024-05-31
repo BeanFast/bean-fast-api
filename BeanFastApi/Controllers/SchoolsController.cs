@@ -23,7 +23,7 @@ namespace BeanFastApi.Controllers
             [FromQuery] SchoolFilterRequest filterRequest,
             [FromQuery] PaginationRequest paginationRequest)
         {
-            var result = await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest);
+            var result = await _schoolService.GetSchoolListAsync(paginationRequest, filterRequest, await GetManagerAsync());
             return SuccessResult(result);
         }
         [HttpGet("{id}")]
@@ -44,14 +44,14 @@ namespace BeanFastApi.Controllers
 
         public async Task<IActionResult> CreateSchoolAsync([FromForm] CreateSchoolRequest request)
         {
-            await _schoolService.CreateSchoolAsync(request, await GetUserAsync());
+            await _schoolService.CreateSchoolAsync(request, await GetManagerAsync());
             return SuccessResult<object>(statusCode: HttpStatusCode.Created);
         }
         [HttpPut("{id}")]
         [Authorize(Utilities.Enums.RoleName.MANAGER)]
         public async Task<IActionResult> UpdateSchoolAsync([FromRoute] Guid id, [FromForm] UpdateSchoolRequest request)
         {
-            await _schoolService.UpdateSchoolAsync(id, request, await GetUserAsync());
+            await _schoolService.UpdateSchoolAsync(id, request, await GetManagerAsync());
             return SuccessResult<object>();
         }
         [HttpDelete("{id}")]
@@ -59,7 +59,7 @@ namespace BeanFastApi.Controllers
 
         public async Task<IActionResult> DeleteSchoolAsync([FromRoute] Guid id)
         {
-            await _schoolService.DeleteSchoolAsync(id, await GetUserAsync());
+            await _schoolService.DeleteSchoolAsync(id, await GetManagerAsync());
             return SuccessResult<object>();
         }
     }

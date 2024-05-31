@@ -36,7 +36,7 @@ public class SessionDetailRepository : GenericRepository<SessionDetail>, ISessio
             {
                 (sessionDetail) => sessionDetail.SessionDetailDeliverers!.Any(sdd => sdd.DelivererId == user.Id),
                 (sessionDetail) => sessionDetail.Status != BaseEntityStatus.Deleted,
-                (sessionDetail) => sessionDetail.Session!.DeliveryStartTime >= TimeUtil.GetCurrentVietNamTime()
+                (sessionDetail) => TimeUtil.GetCurrentVietNamTime() <= sessionDetail.Session!.DeliveryEndTime //>= TimeUtil.GetCurrentVietNamTime()
             };
 
         var sessionDetails = await GetListAsync<GetSessionDetailResponse>(
