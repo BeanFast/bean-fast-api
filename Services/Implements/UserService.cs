@@ -134,19 +134,19 @@ namespace Services.Implements
             customer.AvatarPath = UserConstrants.DefaultAvatar;
             customer.RoleId = customerRole.Id;
             customer.Status = UserStatus.NotVerified;
-
             var customerNumber = await _repository.CountAsync() + 1;
             customer.Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.UserCodeConstrant.CustomerPrefix, customerNumber);
+            customer.FullName = MessageConstants.UserMessageConstrant.DefaultUserName + customer.Code;
             var moneyWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                Name = "Ví tiền của: #" + customer.Id,
+                Name = MessageConstants.WalletMessageConstrant.DefaultMoneyWalletName + customer.Code,
                 UserId = customer.Id,
             };
             var pointsWallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                Name = "Ví điểm của: #" + customer.Id,
+                Name = MessageConstants.WalletMessageConstrant.DefaultPointWalletName + customer.Code,
                 UserId = customer.Id,
             };
             await _repository.InsertAsync(customer);
