@@ -65,6 +65,14 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         );
         return orders;
     }
+    public async Task<ICollection<Order>> GetOrdersByManagerAsync(User manager)
+    {
+        var orders = await GetListAsync(filters: new()
+        {
+            o => o.SessionDetail!.Location!.School!.KitchenId == manager!.Kitchen!.Id
+        });
+        return orders;
+    }
     public async Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId)
     {
         var filters = new List<Expression<Func<Order, bool>>>
@@ -202,7 +210,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         }
         if (RoleName.MANAGER.ToString().Equals(user.Role!.EnglishName))
         {
-            //filters.Add()
+            filters.Add(o => o.SessionDetail!.Location!.School!.KitchenId == user.Kitchen!.Id);
         }
         else if (RoleName.CUSTOMER.ToString().Equals(user.Role!.EnglishName))
         {

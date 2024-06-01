@@ -344,7 +344,29 @@ namespace Services.Implements
             }
             return roundedData;
         }
-
+        public async Task<ICollection<CountOrdersByStatusResponse>> CountOrdersByStatusAsync(User user)
+        {
+            var order = await _repository.GetOrdersByManagerAsync(user);
+            var totalOrderCount = order.Count;
+            var data = order.GroupBy(order => order.Status == 7 ? 6 : order.Status).Select(g =>
+            {
+                Console.WriteLine(g.Count());
+                int count = g.Count();
+                double percent = count / (double)totalOrderCount * 100;
+                Console.WriteLine(percent);
+                return new CountOrdersByStatusResponse
+                {
+                    Status = g.Key,
+                    Count = count,
+                    TotalRevenue = int.Parse(g.Sum(order => order.TotalPrice).ToString()),
+                    Percentage = Math.Round(percent, 1)
+                };
+            }).ToList();
+            double totalPercentage = data.Sum(x => x.Percentage);
+            double remainingPercentage = 100 - totalPercentage;
+            data.Last().Percentage += remainingPercentage;
+            return data;
+        }
 
         public async Task CreateOrderAsync(User user, CreateOrderRequest request)
         {
@@ -431,7 +453,7 @@ namespace Services.Implements
                 };
                 await AssignOrderToDelivererAsync(orderEntity, user);
                 await _walletService.UpdateAsync(wallet);
-                
+
                 await _repository.InsertAsync(orderEntity, user);
                 await _unitOfWork.CommitAsync();
                 await _orderDetailService.CreateOrderDetailListAsync(orderDetailEntityList);
@@ -698,7 +720,7 @@ namespace Services.Implements
                     throw;
                 }
             }
-               
+
         }
 
         public async Task UpdateOrderStatusAfterDeliveryTimeEndedAsync()
@@ -844,6 +866,6 @@ namespace Services.Implements
             await _unitOfWork.CommitAsync();
         }
 
-        
+
     }
 }

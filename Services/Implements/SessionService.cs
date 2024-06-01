@@ -40,13 +40,18 @@ namespace Services.Implements
             _repository = repository;
             _menuService = menuService;
         }
-
+        
         public async Task CreateSessionAsync(CreateSessionRequest request, User user)
         {
             var sessionEntity = _mapper.Map<Session>(request);
             sessionEntity.Status = BaseEntityStatus.Active;
             sessionEntity.Id = Guid.NewGuid();
             HashSet<Guid> uniqueLocationIds = new();
+            var isValidDeliveryTimeRange = TimeUtil.IsInDeliveryTime(request.DeliveryStartTime, request.DeliveryEndTime);
+            if (!isValidDeliveryTimeRange)
+            {
+                throw new InvalidRequestException(MessageConstants.SessionMessageConstrant.SessionDeliveryNotInTime);
+            }
             var menu = await _menuService.GetByIdAsync(request.MenuId);
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
             var sessionsHasDeliveryTimeOverlap = await _repository.GetListAsync(filters: new()

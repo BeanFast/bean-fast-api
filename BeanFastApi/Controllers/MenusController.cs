@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using DataTransferObjects.Models.Menu.Response;
 using DataTransferObjects.Models.Menu.Request;
 using BeanFastApi.Validators;
+using Utilities.Enums;
 namespace BeanFastApi.Controllers;
 
 public class MenusController : BaseController
@@ -28,7 +29,14 @@ public class MenusController : BaseController
         var userRole = GetUserRole();
         if (paginationRequest is { Size: 0, Page: 0 })
         {
-            menus = await _menuService.GetAllAsync(userRole, filterRequest);
+            if(RoleName.MANAGER.ToString() == userRole)
+            {
+                menus = await _menuService.GetAllAsync(await GetManagerAsync(), filterRequest);
+            }
+            else
+            {
+                menus = await _menuService.GetAllAsync(userRole, filterRequest);
+            }
         }
         else
         {

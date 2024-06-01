@@ -19,5 +19,6 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<IPaginable<GetOrderResponse>> GetPageAsync(PaginationRequest paginationRequest, OrderFilterRequest request, User user);
     Task<ICollection<GetDelivererIdAndOrderCountBySessionDetailIdResponse>> GetDelivererIdAndOrderCountBySessionDetailId(Guid sessionDetailId);
     Task<ICollection<Order>> GetBySessionDetailId(Guid id);
+    Task<ICollection<Order>> GetOrdersByManagerAsync(User manager);
     //Task<GetOrderByIdResponse> GetOderResponseByIdAsync(Guid id);
 }

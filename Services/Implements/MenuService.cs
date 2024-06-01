@@ -49,6 +49,12 @@ public class MenuService : BaseService<Menu>, IMenuService
         return await _repository.GetAllAsync(userRole, menuFilterRequest);
 
     }
+
+    public async Task<ICollection<GetMenuResponse>> GetAllAsync(User manager, MenuFilterRequest menuFilterRequest)
+    {
+        return await _repository.GetAllAsync(manager, menuFilterRequest);
+
+    }
     public async Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id)
     {
         return await _repository.GetGetMenuResponseByIdAsync(id);
