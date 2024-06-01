@@ -214,7 +214,7 @@ namespace Services.Implements
         }
         public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate, User manager)
         {
-            DateTime yesterday = TimeUtil.GetCurrentVietNamTime().Subtract(TimeSpan.FromDays(1));
+            DateTime yesterday = TimeUtil.GetCurrentVietNamTime().Date.Subtract(TimeSpan.FromDays(1));
             DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate - 1));
             var orders = await _repository.GetOrdersAsync(pastWeekStart, yesterday, manager, OrderStatus.Completed);
             List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
