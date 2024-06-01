@@ -31,6 +31,7 @@ namespace DataTransferObjects.Models.ExchangeGift.Response
             public string ImagePath { get; set; }
             public string Description { get; set; }
             public int Status { get; set; }
+            
         }
         public class SessionDetailOfExchangeGiftResponse
         {
@@ -73,6 +74,12 @@ namespace DataTransferObjects.Models.ExchangeGift.Response
             public DateTime Dob { get; set; }
             public string? Class { get; set; }
             public bool Gender { get; set; }
+            public UserOfProfile User { get; set; }
+            public class UserOfProfile
+            {
+                public Guid Id { get; set; }
+                public string FullName { get; set; }
+            }
         }
     }
 }

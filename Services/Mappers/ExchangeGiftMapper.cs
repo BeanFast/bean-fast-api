@@ -20,6 +20,7 @@ namespace Services.Mappers
             CreateMap<Gift, GetExchangeGiftResponse.GiftOfGetExchangeGiftResponse>();
             CreateMap<SessionDetail, GetExchangeGiftResponse.SessionDetailOfExchangeGiftResponse>();
             CreateMap<Profile, GetExchangeGiftResponse.ProfileOfExchangeGiftResponse>();
+            CreateMap<User, GetExchangeGiftResponse.ProfileOfExchangeGiftResponse.UserOfProfile>();
             CreateMap<Session, GetExchangeGiftResponse.SessionDetailOfExchangeGiftResponse.GetSessionOfSessionDetail>();
             CreateMap<Location, GetExchangeGiftResponse.SessionDetailOfExchangeGiftResponse.LocationOfSessionDetail>();
             CreateMap<School, GetExchangeGiftResponse.SessionDetailOfExchangeGiftResponse.LocationOfSessionDetail.SchoolOfLocation>();
