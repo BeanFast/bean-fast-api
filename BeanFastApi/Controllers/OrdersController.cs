@@ -76,17 +76,17 @@ namespace BeanFastApi.Controllers
             return SuccessResult(result);
         }
         [HttpGet("countByMonth")]
-        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> GetOrdersByLastMonthsAsync([FromQuery] GetOrdersByLastMonthsRequest request)
         {
-            var result = await _orderService.GetOrdersByLastMonthsAsync(request);
+            var result = await _orderService.GetOrdersByLastMonthsAsync(request, await GetManagerAsync());
             return SuccessResult(result);
         }
         [HttpGet("countByDay")]
-        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> GetOrdersByLastDateAsync([FromQuery] int dateCount = 7)
         {
-            var result = await _orderService.GetOrdersByLastDatesAsync(dateCount);
+            var result = await _orderService.GetOrdersByLastDatesAsync(dateCount, await GetManagerAsync());
             return SuccessResult(result);
         }
         [HttpGet("countByStatus")]
@@ -97,18 +97,18 @@ namespace BeanFastApi.Controllers
             return SuccessResult(result);
         }
         [HttpGet("schools/bestSellers")]
-        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> GetTopSchoolBestSellers([FromQuery] int topCount = 10)
         {
-            var result = await _orderService.GetTopSchoolBestSellers(topCount);
+            var result = await _orderService.GetTopSchoolBestSellers(topCount, await GetManagerAsync());
             return SuccessResult(result);
         }
         [HttpGet("kitchens/bestSellers")]
-        [Authorize(RoleName.MANAGER, RoleName.ADMIN)]
+        [Authorize(RoleName.MANAGER)]
         public async Task<IActionResult> GetTopBestSellerKitchens([FromQuery] int topCount = 10, [FromQuery] bool desc = false)
         {
             
-            var result = await _orderService.GetTopBestSellerKitchens(topCount, desc);
+            var result = await _orderService.GetTopBestSellerKitchens(topCount, desc, await GetManagerAsync());
             return SuccessResult(result);
         }
         //[HttpGet("status/{status}")]

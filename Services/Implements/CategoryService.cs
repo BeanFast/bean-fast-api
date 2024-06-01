@@ -101,9 +101,9 @@ namespace Services.Implements
             var category = await GetById(id);
             await _repository.DeleteAsync(category!, user);
         }
-        public async Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount)
+        public async Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount, User user)
         {
-            var categoryList = await _repository.GetCategoriesForDashboard();
+            var categoryList = await _repository.GetCategoriesForDashboard(user);
             var totalSoldCount = categoryList.Sum(c => c.Foods!.Sum(f => f.OrderDetails!.Sum(od => od.Quantity)));
             var data = categoryList.GroupBy(c => c.Name)
                 .Select(c =>

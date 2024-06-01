@@ -172,7 +172,7 @@ namespace Services.Implements
             var orderActivities = await _orderActivityService.GetOrderActivitiesByOrderIdAsync(orderId, user);
             return orderActivities;
         }
-        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request)
+        public async Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request, User manager)
         {
             //var today = TimeUtil.GetCurrentVietNamTime();
 
@@ -182,6 +182,7 @@ namespace Services.Implements
             var orders = await _repository.GetOrdersAsync(
                 request.StartDate,
                 request.EndDate,
+                manager,
                 request.Status
             );
             var data = orders.GroupBy(order => order.PaymentDate.Month)
@@ -211,11 +212,11 @@ namespace Services.Implements
             }
             return data.OrderBy(d => d.MonthInt).ToList();
         }
-        public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate)
+        public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate, User manager)
         {
             DateTime yesterday = DateTime.Today.Subtract(TimeSpan.FromDays(1));
             DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate));
-            var orders = await _repository.GetOrdersAsync(pastWeekStart, yesterday, OrderStatus.Completed);
+            var orders = await _repository.GetOrdersAsync(pastWeekStart, yesterday, manager, OrderStatus.Completed);
             List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
             var data = orders.GroupBy(order => order.PaymentDate.Date)
                 .OrderBy(group => group.Key)
@@ -244,9 +245,9 @@ namespace Services.Implements
 
             return data.OrderBy(d => d.DateTime).ToList();
         }
-        public async Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount)
+        public async Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount, User manager)
         {
-            var orders = await _repository.GetCompletedOrderIncludeSchoolAsync();
+            var orders = await _repository.GetCompletedOrderIncludeSchoolAsync(manager);
             var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
             var data = orders.GroupBy(order => order.SessionDetail!.Location!.School!.Name)
                 .Select(group => new GetTopSchoolBestSellerResponse
@@ -289,9 +290,9 @@ namespace Services.Implements
             return roundedData;
         }
 
-        public async Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc)
+        public async Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc, User manager)
         {
-            var orders = await _repository.GetCompletedOrderIncludeKitchenAsync();
+            var orders = await _repository.GetCompletedOrderIncludeKitchenAsync(manager);
             var totalSoldCount = orders.Sum(order => order.OrderDetails!.Sum(od => od.Quantity));
             var data = orders.SelectMany(order => order.OrderDetails!)
                 .GroupBy(od => od.Food!.MenuDetails!.First().Menu!.Kitchen!.Name) // Group by kitchen name
