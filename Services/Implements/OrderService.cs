@@ -837,25 +837,23 @@ namespace Services.Implements
 
         public async Task CancelOrderAsync(Order order, CancelOrderRequest request, User user)
         {
-            order.Status = (int)OrderStatus.Cancelled;
-            var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
+            //order.Status = (int)OrderStatus.Cancelled;
+            //var orderActivityNumber = await _orderActivityService.CountAsync() + 1;
 
-            var orderActivity = new OrderActivity
-            {
-                Id = Guid.NewGuid(),
-                Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
-                Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
-                Time = TimeUtil.GetCurrentVietNamTime(),
-                Status = OrderActivityStatus.Active,
-                OrderId = order.Id
-            };
+            //var orderActivity = new OrderActivity
+            //{
+            //    Id = Guid.NewGuid(),
+            //    Code = EntityCodeUtil.GenerateEntityCode(EntityCodeConstrant.OrderActivityCodeConstrant.OrderActivityPrefix, orderActivityNumber),
+            //    Name = MessageConstants.OrderActivityMessageConstrant.OrderCanceledActivityName,
+            //    Time = TimeUtil.GetCurrentVietNamTime(),
+            //    Status = OrderActivityStatus.Active,
+            //    OrderId = order.Id
+            //};
             var transaction = await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                await _orderActivityService.CreateOrderActivityAsync(order, orderActivity, user);
-                await _repository.UpdateAsync(order);
-                await _unitOfWork.CommitAsync();
+                await CancelOrderForManagerAsync(order, request, user);
                 await transaction.CommitAsync();
             }
             catch (Exception ex)

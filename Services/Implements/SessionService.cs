@@ -56,7 +56,7 @@ namespace Services.Implements
             var sessionDetailNumber = await _sessionDetailService.CountAsync() + 1;
             var sessionsHasDeliveryTimeOverlap = await _repository.GetListAsync(filters: new()
             {
-                s => s.DeliveryStartTime < sessionEntity.DeliveryEndTime && s.DeliveryEndTime > sessionEntity.DeliveryStartTime
+                s => s.DeliveryStartTime < sessionEntity.DeliveryEndTime && s.DeliveryEndTime > sessionEntity.DeliveryStartTime && s.Status != SessionStatus.Deleted
             }, include: i => i.Include(s => s.SessionDetails!));
             var availableDeliverers = await GetAvailableDelivererInSessionDeliveryTime(sessionEntity.DeliveryStartTime, sessionEntity.DeliveryEndTime);
             foreach (var item in sessionsHasDeliveryTimeOverlap)
