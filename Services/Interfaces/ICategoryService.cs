@@ -22,6 +22,6 @@ namespace Services.Interfaces
         Task UpdateCategoryAsync(Guid id, UpdateCategoryRequest category, User user);
 
         Task DeleteCategoryAsync(Guid id, User user);
-        Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount);
+        Task<ICollection<GetTopSellerCategoryResponse>> GetTopSellerCategory(int topCount, User user);
     }
 }

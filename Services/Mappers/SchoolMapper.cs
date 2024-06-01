@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using DataTransferObjects.Models.School.Request;
 using DataTransferObjects.Models.School.Response;
+using Utilities.Statuses;
 using Utilities.Utils;
 
 namespace Services.Mappers
@@ -10,7 +11,7 @@ namespace Services.Mappers
     {
         public SchoolMapper()
         {
-            CreateMap<School, GetSchoolIncludeAreaAndLocationResponse>().ForMember(src => src.Orderable, opt => opt.MapFrom(s => s.Locations!.Any(l => l.SessionDetails!.Any(sd => sd.Session!.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && sd.Session.OrderEndTime > TimeUtil.GetCurrentVietNamTime()))));
+            CreateMap<School, GetSchoolIncludeAreaAndLocationResponse>().ForMember(src => src.Orderable, opt => opt.MapFrom(s => s.Locations!.Any(l => l.SessionDetails!.Any(sd => sd.Session!.OrderStartTime <= TimeUtil.GetCurrentVietNamTime() && sd.Session.OrderEndTime > TimeUtil.GetCurrentVietNamTime() && sd.Session.Status != BaseEntityStatus.Deleted))));
             CreateMap<Area, GetSchoolIncludeAreaAndLocationResponse.AreaOfGetSchoolResponse>();
             CreateMap<Location, GetSchoolIncludeAreaAndLocationResponse.LocationOfGetSchoolResponse>();
             CreateMap<CreateSchoolRequest, School>();

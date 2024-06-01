@@ -30,7 +30,7 @@ namespace Services.Interfaces
         //Task UpdateOrderStatusByQRCodeAsync(string qrCode, User deliverer);
         Task UpdateOrderCompleteStatusAsync(Guid orderId, User user);
         Task UpdateOrderDeliveryStatusAsync(Guid orderId);
-        Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate);
+        Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate, User manager);
         //Task UpdateOrderCancelStatusAsync(Guid orderId);
         //Task UpdateOrderCancelStatusAsync(Order orderEntity);
         //Task UpdateOrderCancelStatusForCustomerAsync(Order orderEntity);
@@ -45,9 +45,9 @@ namespace Services.Interfaces
         Task CancelOrderAsync(Order order, CancelOrderRequest request, User user);
         Task CancelOrderForManagerAsync(Order orderEntity, CancelOrderRequest request, User manager);
         Task CancelOrderForCustomerAsync(Order orderEntity, CancelOrderRequest request, User manager);
-        Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request);
-        Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount);
-        Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc);
+        Task<ICollection<GetOrdersByLastMonthsResponse>> GetOrdersByLastMonthsAsync(GetOrdersByLastMonthsRequest request, User manager);
+        Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount, User manager);
+        Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc, User manager);
         Task UpdateOrderCookingStatusAsync(Guid orderId);
         Task<ICollection<CountOrdersByStatusResponse>> CountOrdersByStatusAsync(User user);
     }

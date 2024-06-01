@@ -41,12 +41,12 @@ namespace Repositories.Implements
                 });
         }
 
-        public async Task<ICollection<Category>> GetCategoriesForDashboard()
+        public async Task<ICollection<Category>> GetCategoriesForDashboard(User user)
         {
             Func<IQueryable<Category>, IIncludableQueryable<Category, object>> include;
             List<Expression<Func<Category, bool>>> filters = new List<Expression<Func<Category, bool>>>()
             {
-                c => c.Foods!.Any(f => f.OrderDetails!.Count > 0 && f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed))
+                c => c.Foods!.Any(f => f.OrderDetails!.Count > 0 && f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed && od.Order.SessionDetail!.Location!.School!.KitchenId == user.Kitchen.Id))
             };
             include = i => i.Include(c => c.Foods!.Where(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed)))
                 .ThenInclude(f => f.OrderDetails!.Where(od => od.Order!.Status == OrderStatus.Completed))

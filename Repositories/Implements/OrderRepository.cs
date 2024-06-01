@@ -50,11 +50,11 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         }
         return filters;
     }
-    public async Task<ICollection<Order>> GetOrdersAsync(DateTime startDate, DateTime endDate, int? status = null)
+    public async Task<ICollection<Order>> GetOrdersAsync(DateTime startDate, DateTime endDate, User manager, int? status = null)
     {
         var filters = new List<Expression<Func<Order, bool>>>
             {
-                    order => order.PaymentDate.Date >= startDate.Date && order.PaymentDate.Date <= endDate.Date
+                    order => order.PaymentDate.Date >= startDate.Date && order.PaymentDate.Date <= endDate.Date && order.SessionDetail!.Location!.School!.KitchenId == manager.Kitchen.Id
             };
         if (status is not null)
         {
@@ -102,11 +102,11 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         }));
         return result;
     }
-    public async Task<ICollection<Order>> GetCompletedOrderIncludeKitchenAsync()
+    public async Task<ICollection<Order>> GetCompletedOrderIncludeKitchenAsync(User manager)
     {
         var filters = new List<Expression<Func<Order, bool>>>
             {
-                order => order.Status == OrderStatus.Completed
+                order => order.Status == OrderStatus.Completed && order.SessionDetail!.Location!.School!.KitchenId == manager.Kitchen.Id
             };
         var orders = await GetListAsync(
             filters: filters,
@@ -119,11 +119,11 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             );
         return orders;
     }
-    public async Task<ICollection<Order>> GetCompletedOrderIncludeSchoolAsync()
+    public async Task<ICollection<Order>> GetCompletedOrderIncludeSchoolAsync(User manager)
     {
         var filters = new List<Expression<Func<Order, bool>>>
             {
-                order => order.Status == OrderStatus.Completed
+                order => order.Status == OrderStatus.Completed && order.SessionDetail!.Location!.School!.KitchenId == manager.Kitchen!.Id
             };
         var orders = await GetListAsync(
             filters: filters,
