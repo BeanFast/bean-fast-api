@@ -115,10 +115,11 @@ namespace Repositories.Implements
         {
             var filters = new List<Expression<Func<Food, bool>>>();
             Func<IQueryable<Food>, IIncludableQueryable<Food, object>> include;
-            filters.Add(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed) && f.Status == BaseEntityStatus.Active);
             if (manager.Kitchen != null)
             {
-                filters.Add(f => f.MenuDetails!.Any(md => md.Menu!.KitchenId == manager.Kitchen!.Id));
+                //filters.Add(f => f.MenuDetails!.Any(md => md.Menu!.KitchenId == manager.Kitchen!.Id));
+                filters.Add(f => f.OrderDetails!.Any(od => od.Order!.Status == OrderStatus.Completed && od.Order!.SessionDetail!.Location!.School!.KitchenId == manager.Kitchen.Id) && f.Status == BaseEntityStatus.Active);
+
             }
             if (request.StartDate != DateTime.MinValue && request.EndDate != DateTime.MinValue)
             {
