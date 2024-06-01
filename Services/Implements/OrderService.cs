@@ -215,7 +215,7 @@ namespace Services.Implements
         public async Task<ICollection<GetOrdersByLastDaysResponse>> GetOrdersByLastDatesAsync(int numberOfDate, User manager)
         {
             DateTime yesterday = DateTime.Today.Subtract(TimeSpan.FromDays(1));
-            DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate));
+            DateTime pastWeekStart = yesterday.Subtract(TimeSpan.FromDays(numberOfDate - 1));
             var orders = await _repository.GetOrdersAsync(pastWeekStart, yesterday, manager, OrderStatus.Completed);
             List<GetOrdersByLastDaysResponse> result = new List<GetOrdersByLastDaysResponse>();
             var data = orders.GroupBy(order => order.PaymentDate.Date)
@@ -368,6 +368,7 @@ namespace Services.Implements
             double totalPercentage = data.Sum(x => x.Percentage);
             decimal remainingPercentage = 100 - (decimal) totalPercentage;
             data.Last().Percentage += (double)remainingPercentage;
+            data = data.OrderBy(d => d.Status).ToList();
             return data;
         }
 
