@@ -16,5 +16,7 @@ namespace Repositories.Interfaces
         Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, string? userRole, MenuFilterRequest menuFilterRequest);
         Task<ICollection<GetMenuResponse>> GetAllAsync(string? userRole, MenuFilterRequest menuFilterRequest);
         Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id);
+        Task<ICollection<GetMenuResponse>> GetAllAsync(User manager, MenuFilterRequest menuFilterRequest);
+        //Task<IPaginable<GetMenuResponse>> GetPageAsync(PaginationRequest request, User manager, MenuFilterRequest menuFilterRequest);
     }
 }

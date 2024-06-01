@@ -118,6 +118,7 @@ namespace Services.Implements
             profile.Gender = request.Gender;
             profile.Dob = request.Dob;
             profile.FullName = request.FullName;
+            profile.SchoolId = request.SchoolId;
             if (request.Image != null)
             {
                 var imagePath = await _cloudStorageService.UploadFileAsync(id, _appSettings.Firebase.FolderNames.Profile, request.Image);

@@ -36,10 +36,19 @@ namespace BeanFastApi.Controllers
             )
         {
             object orders;
-            var user = await GetUserAsync();
-            
+            User? user = null;
+            string? userRole = GetUserRole();
+            if (RoleName.MANAGER.ToString() == userRole)
+            {
+                user = await GetManagerAsync();
+            }
+            else
+            {
+                user = await GetUserAsync();
+            }
             if (paginationRequest is { Page: 0, Size: 0 })
             {
+                
                 orders = await _orderService.GetAllAsync(request, user);
 
             }
@@ -78,6 +87,13 @@ namespace BeanFastApi.Controllers
         public async Task<IActionResult> GetOrdersByLastDateAsync([FromQuery] int dateCount = 7)
         {
             var result = await _orderService.GetOrdersByLastDatesAsync(dateCount);
+            return SuccessResult(result);
+        }
+        [HttpGet("countByStatus")]
+        [Authorize(RoleName.MANAGER)]
+        public async Task<IActionResult> CountOrdersByStatusAsync()
+        {
+            var result = await _orderService.CountOrdersByStatusAsync(await GetManagerAsync());
             return SuccessResult(result);
         }
         [HttpGet("schools/bestSellers")]

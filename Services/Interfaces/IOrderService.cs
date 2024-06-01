@@ -49,5 +49,6 @@ namespace Services.Interfaces
         Task<ICollection<GetTopSchoolBestSellerResponse>> GetTopSchoolBestSellers(int topCount);
         Task<ICollection<GetTopBestSellerKitchenResponse>> GetTopBestSellerKitchens(int topCount, bool orderDesc);
         Task UpdateOrderCookingStatusAsync(Guid orderId);
+        Task<ICollection<CountOrdersByStatusResponse>> CountOrdersByStatusAsync(User user);
     }
 }

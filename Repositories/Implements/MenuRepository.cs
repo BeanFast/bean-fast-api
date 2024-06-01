@@ -88,6 +88,14 @@ public class MenuRepository : GenericRepository<Menu>, IMenuRepository
             }
 
         }
+        if (RoleName.ADMIN.ToString().Equals(userRole))
+        {
+
+        }
+        else
+        {
+            filters.Add(m => m.Status != BaseEntityStatus.Deleted);
+        }
         if (filterRequest.SchoolId.HasValue && filterRequest.SchoolId != Guid.Empty)
         {
             filters.Add(m => m.Kitchen!.PrimarySchools!.Any(s => s.Id == filterRequest.SchoolId));
@@ -135,6 +143,18 @@ public class MenuRepository : GenericRepository<Menu>, IMenuRepository
         return await GetListAsync<GetMenuResponse>(filters: filters, include: include);
 
     }
+    public async Task<ICollection<GetMenuResponse>> GetAllAsync(User manager, MenuFilterRequest menuFilterRequest)
+    {
+        var filters = GetFilterFromFilterRequest(manager!.Role!.EnglishName, menuFilterRequest);
+        filters.Add(m => m.KitchenId == manager.Kitchen!.Id);
+        Func<IQueryable<Menu>, IIncludableQueryable<Menu, object>> include =
+            (menu) => menu.Include(menu => menu.Kitchen!)
+            .Include(menu => menu.Sessions!)
+            .ThenInclude(session => session.SessionDetails!)
+            .ThenInclude(sd => sd.Location!);
+        return await GetListAsync<GetMenuResponse>(filters: filters, include: include);
+    }
+
     public async Task<GetMenuResponse> GetGetMenuResponseByIdAsync(Guid id)
     {
         List<Expression<Func<Menu, bool>>> filters = new()
@@ -148,4 +168,6 @@ public class MenuRepository : GenericRepository<Menu>, IMenuRepository
             ?? throw new EntityNotFoundException(MessageConstants.MenuMessageConstrant.MenuNotFound(id));
         return menu;
     }
+
+
 }
