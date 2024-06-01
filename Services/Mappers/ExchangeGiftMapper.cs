@@ -16,7 +16,7 @@ namespace Services.Mappers
         {
             CreateMap<CreateExchangeGiftRequest, ExchangeGift>();
 
-            CreateMap<ExchangeGift, GetExchangeGiftResponse>();
+            CreateMap<ExchangeGift, GetExchangeGiftResponse>().ForMember(dest => dest.OrderActivities, opt => opt.MapFrom(src => src.Activities));
             CreateMap<Gift, GetExchangeGiftResponse.GiftOfGetExchangeGiftResponse>();
             CreateMap<SessionDetail, GetExchangeGiftResponse.SessionDetailOfExchangeGiftResponse>();
             CreateMap<Profile, GetExchangeGiftResponse.ProfileOfExchangeGiftResponse>();
