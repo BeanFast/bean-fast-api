@@ -134,7 +134,8 @@ namespace Services.Implements
             // Adjust the last category to ensure the total remains 100%
             if (totalAfterRounding != 100)
             {
-                roundedData.Last().TotalSold += 100 - totalAfterRounding;
+                decimal extraPercent = 100 - (decimal)totalAfterRounding;
+                roundedData.Last().TotalSold += (double) extraPercent;
             }
 
             return roundedData;

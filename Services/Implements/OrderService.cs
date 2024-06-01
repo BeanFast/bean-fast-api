@@ -285,7 +285,8 @@ namespace Services.Implements
 
             if (totalAfterRounding != 100)
             {
-                roundedData.Last().Percentage += 100 - totalAfterRounding;
+                decimal extraPercent = 100 - (decimal)totalAfterRounding;
+                roundedData.Last().Percentage += 100 - (double)extraPercent;
             }
             return roundedData;
         }
@@ -337,7 +338,8 @@ namespace Services.Implements
 
             if (totalAfterRounding != 100)
             {
-                roundedData.Last().Percentage += 100 - totalAfterRounding;
+                decimal extraPercent = 100 - (decimal)totalAfterRounding;
+                roundedData.Last().Percentage += 100 - (double)extraPercent;
             }
             if (!orderDesc)
             {
@@ -364,8 +366,8 @@ namespace Services.Implements
                 };
             }).ToList();
             double totalPercentage = data.Sum(x => x.Percentage);
-            double remainingPercentage = 100 - totalPercentage;
-            data.Last().Percentage += remainingPercentage;
+            decimal remainingPercentage = 100 - (decimal) totalPercentage;
+            data.Last().Percentage += (double)remainingPercentage;
             return data;
         }
 
