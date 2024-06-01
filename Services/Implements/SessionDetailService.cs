@@ -72,6 +72,7 @@ namespace Services.Implements
         public async Task<ICollection<GetSessionDetailResponse>> GetSessionDetailByDelivererIdAsync(User user)
         {
             var sessionDetails = await _repository.GetSessionDetailByDelivererIdAsync(user);
+            sessionDetails = sessionDetails.OrderBy(sd => sd.Session.DeliveryStartTime).ToList();
             return sessionDetails;
         }
         public async Task<ICollection<GetSessionDetailResponse>> GetIncommingDeliveringSessionDetailsAsync(User user)
