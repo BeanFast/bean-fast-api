@@ -51,7 +51,7 @@ public class SessionDetailRepository : GenericRepository<SessionDetail>, ISessio
             );
         foreach (var item in sessionDetails)
         {
-            item.Orders = item.Orders!.Where(o => o.Status < OrderStatus.Completed && o.Status >= OrderStatus.Pending).ToList();
+            item.Orders = item.Orders!.Where(o => o.Status < OrderStatus.Completed && o.Status >= OrderStatus.Pending && o.DelivererId == user.Id).ToList();
             item.ExchangeGifts = item.ExchangeGifts!.Where(eg => eg.Status == ExchangeGiftStatus.Delivering).ToList();
         }
 
